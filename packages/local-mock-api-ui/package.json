@@ -15,7 +15,6 @@
         "check-types": "tsc --noEmit -p tsconfig.json"
     },
     "dependencies": {
-        "@wesflo/local-mock-api-utils": "workspace:*",
         "@lit/reactive-element": "^2.1.2",
         "lit": "^3.3.1"
     },

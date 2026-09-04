@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { wfElement } from './wfElement';
+import { wfElement } from './wfElement.js';
 
 describe('wfElement', () => {
     it('registers a custom element once', () => {
