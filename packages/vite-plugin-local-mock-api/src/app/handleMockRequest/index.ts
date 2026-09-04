@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-import type { NextFunction } from '../../interface.js';
+import type { MockApiPluginOptions, NextFunction } from '../../interface.js';
 import { getCandidatePaths } from '../../util/getCandidatePaths.js';
 import { getContentType } from '../../util/getContentType.js';
 import { getInternalRouteParts } from '../../util/getInternalRouteParts.js';
@@ -12,19 +12,19 @@ export const handleMockRequest = async (
     req: IncomingMessage,
     res: ServerResponse,
     next: NextFunction,
-    mockRoot: URL
+    options: Required<MockApiPluginOptions>
 ): Promise<void> => {
-    const internalRouteParts = getInternalRouteParts(req.url);
+    const internalRouteParts = getInternalRouteParts(req.url, options.internalPrefix);
 
     if (!internalRouteParts) {
         next();
         return;
     }
 
-    const candidatePaths = getCandidatePaths(internalRouteParts, req.method);
+    const candidatePaths = getCandidatePaths(internalRouteParts, req.method, options.extensions);
 
     for (const path of candidatePaths) {
-        const file = await readExistingFile(path, mockRoot);
+        const file = await readExistingFile(path, options.mockRoot);
 
         if (file) {
             console.log(`mocking request for: ${req.url} with content from: ${path}`);
@@ -33,7 +33,7 @@ export const handleMockRequest = async (
                 res,
                 200,
                 {
-                    'content-type': getContentType(file.extension),
+                    'content-type': getContentType(file.extension, options.contentTypes),
                     'content-length': String(file.content.length)
                 },
                 file.content

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
     handleMockRequest: vi.fn(),
+    handleScenarioRequest: vi.fn(),
     normalizeMockRoot: vi.fn(),
     defaultMockRoot: new URL('file:///default/mocks/')
 }));
@@ -12,8 +13,17 @@ vi.mock('./app/handleMockRequest/index.js', () => ({
     handleMockRequest: mocks.handleMockRequest
 }));
 
+vi.mock('./app/handleScenarioRequest/index.js', () => ({
+    handleScenarioRequest: mocks.handleScenarioRequest
+}));
+
 vi.mock('./constant.js', () => ({
-    DEFAULT_MOCK_ROOT: mocks.defaultMockRoot
+    CONTENT_TYPES: { '.json': 'application/json' },
+    DEFAULT_MOCK_ROOT: mocks.defaultMockRoot,
+    EXTENSIONS: ['.json'],
+    INTERNAL_PREFIX: '/api/',
+    MANIFEST_FILE_NAME: 'mock.manifest.json',
+    MANIFEST_ROUTE: '/_local-mock-api/manifest'
 }));
 
 vi.mock('./util/normalizeMockRoot.js', () => ({
@@ -34,6 +44,7 @@ describe('mockApiPlugin', () => {
     beforeEach(() => {
         vi.resetAllMocks();
         mocks.normalizeMockRoot.mockReturnValue(normalizedMockRoot);
+        mocks.handleScenarioRequest.mockResolvedValue(false);
     });
 
     it('creates the original named plugin and normalizes the default mock root', () => {
@@ -52,6 +63,39 @@ describe('mockApiPlugin', () => {
         expect(mocks.normalizeMockRoot).toHaveBeenCalledWith(mockRoot);
     });
 
+    it('extends the default extensions and content types with configured values', async () => {
+        let middleware: Middleware | undefined;
+        const use = vi.fn((registeredMiddleware: Middleware) => {
+            middleware = registeredMiddleware;
+        });
+        const plugin = mockApiPlugin({
+            internalPrefix: '/custom-api/',
+            extensions: ['.xml'],
+            contentTypes: { '.xml': 'application/xml' },
+            manifestFileName: 'custom.manifest.json',
+            manifestRoute: '/custom-manifest'
+        });
+        const configureServer = plugin.configureServer as (server: ViteDevServer) => void;
+        configureServer({ middlewares: { use } } as unknown as ViteDevServer);
+
+        await middleware!({} as IncomingMessage, {} as ServerResponse, vi.fn());
+
+        expect(mocks.handleScenarioRequest).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({
+                internalPrefix: '/custom-api/',
+                extensions: ['.json', '.xml'],
+                contentTypes: {
+                    '.json': 'application/json',
+                    '.xml': 'application/xml'
+                },
+                manifestFileName: 'custom.manifest.json',
+                manifestRoute: '/custom-manifest'
+            })
+        );
+    });
+
     it('registers middleware that delegates to the isolated request handler', async () => {
         let middleware: Middleware | undefined;
         const use = vi.fn((registeredMiddleware: Middleware) => {
@@ -67,6 +111,13 @@ describe('mockApiPlugin', () => {
         await middleware!(request, response, next);
 
         expect(use).toHaveBeenCalledOnce();
-        expect(mocks.handleMockRequest).toHaveBeenCalledWith(request, response, next, normalizedMockRoot);
+        expect(mocks.handleMockRequest).toHaveBeenCalledWith(request, response, next, {
+            mockRoot: normalizedMockRoot,
+            internalPrefix: '/api/',
+            extensions: ['.json'],
+            contentTypes: { '.json': 'application/json' },
+            manifestFileName: 'mock.manifest.json',
+            manifestRoute: '/_local-mock-api/manifest'
+        });
     });
 });

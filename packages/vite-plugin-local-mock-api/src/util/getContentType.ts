@@ -1,4 +1,4 @@
-import { CONTENT_TYPES } from '../constant.js';
-
-export const getContentType = (extension: string): string =>
-    CONTENT_TYPES[extension] || 'application/octet-stream';
+export const getContentType = (
+    extension: string,
+    contentTypes: Readonly<Record<string, string>>
+): string => contentTypes[extension] || 'application/octet-stream';

@@ -1,8 +1,11 @@
-import { EXTENSIONS } from '../constant.js';
 import { getExtension } from './getExtension.js';
 import { prefixFileName } from './prefixFileName.js';
 
-export const getCandidatePaths = (parts: readonly string[], method?: string): string[] => {
+export const getCandidatePaths = (
+    parts: readonly string[],
+    method: string | undefined,
+    extensions: readonly string[]
+): string[] => {
     const basePaths = new Set<string>();
     const normalizedMethod = method?.toUpperCase();
 
@@ -25,7 +28,7 @@ export const getCandidatePaths = (parts: readonly string[], method?: string): st
 
     return [...basePaths].flatMap((basePath) => {
         const extension = getExtension(basePath);
-        const paths = extension ? [basePath] : EXTENSIONS.map((ext) => `${basePath}${ext}`);
+        const paths = extension ? [basePath] : extensions.map((ext) => `${basePath}${ext}`);
 
         return paths.flatMap((path) => {
             if (!normalizedMethod) {

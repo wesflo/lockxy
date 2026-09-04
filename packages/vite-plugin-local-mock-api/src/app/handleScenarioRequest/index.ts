@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-import { EMPTY_MANIFEST, MANIFEST_ROUTE } from '../../constant.js';
+import { EMPTY_MANIFEST } from '../../constant.js';
+import type { MockApiPluginOptions } from '../../interface.js';
 import { getCandidatePaths } from '../../util/getCandidatePaths.js';
 import { getContentType } from '../../util/getContentType.js';
 import { getInternalRouteParts } from '../../util/getInternalRouteParts.js';
@@ -17,7 +18,7 @@ import { wait } from './util/wait.js';
 export const handleScenarioRequest = async (
     req: IncomingMessage,
     res: ServerResponse,
-    mockRoot: URL
+    options: Required<MockApiPluginOptions>
 ): Promise<boolean> => {
     if (!req.url) {
         return false;
@@ -25,8 +26,8 @@ export const handleScenarioRequest = async (
 
     const { pathname } = new URL(req.url, 'http://localhost');
 
-    if (req.method?.toUpperCase() === 'GET' && pathname === MANIFEST_ROUTE) {
-        const result = await readMockManifest(mockRoot);
+    if (req.method?.toUpperCase() === 'GET' && pathname === options.manifestRoute) {
+        const result = await readMockManifest(options.mockRoot, options.manifestFileName);
 
         if (result.status === 'valid') {
             sendJson(res, 200, result.manifest);
@@ -40,13 +41,13 @@ export const handleScenarioRequest = async (
         return true;
     }
 
-    const internalRouteParts = getInternalRouteParts(req.url);
+    const internalRouteParts = getInternalRouteParts(req.url, options.internalPrefix);
 
     if (!internalRouteParts) {
         return false;
     }
 
-    const manifestResult = await readMockManifest(mockRoot);
+    const manifestResult = await readMockManifest(options.mockRoot, options.manifestFileName);
 
     if (manifestResult.status === 'missing') {
         return false;
@@ -76,10 +77,10 @@ export const handleScenarioRequest = async (
 
     const candidatePaths = scenario.file
         ? [scenario.file]
-        : getCandidatePaths(internalRouteParts, req.method);
+        : getCandidatePaths(internalRouteParts, req.method, options.extensions);
 
     for (const path of candidatePaths) {
-        const file = await readExistingFile(path, mockRoot);
+        const file = await readExistingFile(path, options.mockRoot);
 
         if (file) {
             if (scenario.delay) {
@@ -92,7 +93,7 @@ export const handleScenarioRequest = async (
                 res,
                 scenario.status ?? 200,
                 {
-                    'content-type': getContentType(file.extension),
+                    'content-type': getContentType(file.extension, options.contentTypes),
                     'content-length': String(file.content.length)
                 },
                 file.content

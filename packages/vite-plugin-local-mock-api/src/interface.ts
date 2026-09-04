@@ -2,6 +2,11 @@ import type { Buffer } from 'node:buffer';
 
 export interface MockApiPluginOptions {
     mockRoot?: URL;
+    internalPrefix?: string;
+    extensions?: readonly string[];
+    contentTypes?: Readonly<Record<string, string>>;
+    manifestFileName?: string;
+    manifestRoute?: string;
 }
 
 export interface MockFile {

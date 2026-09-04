@@ -1,6 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { MockApiPluginOptions } from '../../interface.js';
+
 const mocks = vi.hoisted(() => ({
     getCandidatePaths: vi.fn(),
     getContentType: vi.fn(),
@@ -37,9 +39,20 @@ vi.mock('../../util/sendJson.js', () => ({
 import { handleMockRequest } from './index.js';
 
 describe('handleMockRequest', () => {
-    const request = { url: '/_internal/orders', method: 'GET' } as IncomingMessage;
+    const request = {
+        url: '/_internal/orders',
+        method: 'GET'
+    } as IncomingMessage;
     const response = {} as ServerResponse;
     const mockRoot = new URL('file:///tmp/mocks/');
+    const options: Required<MockApiPluginOptions> = {
+        mockRoot,
+        internalPrefix: '/_internal/',
+        extensions: ['.json'],
+        contentTypes: { '.json': 'application/json; charset=utf-8' },
+        manifestFileName: 'mock.manifest.json',
+        manifestRoute: '/_local-mock-api/manifest'
+    };
 
     beforeEach(() => {
         vi.resetAllMocks();
@@ -51,8 +64,12 @@ describe('handleMockRequest', () => {
         const next = vi.fn();
         mocks.getInternalRouteParts.mockReturnValue(null);
 
-        await handleMockRequest(request, response, next, mockRoot);
+        await handleMockRequest(request, response, next, options);
 
+        expect(mocks.getInternalRouteParts).toHaveBeenCalledWith(
+            request.url,
+            options.internalPrefix
+        );
         expect(next).toHaveBeenCalledOnce();
         expect(mocks.getCandidatePaths).not.toHaveBeenCalled();
     });
@@ -65,13 +82,13 @@ describe('handleMockRequest', () => {
             .mockResolvedValueOnce(null)
             .mockResolvedValueOnce({ content, extension: '.json' });
 
-        await handleMockRequest(request, response, vi.fn(), mockRoot);
+        await handleMockRequest(request, response, vi.fn(), options);
 
-        expect(mocks.getCandidatePaths).toHaveBeenCalledWith(['orders'], 'GET');
+        expect(mocks.getCandidatePaths).toHaveBeenCalledWith(['orders'], 'GET', options.extensions);
         expect(mocks.readExistingFile).toHaveBeenNthCalledWith(1, 'GET_orders.json', mockRoot);
         expect(mocks.readExistingFile).toHaveBeenNthCalledWith(2, 'orders.json', mockRoot);
         expect(mocks.readExistingFile).toHaveBeenCalledTimes(2);
-        expect(mocks.getContentType).toHaveBeenCalledWith('.json');
+        expect(mocks.getContentType).toHaveBeenCalledWith('.json', options.contentTypes);
         expect(mocks.send).toHaveBeenCalledWith(
             response,
             200,
@@ -89,7 +106,7 @@ describe('handleMockRequest', () => {
         mocks.getCandidatePaths.mockReturnValue(['GET_orders/42.json', 'orders/42.json']);
         mocks.readExistingFile.mockResolvedValue(null);
 
-        await handleMockRequest(request, response, vi.fn(), mockRoot);
+        await handleMockRequest(request, response, vi.fn(), options);
 
         expect(mocks.readExistingFile).toHaveBeenCalledTimes(2);
         expect(mocks.send).not.toHaveBeenCalled();
