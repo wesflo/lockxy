@@ -1,0 +1,21 @@
+{
+  "name": "@wesflo/vite-plugin-local-mock-api-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.24.0",
+  "scripts": {
+    "build": "turbo run build",
+    "build:app": "turbo run build --filter=@wesflo/ep-local-mock-api",
+    "build:package": "turbo run build --filter=@wesflo/vite-plugin-local-mock-api",
+    "test": "turbo run test",
+    "test:app": "turbo run test --filter=@wesflo/ep-local-mock-api",
+    "test:package": "turbo run test --filter=@wesflo/vite-plugin-local-mock-api",
+    "lint": "turbo run lint",
+    "prettier:w": "turbo run prettier:w",
+    "check-types": "turbo run check-types",
+    "dev": "turbo run dev"
+  },
+  "devDependencies": {
+    "turbo": "2.10.11"
+  }
+}

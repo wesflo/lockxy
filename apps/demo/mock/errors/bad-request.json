@@ -1,0 +1,6 @@
+{
+    "case": "bad-request",
+    "source": "errors/bad-request.json",
+    "message": "Die Demo hat absichtlich eine ungültige Anfrage gestellt.",
+    "expectedStatus": 400
+}

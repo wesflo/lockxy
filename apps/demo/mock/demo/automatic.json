@@ -1,0 +1,5 @@
+{
+    "case": "automatic-file",
+    "source": "demo/automatic.json",
+    "message": "Das Szenario enthält kein file; die Kandidatensuche hat diese Datei gefunden."
+}

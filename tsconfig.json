@@ -1,0 +1,11 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/demo"
+    },
+    {
+      "path": "./packages/vite-plugin-local-mock-api"
+    }
+  ]
+}

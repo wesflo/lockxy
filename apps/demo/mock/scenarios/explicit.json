@@ -1,0 +1,5 @@
+{
+    "case": "explicit-json",
+    "source": "scenarios/explicit.json",
+    "message": "Antwort aus dem expliziten file-Eintrag des Szenarios."
+}

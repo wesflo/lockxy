@@ -1,0 +1,106 @@
+{
+    "endpoints": [
+        {
+            "id": "json-response",
+            "method": "GET",
+            "path": "/_internal/demo/json",
+            "scenarios": [
+                {
+                    "id": "explicit-file",
+                    "label": "Explizite Datei",
+                    "file": "scenarios/explicit.json"
+                }
+            ]
+        },
+        {
+            "id": "http-errors",
+            "method": "GET",
+            "path": "/_internal/demo/errors",
+            "scenarios": [
+                {
+                    "id": "bad-request",
+                    "label": "400 Bad Request",
+                    "status": 400,
+                    "file": "errors/bad-request.json"
+                },
+                {
+                    "id": "server-error",
+                    "label": "500 Server Error",
+                    "status": 500,
+                    "file": "errors/server-error.json"
+                }
+            ]
+        },
+        {
+            "id": "no-content",
+            "method": "GET",
+            "path": "/_internal/demo/no-content",
+            "scenarios": [
+                {
+                    "id": "empty",
+                    "label": "204 ohne Body",
+                    "status": 204,
+                    "file": "responses/no-content.txt"
+                }
+            ]
+        },
+        {
+            "id": "delay",
+            "method": "GET",
+            "path": "/_internal/demo/delay",
+            "scenarios": [
+                {
+                    "id": "immediate",
+                    "label": "0 ms",
+                    "delay": 0
+                },
+                {
+                    "id": "short",
+                    "label": "200 ms",
+                    "delay": 200
+                },
+                {
+                    "id": "long",
+                    "label": "1000 ms",
+                    "delay": 1000
+                }
+            ]
+        },
+        {
+            "id": "automatic-file",
+            "method": "GET",
+            "path": "/_internal/demo/automatic",
+            "scenarios": [
+                {
+                    "id": "candidate-search",
+                    "label": "Kandidatensuche + 200 ms",
+                    "delay": 200
+                }
+            ]
+        },
+        {
+            "id": "text-document",
+            "method": "GET",
+            "path": "/_internal/demo/text",
+            "scenarios": [
+                {
+                    "id": "text",
+                    "label": "TXT-Datei",
+                    "file": "documents/readme.txt"
+                }
+            ]
+        },
+        {
+            "id": "pdf-document",
+            "method": "GET",
+            "path": "/_internal/demo/pdf",
+            "scenarios": [
+                {
+                    "id": "pdf",
+                    "label": "PDF-Datei",
+                    "file": "documents/plugin-demo.pdf"
+                }
+            ]
+        }
+    ]
+}

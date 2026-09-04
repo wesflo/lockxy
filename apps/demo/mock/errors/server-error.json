@@ -1,0 +1,6 @@
+{
+    "case": "server-error",
+    "source": "errors/server-error.json",
+    "message": "Der simulierte Dienst ist absichtlich fehlgeschlagen.",
+    "expectedStatus": 500
+}

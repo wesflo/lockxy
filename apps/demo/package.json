@@ -1,0 +1,55 @@
+{
+    "name": "@wesflo/local-mock-api-demo",
+    "version": "0.0.1",
+    "private": true,
+    "description": "",
+    "main": "src/index.ts",
+    "scripts": {
+        "cleanViteCache": "rm -rf node_modules/.vite",
+        "dev": "pnpm run cleanViteCache && vite --config=vite.config.federation.mjs",
+        "dev:missing-manifest": "pnpm run cleanViteCache && vite --config=vite.config.federation.mjs --mode missing-manifest",
+        "dev:invalid-manifest": "pnpm run cleanViteCache && vite --config=vite.config.federation.mjs --mode invalid-manifest",
+        "build": "rm -rf ./dist && vite build --config=vite.config.iife.mjs && vite build --config=vite.config.federation.mjs",
+        "serve": "http-server ./dist -p 5001 --cors='*'",
+        "test": "vitest run --passWithNoTests",
+        "test:watch": "vitest",
+        "test:c": "vitest run --coverage --passWithNoTests",
+        "test:ui": "vitest --ui",
+        "lint": "eslint .",
+        "lint:fix": "eslint --ext .js,.ts  --fix",
+        "check-types": "tsc --noEmit -p tsconfig.json",
+        "prettier": "prettier -c --config ./prettier.config.mjs ./src",
+        "prettier:w": "prettier -w --config ./prettier.config.mjs ./src"
+    },
+    "dependencies": {
+
+    },
+    "devDependencies": {
+
+    },
+    "eslintConfig": {
+        "extends": "./eslint.config.mjs"
+    },
+    "prettier": "./prettier.config.mjs",
+    "engines": {
+        "node": ">=24 <25",
+        "pnpm": ">=11 <12"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wesflo/vite-plugin-local-mock-api.git"
+    },
+    "keywords": [
+        "empty",
+        "project"
+    ],
+    "author": "ep",
+    "license": "ISC",
+    "files": [
+        "dist"
+    ],
+    "bugs": {
+        "url": "https://github.com/wesflo/vite-plugin-local-mock-api/issues"
+    },
+    "homepage": "https://github.com/wesflo/vite-plugin-local-mock-api#readme"
+}
