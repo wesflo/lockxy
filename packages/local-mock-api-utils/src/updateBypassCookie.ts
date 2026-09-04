@@ -1,4 +1,4 @@
-import { parseBypassCookie } from './parseBypassCookie';
+import { parseBypassCookie } from './parseBypassCookie.js';
 
 export const updateBypassCookie = (value: string | undefined, endpointId: string, bypass: boolean): string => {
     const selection = parseBypassCookie(value);

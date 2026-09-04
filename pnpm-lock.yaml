@@ -63,6 +63,9 @@ importers:
       '@lit/reactive-element':
         specifier: ^2.1.2
         version: 2.1.2
+      '@wesflo/local-mock-api-utils':
+        specifier: workspace:*
+        version: link:../local-mock-api-utils
       lit:
         specifier: ^3.3.1
         version: 3.3.3
@@ -87,6 +90,10 @@ importers:
         version: 4.1.11(@types/node@22.20.1)(@vitest/coverage-v8@4.1.11)(happy-dom@20.13.2)(vite@8.2.2(@types/node@22.20.1)(yaml@2.5.1))
 
   packages/vite-plugin-local-mock-api:
+    dependencies:
+      '@wesflo/local-mock-api-utils':
+        specifier: workspace:*
+        version: link:../local-mock-api-utils
     devDependencies:
       '@eslint/js':
         specifier: ^9.23.0

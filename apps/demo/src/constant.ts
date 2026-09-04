@@ -1,9 +1,5 @@
 import type { DemoCase } from './interface';
 
-export const MANIFEST_ROUTE = '/_local-mock-api/manifest';
-
-export const SCENARIO_COOKIE_NAME = 'wesflo-mock-api-scenarios';
-
 export const DEMO_CASES: readonly DemoCase[] = [
     {
         id: 'legacy-path-fallback',

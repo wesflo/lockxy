@@ -2,6 +2,20 @@
 
 Local mock responses for API requests handled by the Vite development server.
 
+## Mock Proxy panel
+
+In a Vite-powered micro frontend, register the Web Component and place it directly in the HTML:
+
+```html
+<wesflo-mock-proxy></wesflo-mock-proxy>
+
+<script type="module">
+    import '@wesflo/local-mock-api-ui';
+</script>
+```
+
+The panel loads the manifest from the fixed `/_local-mock-api/manifest` route. A click on the floating button opens or closes the panel; `Escape` closes it as well. Hold Ctrl or Cmd while dragging the button to move it. Its position is saved in local storage and restored on the next visit.
+
 ## Temporarily bypassing mocks
 
 The plugin can pass requests through unchanged to the next Vite middleware, for example a configured development API proxy. This does not require removing the plugin from the Vite configuration.

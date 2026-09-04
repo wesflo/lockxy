@@ -1,15 +1,15 @@
-export { downloadBlob } from './downloadBlob';
+export { downloadBlob } from './downloadBlob.js';
 export {
     BYPASS_ALL_VALUE,
     BYPASS_COOKIE_NAME,
     ENDPOINT_ID_PATTERN,
     MANIFEST_ROUTE,
     SCENARIO_COOKIE_NAME,
-} from './constant';
-export { formatValue } from './formatValue';
-export { getCookieValue } from './getCookieValue';
-export { parseBypassCookie, type BypassSelection } from './parseBypassCookie';
-export { parseScenarioCookie } from './parseScenarioCookie';
-export { setCookieValue } from './setCookieValue';
-export { updateBypassCookie } from './updateBypassCookie';
-export { updateScenarioCookie } from './updateScenarioCookie';
+} from './constant.js';
+export { formatValue } from './formatValue.js';
+export { getCookieValue } from './getCookieValue.js';
+export { parseBypassCookie, type BypassSelection } from './parseBypassCookie.js';
+export { parseScenarioCookie } from './parseScenarioCookie.js';
+export { setCookieValue } from './setCookieValue.js';
+export { updateBypassCookie } from './updateBypassCookie.js';
+export { updateScenarioCookie } from './updateScenarioCookie.js';

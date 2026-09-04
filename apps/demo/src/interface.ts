@@ -38,6 +38,7 @@ export interface MockManifest {
 
 export interface MockEndpoint {
     id: string;
+    active?: boolean;
     method: string;
     path: string;
     scenarios: MockScenario[];

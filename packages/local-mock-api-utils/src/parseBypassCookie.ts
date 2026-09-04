@@ -1,4 +1,4 @@
-import { BYPASS_ALL_VALUE, ENDPOINT_ID_PATTERN } from './constant';
+import { BYPASS_ALL_VALUE, ENDPOINT_ID_PATTERN } from './constant.js';
 
 export interface BypassSelection {
     all: boolean;

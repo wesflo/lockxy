@@ -1,4 +1,4 @@
-import { parseScenarioCookie } from './parseScenarioCookie';
+import { parseScenarioCookie } from './parseScenarioCookie.js';
 
 export const updateScenarioCookie = (value: string | undefined, endpointId: string, scenarioId?: string): string => {
     const selections = parseScenarioCookie(value);

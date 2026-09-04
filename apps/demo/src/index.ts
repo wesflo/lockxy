@@ -3,14 +3,16 @@ import { wfElement } from '@wesflo/local-mock-api-ui';
 import {
     downloadBlob,
     getCookieValue,
+    MANIFEST_ROUTE,
     parseScenarioCookie,
+    SCENARIO_COOKIE_NAME,
     setCookieValue,
     updateScenarioCookie,
 } from '@wesflo/local-mock-api-utils';
 import { html, LitElement, nothing } from 'lit';
 import { state } from 'lit/decorators.js';
 
-import { DEMO_CASES, MANIFEST_ROUTE, SCENARIO_COOKIE_NAME } from './constant';
+import { DEMO_CASES } from './constant';
 import type { DemoCase, DemoResult, MockEndpoint, MockManifest, MockScenario } from './interface';
 import styles from './styles';
 import { executeDemoCase } from './util/executeDemoCase';
