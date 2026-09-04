@@ -1,0 +1,67 @@
+---
+import '../styles/global.css';
+
+interface Props {
+    title: string;
+    description: string;
+    activePath: string;
+}
+
+const { title, description, activePath } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const links = [
+    { href: '/', label: 'Overview' },
+    { href: '/getting-started/', label: 'Getting started' },
+    { href: '/configuration/', label: 'Configuration' },
+    { href: '/proxy-panel/', label: 'Proxy panel' },
+    { href: '/playground/', label: 'Playground' },
+];
+const url = (path: string) => `${base}${path}`;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="description" content={description} />
+        <meta name="theme-color" content="#0b1220" />
+        <link rel="icon" href={`data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%2315a9ca%22/><path d=%22M37 7 17 35h15l-4 22 20-31H34z%22 fill=%22white%22/></svg>`} />
+        <title>{title} · Local Mock API</title>
+    </head>
+    <body>
+        <header class="topbar">
+            <a class="brand" href={url('/')} aria-label="Local Mock API documentation home">
+                <span class="brand-mark" aria-hidden="true">ϟ</span>
+                <span>
+                    <strong>Local Mock API</strong>
+                    <small>Vite plugin</small>
+                </span>
+            </a>
+            <a class="github-link" href="https://github.com/wesflo/vite-plugin-local-mock-api">View on GitHub ↗</a>
+        </header>
+        <div class="shell">
+            <aside class="sidebar">
+                <nav aria-label="Documentation">
+                    <p>Documentation</p>
+                    {links.map((link) => (
+                        <a href={url(link.href)} aria-current={activePath === link.href ? 'page' : undefined}>
+                            {link.label}
+                        </a>
+                    ))}
+                </nav>
+                <div class="sidebar-meta">
+                    <span>Packages</span>
+                    <code>@wesflo/*</code>
+                </div>
+            </aside>
+            <main class="content">
+                <slot />
+                <footer>
+                    <span>Built with Astro.</span>
+                    <a href="https://github.com/wesflo/vite-plugin-local-mock-api/issues">Report an issue</a>
+                </footer>
+            </main>
+        </div>
+    </body>
+</html>

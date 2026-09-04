@@ -82,7 +82,7 @@ export class WfViteMockProxy extends LitElement {
             this.manifest = (await response.json()) as MockManifest;
         } catch (error) {
             this.manifest = undefined;
-            this.error = `Manifest konnte nicht geladen werden (${error instanceof Error ? error.message : String(error)}).`;
+            this.error = `The manifest could not be loaded (${error instanceof Error ? error.message : String(error)}).`;
         } finally {
             this.loading = false;
         }
@@ -294,7 +294,7 @@ export class WfViteMockProxy extends LitElement {
             class=${`backdrop ${this.open ? 'open' : ''}`}
             type="button"
             tabindex="-1"
-            aria-label="Mock Proxy schließen"
+            aria-label="Close Mock Proxy"
             aria-hidden=${this.open ? 'false' : 'true'}
             @click=${this.closePanel}
         ></button>
@@ -303,10 +303,10 @@ export class WfViteMockProxy extends LitElement {
             class=${`launcher ${this.dragState ? 'dragging' : ''}`}
             style=${`left:${this.position.x}px;top:${this.position.y}px`}
             type="button"
-            aria-label=${this.open ? 'Mock Proxy schließen' : 'Mock Proxy öffnen'}
+            aria-label=${this.open ? 'Close Mock Proxy' : 'Open Mock Proxy'}
             aria-controls="mock-proxy-panel"
             aria-expanded=${this.open ? 'true' : 'false'}
-            title="Klicken zum Öffnen. Mit Strg oder Cmd gedrückt verschieben."
+            title="Click to open. Hold Ctrl or Cmd while dragging to move."
             @click=${this.togglePanel}
             @pointerdown=${this.handleLauncherPointerDown}
             @pointermove=${this.handleLauncherPointerMove}
@@ -331,12 +331,12 @@ export class WfViteMockProxy extends LitElement {
                     </span>
                     <strong>Mock Proxy</strong>
                 </div>
-                <button class="icon-button close" type="button" aria-label="Mock Proxy schließen" @click=${this.closePanel}>
+                <button class="icon-button close" type="button" aria-label="Close Mock Proxy" @click=${this.closePanel}>
                     <wf-icon name="close" size="24"></wf-icon>
                 </button>
             </header>
 
-            <nav class="tabs" role="tablist" aria-label="Mock Proxy Bereiche" @keydown=${this.handleTabKeyDown}>
+            <nav class="tabs" role="tablist" aria-label="Mock Proxy sections" @keydown=${this.handleTabKeyDown}>
                 <button
                     class="tab"
                     id="tab-endpoints"
@@ -361,7 +361,7 @@ export class WfViteMockProxy extends LitElement {
                     @click=${() => this.selectTab(SETTINGS_TAB)}
                 >
                     <wf-icon name="settings" size="19"></wf-icon>
-                    Einstellungen
+                    Settings
                 </button>
             </nav>
 

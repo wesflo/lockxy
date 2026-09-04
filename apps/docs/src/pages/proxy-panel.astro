@@ -1,0 +1,58 @@
+---
+import Callout from '../components/Callout.astro';
+import Code from '../components/Code.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+
+const moduleUsage = `<wf-vite-mock-proxy></wf-vite-mock-proxy>
+<script type="module">
+  import '@wesflo/wf-vite-mock-proxy';
+</script>`;
+
+const scriptUsage = `<wf-vite-mock-proxy></wf-vite-mock-proxy>
+<script src="./node_modules/@wesflo/wf-vite-mock-proxy/dist/wf-vite-mock-proxy.umd.cjs"></script>`;
+---
+
+<DocsLayout title="Proxy panel" description="Embed and operate the Local Mock API proxy panel." activePath="/proxy-panel/">
+    <article>
+        <p class="kicker">Browser controls</p>
+        <h1>Choose what stays local.</h1>
+        <p class="lead">The panel reads the server manifest and writes only cookies understood by the Vite middleware.</p>
+
+        <h2>Module integration</h2>
+        <Code code={moduleUsage} label="index.html" />
+
+        <h2>Classic script integration</h2>
+        <Code code={scriptUsage} label="index.html" />
+        <p>The UMD build is self-contained. The package also publishes an ES module and TypeScript declarations.</p>
+
+        <h2>Controls</h2>
+        <ul>
+            <li>Click the floating launcher to open or close the panel.</li>
+            <li>Press <code>Escape</code> to close it and return focus to the launcher.</li>
+            <li>Hold <code>Ctrl</code> or <code>Cmd</code> while dragging to move the launcher.</li>
+            <li>The launcher position is stored in local storage and restored on the next visit.</li>
+            <li>Disable the master switch to pass every API request to the next Vite middleware.</li>
+            <li>Disable an endpoint switch to pass through only that manifest endpoint.</li>
+        </ul>
+
+        <h2>Bypass cookie</h2>
+        <Code code={`document.cookie = 'wesflo-mock-api-bypass=*; Path=/; SameSite=Lax';`} label="bypass all mocks" />
+        <Code
+            code={`document.cookie = 'wesflo-mock-api-bypass=orders|user-profile; Path=/; SameSite=Lax';`}
+            label="bypass selected endpoint IDs"
+        />
+        <Callout title="Passthrough behavior">
+            <p>
+                Bypass does not perform the remote request itself. It calls the next Vite middleware, so configure
+                <code>server.proxy</code> when requests should continue to a development API.
+            </p>
+        </Callout>
+
+        <h2>Scenario cookie</h2>
+        <p>
+            Scenario selections use <code>wesflo-mock-api-scenarios</code>. Entries are encoded as
+            <code>endpoint-id:scenario-id</code> and separated with <code>|</code>. Prefer the panel or the exported utility
+            helpers over constructing this value manually.
+        </p>
+    </article>
+</DocsLayout>

@@ -19,6 +19,7 @@ pnpm-debug.log*
 
 # Vite and TypeScript caches
 .vite/
+.astro/
 *.tsbuildinfo
 
 # Build and documentation output

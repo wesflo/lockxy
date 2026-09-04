@@ -174,7 +174,7 @@ export class MockApiDemo extends LitElement {
     private renderResponse = (result?: DemoResult) => html`
         <div class="code-toolbar">
             <span>Response</span>
-            <wf-button compact @onClick=${() => void this.copyText(result?.body ?? '')} aria-label="Response kopieren">
+            <wf-button compact @onClick=${() => void this.copyText(result?.body ?? '')} aria-label="Copy response">
                 <wf-icon name="copy" size="15"></wf-icon>
                 Copy
             </wf-button>
@@ -322,7 +322,7 @@ export class MockApiDemo extends LitElement {
                 <wf-badge tone="info">Local Mock API</wf-badge>
             </a>
             <nav aria-label="Demo navigation">
-                <a href="https://github.com/wesflo/vite-plugin-local-mock-api" target="_blank">
+                <a href="https://wesflo.github.io/vite-plugin-local-mock-api/" target="_blank">
                     <wf-icon name="book"></wf-icon>
                     Docs
                 </a>

@@ -1,5 +1,5 @@
 {
     "case": "alternate-mode-fallback",
     "source": "mock-invalid/demo/legacy.json",
-    "message": "Legacy-Fallback funktioniert trotz ungültiger mock.manifest.json."
+    "message": "Legacy fallback works despite an invalid mock.manifest.json."
 }

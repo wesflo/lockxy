@@ -47,7 +47,7 @@ export class WfMockProxyPlayground extends LitElement {
         try {
             return JSON.stringify(JSON.parse(body), null, 2);
         } catch {
-            return body || '(leerer Response-Body)';
+            return body || '(empty response body)';
         }
     };
 
@@ -63,7 +63,7 @@ export class WfMockProxyPlayground extends LitElement {
                 ?disabled=${this.activeRequestId !== undefined}
                 @click=${() => void this.execute(request)}
             >
-                ${this.activeRequestId === request.id ? 'Läuft …' : 'Request senden'}
+                ${this.activeRequestId === request.id ? 'Running…' : 'Send request'}
             </button>
         </article>
     `;
@@ -74,18 +74,18 @@ export class WfMockProxyPlayground extends LitElement {
                 <p class="eyebrow">Micro Frontend</p>
                 <h1>Mock Proxy Playground</h1>
                 <p class="intro">
-                    Öffne den schwebenden Mock-Proxy, ändere Szenarien oder deaktiviere einzelne Endpoints und sende
-                    anschließend denselben Request erneut.
+                    Open the floating Mock Proxy, change scenarios or disable individual endpoints, then send the same
+                    request again.
                 </p>
             </header>
 
             <aside class="hint">
-                <strong>Dev-API testen:</strong> Starte mit
-                <code>PLAYGROUND_API_TARGET=https://deine-dev-api pnpm dev</code>. Deaktivierte Mocks werden dann vom
-                Vite-Proxy an dieses Ziel weitergereicht.
+                <strong>Test a development API:</strong> Start with
+                <code>PLAYGROUND_API_TARGET=https://your-dev-api pnpm dev</code>. Disabled mocks are then forwarded to
+                this target by the Vite proxy.
             </aside>
 
-            <section class="requests" aria-label="Test-Requests">
+            <section class="requests" aria-label="Test requests">
                 ${PLAYGROUND_REQUESTS.map(this.renderRequest)}
             </section>
 
@@ -103,7 +103,7 @@ export class WfMockProxyPlayground extends LitElement {
                   `
                 : nothing}
 
-            <p class="cookies"><strong>Aktuelle Cookies:</strong> ${document.cookie || '(keine)'}</p>
+            <p class="cookies"><strong>Current cookies:</strong> ${document.cookie || '(none)'}</p>
         </main>
     `;
 }

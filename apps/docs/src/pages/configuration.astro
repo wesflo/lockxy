@@ -1,0 +1,84 @@
+---
+import Callout from '../components/Callout.astro';
+import Code from '../components/Code.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+
+const manifest = `{
+  "endpoints": [
+    {
+      "id": "user-profile",
+      "label": "User profile",
+      "method": "GET",
+      "path": "/api/users/:id",
+      "scenarios": [
+        {
+          "id": "success",
+          "label": "Successful response",
+          "status": 200,
+          "delay": 250,
+          "file": "scenarios/user-success.json"
+        },
+        {
+          "id": "not-found",
+          "label": "404 Not Found",
+          "status": 404,
+          "file": "scenarios/user-not-found.json"
+        }
+      ]
+    }
+  ]
+}`;
+---
+
+<DocsLayout title="Configuration" description="Plugin options, manifests, and file resolution." activePath="/configuration/">
+    <article>
+        <p class="kicker">Reference</p>
+        <h1>Configuration and resolution.</h1>
+        <p class="lead">Keep the default resolver for simple cases, then add a manifest when you need selectable behavior.</p>
+
+        <h2>Plugin options</h2>
+        <table>
+            <thead><tr><th>Option</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>mockRoot</code></td><td><code>URL</code></td><td>Directory containing mock files and the manifest.</td></tr>
+                <tr><td><code>internalPrefix</code></td><td><code>string</code></td><td>Request prefix handled by the plugin. Defaults to <code>/api/</code>.</td></tr>
+                <tr><td><code>extensions</code></td><td><code>string[]</code></td><td>Additional file extensions appended to the built-in candidates.</td></tr>
+                <tr><td><code>contentTypes</code></td><td><code>Record&lt;string, string&gt;</code></td><td>Additional or overridden extension-to-content-type mappings.</td></tr>
+                <tr><td><code>manifestFileName</code></td><td><code>string</code></td><td>Manifest filename inside <code>mockRoot</code>. Defaults to <code>mock.manifest.json</code>.</td></tr>
+            </tbody>
+        </table>
+        <Callout title="Fixed route">
+            <p><code>MANIFEST_ROUTE</code> is intentionally fixed and cannot be overridden by plugin options.</p>
+        </Callout>
+
+        <h2>Manifest</h2>
+        <Code code={manifest} label="mock/mock.manifest.json" />
+
+        <h3>Endpoint fields</h3>
+        <table>
+            <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>id</code></td><td>Yes</td><td>Stable ID used by scenario and bypass cookies.</td></tr>
+                <tr><td><code>method</code></td><td>Yes</td><td>HTTP method matched case-insensitively.</td></tr>
+                <tr><td><code>path</code></td><td>Yes</td><td>Exact path shape. Segments beginning with <code>:</code> match dynamic values.</td></tr>
+                <tr><td><code>label</code></td><td>No</td><td>Human-readable name displayed in the proxy panel.</td></tr>
+                <tr><td><code>active</code></td><td>No</td><td>Set to <code>false</code> to exclude the endpoint from scenario matching.</td></tr>
+                <tr><td><code>scenarios</code></td><td>Yes</td><td>Selectable response variants.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Scenario fields</h3>
+        <p>
+            Every scenario needs an <code>id</code> and <code>label</code>. The optional <code>file</code> is relative to
+            <code>mockRoot</code>; <code>status</code> changes the HTTP status and <code>delay</code> waits in milliseconds.
+            If <code>file</code> is omitted, normal candidate resolution is used.
+        </p>
+
+        <h2>File resolution</h2>
+        <p>
+            The resolver tries the most specific route first, then shorter suffix and parent candidates. For every
+            candidate it checks a method-prefixed filename before the generic filename. Supported defaults include JSON,
+            PDF, CSV, text, JPEG, PNG, and WebP.
+        </p>
+    </article>
+</DocsLayout>

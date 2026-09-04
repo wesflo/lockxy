@@ -25,7 +25,7 @@ export const executeDemoCase = async (testCase: DemoCase): Promise<DemoResult> =
             status: response.status,
             statusText: response.statusText,
             duration: performance.now() - startedAt,
-            body: blob ? `${blob.type || 'Datei'} (${blob.size} Bytes)` : formatValue(value),
+            body: blob ? `${blob.type || 'File'} (${blob.size} bytes)` : formatValue(value),
             contentType: response.headers.get('content-type') ?? '–',
             headers: [...response.headers.entries()],
             blob,

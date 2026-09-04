@@ -1,5 +1,5 @@
 {
     "case": "default-json",
     "source": "demo/json.json",
-    "message": "Default-Antwort aus der unveränderten Kandidatensuche."
+    "message": "Default response from the regular candidate lookup."
 }

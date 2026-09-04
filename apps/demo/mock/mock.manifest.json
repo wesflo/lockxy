@@ -8,7 +8,7 @@
             "scenarios": [
                 {
                     "id": "explicit-file",
-                    "label": "Explizite Datei",
+                    "label": "Explicit file",
                     "file": "scenarios/explicit.json"
                 }
             ]
@@ -22,7 +22,7 @@
             "scenarios": [
                 {
                     "id": "explicit-file",
-                    "label": "Explizite Datei",
+                    "label": "Explicit file",
                     "file": "scenarios/explicit.json"
                 }
             ]
@@ -53,7 +53,7 @@
             "scenarios": [
                 {
                     "id": "empty",
-                    "label": "204 ohne Body",
+                    "label": "204 without a body",
                     "status": 204,
                     "file": "responses/no-content.txt"
                 }
@@ -88,7 +88,7 @@
             "scenarios": [
                 {
                     "id": "candidate-search",
-                    "label": "Kandidatensuche + 200 ms",
+                    "label": "Candidate lookup + 200 ms",
                     "delay": 200
                 }
             ]
@@ -100,7 +100,7 @@
             "scenarios": [
                 {
                     "id": "text",
-                    "label": "TXT-Datei",
+                    "label": "TXT file",
                     "file": "documents/readme.txt"
                 }
             ]
@@ -112,7 +112,7 @@
             "scenarios": [
                 {
                     "id": "pdf",
-                    "label": "PDF-Datei",
+                    "label": "PDF file",
                     "file": "documents/plugin-demo.pdf"
                 }
             ]

@@ -62,3 +62,13 @@ To forward disabled mocks to a development API, provide the Vite proxy target wh
 ```sh
 PLAYGROUND_API_TARGET=https://dev-api.example.com pnpm dev:playground
 ```
+
+## Documentation
+
+The Astro documentation application lives in `apps/docs`:
+
+```sh
+pnpm dev:docs
+```
+
+It is configured for `https://wesflo.github.io/vite-plugin-local-mock-api/` and deployed through the GitHub Pages workflow on pushes to `main` that change the documentation.

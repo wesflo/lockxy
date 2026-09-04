@@ -30,35 +30,35 @@ export class MockProxySettings extends LitElement {
     };
 
     render = () => html`
-        <h3>Allgemein</h3>
+        <h3>General</h3>
         <div class="setting">
             <wf-switch
                 .checked=${this.proxyOnLoad}
-                label="Proxy beim Laden aktivieren"
+                label="Enable proxy on load"
                 @switch-change=${(event: CustomEvent<SwitchChangeDetail>) =>
                     this.emitSettingChange('proxyOnLoad', event.detail.checked)}
             ></wf-switch>
             <div>
-                <strong>Proxy beim Laden aktivieren</strong>
-                <p>Der Proxy ist standardmäßig aktiviert.</p>
+                <strong>Enable proxy on load</strong>
+                <p>The proxy is enabled by default.</p>
             </div>
         </div>
         <div class="setting">
             <wf-switch
                 .checked=${this.saveSelections}
-                label="Auswahl in lokalem Storage speichern"
+                label="Save selections in local storage"
                 @switch-change=${(event: CustomEvent<SwitchChangeDetail>) =>
                     this.emitSettingChange('saveSelections', event.detail.checked)}
             ></wf-switch>
             <div>
-                <strong>Auswahl in lokalem Storage speichern</strong>
-                <p>Deine Einstellungen bleiben erhalten.</p>
+                <strong>Save selections in local storage</strong>
+                <p>Your settings are preserved.</p>
             </div>
         </div>
         <div class="divider"></div>
         <button class="reset" type="button" @click=${this.reset}>
             <wf-icon name="refresh" size="19"></wf-icon>
-            Alle Einstellungen zurücksetzen
+            Reset all settings
         </button>
     `;
 }

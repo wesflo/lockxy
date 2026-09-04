@@ -1,5 +1,5 @@
 {
     "case": "method-precedence",
     "source": "demo/POST_orders.json",
-    "message": "Die methodenspezifische POST-Datei wurde zuerst gefunden."
+    "message": "The method-specific POST file was found first."
 }

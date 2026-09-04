@@ -2,7 +2,7 @@
     "endpoints": [
         {
             "id": "playground-profile",
-            "label": "Playground-Profil",
+            "label": "Playground profile",
             "method": "GET",
             "path": "/api/playground/profile",
             "scenarios": [
@@ -13,14 +13,14 @@
                 },
                 {
                     "id": "guest",
-                    "label": "Gast",
+                    "label": "Guest",
                     "file": "scenarios/profile-guest.json"
                 }
             ]
         },
         {
             "id": "playground-orders",
-            "label": "Playground-Bestellung",
+            "label": "Playground order",
             "method": "POST",
             "path": "/api/playground/orders",
             "scenarios": [
@@ -32,7 +32,7 @@
                 },
                 {
                     "id": "validation-error",
-                    "label": "422 Validierungsfehler",
+                    "label": "422 Validation error",
                     "status": 422,
                     "file": "scenarios/order-validation-error.json"
                 }
@@ -40,18 +40,18 @@
         },
         {
             "id": "playground-availability",
-            "label": "Playground-Verfügbarkeit",
+            "label": "Playground availability",
             "method": "GET",
             "path": "/api/playground/availability",
             "scenarios": [
                 {
                     "id": "immediate",
-                    "label": "Sofort",
+                    "label": "Immediate",
                     "delay": 0
                 },
                 {
                     "id": "slow",
-                    "label": "800 ms Verzögerung",
+                    "label": "800 ms delay",
                     "delay": 800
                 }
             ]

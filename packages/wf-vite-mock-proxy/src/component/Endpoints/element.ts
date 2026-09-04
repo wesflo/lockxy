@@ -67,7 +67,7 @@ export class MockProxyEndpoints extends LitElement {
                 </div>
                 <div class="endpoint-control">
                     <label>
-                        <span class="sr-only">Szenario für ${endpoint.method} ${endpoint.path}</span>
+                        <span class="sr-only">Scenario for ${endpoint.method} ${endpoint.path}</span>
                         <select
                             .value=${this.scenarios.get(endpoint.id) ?? ''}
                             ?disabled=${disabled || !active}
@@ -77,7 +77,7 @@ export class MockProxyEndpoints extends LitElement {
                                     scenarioId: (event.currentTarget as HTMLSelectElement).value,
                                 })}
                         >
-                            <option value="">Standard-Dateiauflösung</option>
+                            <option value="">Default file resolution</option>
                             ${endpoint.scenarios.map(
                                 (scenario) => html`<option value=${scenario.id}>${scenario.label}</option>`
                             )}
@@ -86,7 +86,7 @@ export class MockProxyEndpoints extends LitElement {
                     <wf-switch
                         .checked=${active}
                         .disabled=${disabled}
-                        .label=${`Mock für ${endpoint.method} ${endpoint.path} aktiv`}
+                        .label=${`Mock for ${endpoint.method} ${endpoint.path} active`}
                         @switch-change=${(event: CustomEvent<SwitchChangeDetail>) =>
                             this.emit<EndpointChangeDetail>(ENDPOINT_CHANGE_EVENT, {
                                 endpoint,
@@ -105,18 +105,18 @@ export class MockProxyEndpoints extends LitElement {
             <div class="master-toggle">
                 <wf-switch
                     .checked=${!this.bypass.all}
-                    label="Proxy aktiv"
+                    label="Proxy active"
                     @switch-change=${(event: CustomEvent<SwitchChangeDetail>) =>
                         this.emit<ProxyChangeDetail>(PROXY_CHANGE_EVENT, { active: event.detail.checked })}
                 ></wf-switch>
-                <strong>Proxy aktiv</strong>
+                <strong>Proxy active</strong>
             </div>
             <label class="search">
-                <span class="sr-only">Endpoints durchsuchen</span>
+                <span class="sr-only">Search endpoints</span>
                 <wf-icon name="search" size="18"></wf-icon>
                 <input
                     type="search"
-                    placeholder="Endpoints suchen…"
+                    placeholder="Search endpoints…"
                     .value=${this.query}
                     @input=${(event: InputEvent) =>
                         this.emit<QueryChangeDetail>(QUERY_CHANGE_EVENT, {
@@ -129,15 +129,15 @@ export class MockProxyEndpoints extends LitElement {
                       <div class="status error" role="alert">
                           ${this.error}<br />
                           <button class="retry" type="button" @click=${() => this.emit(RETRY_MANIFEST_EVENT)}>
-                              Erneut versuchen
+                              Try again
                           </button>
                       </div>
                   `
                 : this.loading
-                  ? html`<div class="status" role="status">Manifest wird geladen…</div>`
+                  ? html`<div class="status" role="status">Loading manifest…</div>`
                   : endpoints.length
                     ? html`<div class="endpoint-list">${endpoints.map(this.renderEndpoint)}</div>`
-                    : html`<div class="empty">Keine passenden Endpoints gefunden.</div>`}
+                    : html`<div class="empty">No matching endpoints found.</div>`}
         `;
     };
 }

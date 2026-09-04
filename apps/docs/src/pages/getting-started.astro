@@ -1,0 +1,64 @@
+---
+import Callout from '../components/Callout.astro';
+import Code from '../components/Code.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+
+const viteConfig = `import { defineConfig } from 'vite';
+import { mockApiPlugin } from '@wesflo/vite-plugin-local-mock-api';
+
+export default defineConfig({
+  plugins: [
+    mockApiPlugin({
+      mockRoot: new URL('./mock/', import.meta.url),
+      internalPrefix: '/api/',
+    }),
+  ],
+});`;
+
+const fileTree = `mock/
+├── mock.manifest.json
+└── users/
+    ├── profile.json
+    └── POST_profile.json`;
+
+const html = `<body>
+  <your-micro-frontend></your-micro-frontend>
+  <wf-vite-mock-proxy></wf-vite-mock-proxy>
+  <script type="module" src="/src/index.ts"></script>
+</body>`;
+
+const entry = `import '@wesflo/wf-vite-mock-proxy';`;
+---
+
+<DocsLayout title="Getting started" description="Set up Local Mock API in a Vite project." activePath="/getting-started/">
+    <article>
+        <p class="kicker">Quick start</p>
+        <h1>From zero to a local response.</h1>
+        <p class="lead">Configure the middleware, add files below your mock root, then optionally mount the browser panel.</p>
+
+        <h2>1. Add the Vite plugin</h2>
+        <Code code={viteConfig} label="vite.config.ts" />
+        <Callout title="Development only">
+            <p>The plugin uses Vite's development-server middleware. A production build does not ship your local mock files.</p>
+        </Callout>
+
+        <h2>2. Add a mock file</h2>
+        <Code code={fileTree} label="project structure" />
+        <p>
+            A <code>GET /api/users/profile</code> request resolves to <code>mock/users/profile.json</code>. For
+            <code>POST</code>, the method-specific <code>POST_profile.json</code> wins before the generic file.
+        </p>
+
+        <h2>3. Mount the proxy panel</h2>
+        <Code code={html} label="index.html" />
+        <Code code={entry} label="src/index.ts" />
+        <p>
+            The package registers <code>&lt;wf-vite-mock-proxy&gt;</code>. The component loads its manifest from the fixed
+            <code>/_local-mock-api/manifest</code> route.
+        </p>
+
+        <h2>4. Start Vite</h2>
+        <Code code="pnpm dev" label="terminal" />
+        <p>Send a request from your application as usual. No application-side fetch wrapper is required.</p>
+    </article>
+</DocsLayout>

@@ -1,5 +1,5 @@
 {
     "case": "method-precedence-generic-fallback",
     "source": "demo/orders.json",
-    "message": "Diese generische Datei darf beim POST-Test nicht gewinnen."
+    "message": "This generic file must not win for the POST test."
 }

@@ -1,5 +1,5 @@
 Local Mock API – Text response
 
-Diese Antwort wurde als echte TXT-Datei ausgeliefert und in der Demo mit epFetchText gelesen.
+This response was served as a real TXT file and read in the demo with epFetchText.
 Endpoint: GET /api/demo/text
-Szenario: text-document:text
+Scenario: text-document:text

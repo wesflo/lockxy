@@ -1,5 +1,5 @@
 {
     "case": "legacy-path-fallback",
     "source": "legacy/users/42.json",
-    "message": "Der spezifischere Kandidat demo/legacy/users/42.json fehlt absichtlich."
+    "message": "The more specific demo/legacy/users/42.json candidate is intentionally missing."
 }

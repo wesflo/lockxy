@@ -1,0 +1,71 @@
+---
+import Code from '../components/Code.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+
+const install = `pnpm add -D @wesflo/vite-plugin-local-mock-api
+pnpm add @wesflo/wf-vite-mock-proxy`;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<DocsLayout
+    title="Overview"
+    description="Local mock responses, selectable scenarios, and per-endpoint API passthrough for Vite."
+    activePath="/"
+>
+    <article>
+        <p class="kicker">Develop against the response you need</p>
+        <h1>Local API mocks without an all-or-nothing switch.</h1>
+        <p class="lead">
+            Serve realistic mock files from Vite, select scenarios in the browser, and pass individual endpoints through
+            to a development API without removing the plugin from your configuration.
+        </p>
+
+        <Code code={install} label="terminal" />
+
+        <div class="cards">
+            <a class="card" href={`${base}/getting-started/`}>
+                <strong>Get started →</strong>
+                <span>Add the plugin, create a mock file, and make your first request.</span>
+            </a>
+            <a class="card" href={`${base}/proxy-panel/`}>
+                <strong>Use the proxy panel →</strong>
+                <span>Switch scenarios and bypass all mocks or a single endpoint.</span>
+            </a>
+            <a class="card" href={`${base}/configuration/`}>
+                <strong>Configure the plugin →</strong>
+                <span>Understand resolution rules, manifest fields, and plugin options.</span>
+            </a>
+            <a class="card" href={`${base}/playground/`}>
+                <strong>Open the playground guide →</strong>
+                <span>Exercise the panel and plugin together in a small micro frontend.</span>
+            </a>
+        </div>
+
+        <h2>Three focused packages</h2>
+        <table>
+            <thead><tr><th>Package</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><code>@wesflo/vite-plugin-local-mock-api</code></td>
+                    <td>Vite development-server middleware for local files, scenarios, status codes, and delays.</td>
+                </tr>
+                <tr>
+                    <td><code>@wesflo/wf-vite-mock-proxy</code></td>
+                    <td>Embeddable Web Component that manages scenario and bypass cookies.</td>
+                </tr>
+                <tr>
+                    <td><code>@wesflo/local-mock-api-utils</code></td>
+                    <td>Shared cookie helpers and the fixed manifest route used by server and browser packages.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>How requests flow</h2>
+        <ol>
+            <li>The Vite middleware checks whether the request is inside the configured API prefix.</li>
+            <li>A bypass cookie can send the request to the next middleware or configured Vite proxy.</li>
+            <li>A selected manifest scenario can define a response file, status code, and delay.</li>
+            <li>Without a selected scenario, the plugin resolves method-specific and generic mock files.</li>
+        </ol>
+    </article>
+</DocsLayout>
