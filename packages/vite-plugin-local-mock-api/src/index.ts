@@ -7,30 +7,27 @@ import {
     DEFAULT_MOCK_ROOT,
     EXTENSIONS,
     INTERNAL_PREFIX,
-    MANIFEST_FILE_NAME,
-    MANIFEST_ROUTE
+    MANIFEST_FILE_NAME
 } from './constant.js';
 import type { MockApiPluginOptions } from './interface.js';
 import { normalizeMockRoot } from './util/normalizeMockRoot.js';
 import { shouldBypassMockRequest } from './util/shouldBypassMockRequest.js';
 
-export { BYPASS_ALL_VALUE, BYPASS_COOKIE_NAME } from './constant.js';
+export { BYPASS_ALL_VALUE, BYPASS_COOKIE_NAME, MANIFEST_ROUTE, SCENARIO_COOKIE_NAME } from '@wesflo/local-mock-api-utils';
 
 export const mockApiPlugin = ({
     mockRoot = DEFAULT_MOCK_ROOT,
     internalPrefix = INTERNAL_PREFIX,
     extensions = [],
     contentTypes = {},
-    manifestFileName = MANIFEST_FILE_NAME,
-    manifestRoute = MANIFEST_ROUTE
+    manifestFileName = MANIFEST_FILE_NAME
 }: MockApiPluginOptions = {}): Plugin => {
     const options: Required<MockApiPluginOptions> = {
         mockRoot: normalizeMockRoot(mockRoot),
         internalPrefix,
         extensions: [...EXTENSIONS, ...extensions],
         contentTypes: { ...CONTENT_TYPES, ...contentTypes },
-        manifestFileName,
-        manifestRoute
+        manifestFileName
     };
 
     return {

@@ -13,6 +13,9 @@
     "src",
     "dist"
   ],
+  "dependencies": {
+    "@wesflo/local-mock-api-utils": "workspace:*"
+  },
   "scripts": {
     "build": "rm -rf ./dist && tsc",
     "bundle": "npm run build && npm publish",

@@ -34,8 +34,7 @@ describe('shouldBypassMockRequest', () => {
         internalPrefix: '/api/',
         extensions: ['.json'],
         contentTypes: { '.json': 'application/json' },
-        manifestFileName: 'mock.manifest.json',
-        manifestRoute: '/_local-mock-api/manifest'
+        manifestFileName: 'mock.manifest.json'
     };
 
     beforeEach(() => {

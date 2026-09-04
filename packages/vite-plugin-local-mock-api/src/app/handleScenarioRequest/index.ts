@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { MANIFEST_ROUTE } from '@wesflo/local-mock-api-utils';
 
 import { EMPTY_MANIFEST } from '../../constant.js';
 import type { MockApiPluginOptions } from '../../interface.js';
@@ -26,7 +27,7 @@ export const handleScenarioRequest = async (
 
     const { pathname } = new URL(req.url, 'http://localhost');
 
-    if (req.method?.toUpperCase() === 'GET' && pathname === options.manifestRoute) {
+    if (req.method?.toUpperCase() === 'GET' && pathname === MANIFEST_ROUTE) {
         const result = await readMockManifest(options.mockRoot, options.manifestFileName);
 
         if (result.status === 'valid') {

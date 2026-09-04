@@ -6,7 +6,6 @@ export interface MockApiPluginOptions {
     extensions?: readonly string[];
     contentTypes?: Readonly<Record<string, string>>;
     manifestFileName?: string;
-    manifestRoute?: string;
 }
 
 export interface MockFile {
@@ -26,6 +25,7 @@ export interface MockManifest {
 
 export interface MockEndpoint {
     id: string;
+    active?: boolean;
     method: string;
     path: string;
     scenarios: MockScenario[];

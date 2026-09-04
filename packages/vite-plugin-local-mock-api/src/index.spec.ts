@@ -23,8 +23,7 @@ vi.mock('./constant.js', () => ({
     DEFAULT_MOCK_ROOT: mocks.defaultMockRoot,
     EXTENSIONS: ['.json'],
     INTERNAL_PREFIX: '/api/',
-    MANIFEST_FILE_NAME: 'mock.manifest.json',
-    MANIFEST_ROUTE: '/_local-mock-api/manifest'
+    MANIFEST_FILE_NAME: 'mock.manifest.json'
 }));
 
 vi.mock('./util/normalizeMockRoot.js', () => ({
@@ -78,8 +77,7 @@ describe('mockApiPlugin', () => {
             internalPrefix: '/custom-api/',
             extensions: ['.xml'],
             contentTypes: { '.xml': 'application/xml' },
-            manifestFileName: 'custom.manifest.json',
-            manifestRoute: '/custom-manifest'
+            manifestFileName: 'custom.manifest.json'
         });
         const configureServer = plugin.configureServer as (server: ViteDevServer) => void;
         configureServer({ middlewares: { use } } as unknown as ViteDevServer);
@@ -96,8 +94,7 @@ describe('mockApiPlugin', () => {
                     '.json': 'application/json',
                     '.xml': 'application/xml'
                 },
-                manifestFileName: 'custom.manifest.json',
-                manifestRoute: '/custom-manifest'
+                manifestFileName: 'custom.manifest.json'
             })
         );
     });
@@ -122,8 +119,7 @@ describe('mockApiPlugin', () => {
             internalPrefix: '/api/',
             extensions: ['.json'],
             contentTypes: { '.json': 'application/json' },
-            manifestFileName: 'mock.manifest.json',
-            manifestRoute: '/_local-mock-api/manifest'
+            manifestFileName: 'mock.manifest.json'
         });
     });
 

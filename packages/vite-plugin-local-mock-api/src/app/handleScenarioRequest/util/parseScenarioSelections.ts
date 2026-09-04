@@ -1,4 +1,4 @@
-import { SCENARIO_COOKIE_NAME, SCENARIO_ID_PATTERN } from '../../../constant.js';
+import { ENDPOINT_ID_PATTERN, SCENARIO_COOKIE_NAME } from '@wesflo/local-mock-api-utils';
 import type { ScenarioSelections } from '../../../interface.js';
 
 export const parseScenarioSelections = (cookieHeader?: string): ScenarioSelections => {
@@ -28,8 +28,8 @@ export const parseScenarioSelections = (cookieHeader?: string): ScenarioSelectio
                 ids.length === 2 &&
                 ids[0] &&
                 ids[1] &&
-                SCENARIO_ID_PATTERN.test(ids[0]) &&
-                SCENARIO_ID_PATTERN.test(ids[1])
+                ENDPOINT_ID_PATTERN.test(ids[0]) &&
+                ENDPOINT_ID_PATTERN.test(ids[1])
             ) {
                 selections.set(ids[0], ids[1]);
             }

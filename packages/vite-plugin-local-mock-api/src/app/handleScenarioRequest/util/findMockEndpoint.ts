@@ -9,6 +9,10 @@ export const findMockEndpoint = (
     const normalizedMethod = method?.toUpperCase();
 
     return manifest.endpoints.find((endpoint) => {
+        if (endpoint.active === false) {
+            return false;
+        }
+
         if (endpoint.method.toUpperCase() !== normalizedMethod) {
             return false;
         }

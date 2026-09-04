@@ -50,8 +50,7 @@ describe('handleMockRequest', () => {
         internalPrefix: '/_internal/',
         extensions: ['.json'],
         contentTypes: { '.json': 'application/json; charset=utf-8' },
-        manifestFileName: 'mock.manifest.json',
-        manifestRoute: '/_local-mock-api/manifest'
+        manifestFileName: 'mock.manifest.json'
     };
 
     beforeEach(() => {
