@@ -2,7 +2,7 @@ import type { DemoCase } from './interface';
 
 export const MANIFEST_ROUTE = '/_local-mock-api/manifest';
 
-export const SCENARIO_COOKIE_NAME = 'ep-mock-api-scenarios';
+export const SCENARIO_COOKIE_NAME = 'wesflo-mock-api-scenarios';
 
 export const DEMO_CASES: readonly DemoCase[] = [
     {
@@ -13,7 +13,7 @@ export const DEMO_CASES: readonly DemoCase[] = [
         method: 'GET',
         path: '/_internal/demo/legacy/users/42',
         responseKind: 'json',
-        expectedStatus: 200
+        expectedStatus: 200,
     },
     {
         id: 'method-precedence',
@@ -24,7 +24,7 @@ export const DEMO_CASES: readonly DemoCase[] = [
         path: '/_internal/demo/orders',
         responseKind: 'json',
         expectedStatus: 200,
-        body: { article: 'EP-DEMO', quantity: 1 }
+        body: { article: 'EP-DEMO', quantity: 1 },
     },
     {
         id: 'default-json',
@@ -35,96 +35,128 @@ export const DEMO_CASES: readonly DemoCase[] = [
         method: 'GET',
         path: '/_internal/demo/json',
         responseKind: 'json',
-        expectedStatus: 200
+        expectedStatus: 200,
     },
     {
         id: 'explicit-json',
         group: 'JSON & Dateien',
         endpointId: 'json-response',
+        scenarioId: 'explicit-file',
         title: 'Explizite Szenario-Datei',
         description: 'Das Szenario verweist direkt auf eine andere JSON-Datei im Mock-Verzeichnis.',
         method: 'GET',
         path: '/_internal/demo/json',
         responseKind: 'json',
-        expectedStatus: 200
+        expectedStatus: 200,
     },
     {
         id: 'text-response',
         group: 'JSON & Dateien',
         endpointId: 'text-document',
+        scenarioId: 'text',
         title: 'Text-Antwort',
         description: 'Eine TXT-Datei wird mit epFetchText als Klartext gelesen.',
         method: 'GET',
         path: '/_internal/demo/text',
         responseKind: 'text',
-        expectedStatus: 200
+        expectedStatus: 200,
     },
     {
         id: 'pdf-response',
         group: 'JSON & Dateien',
         endpointId: 'pdf-document',
+        scenarioId: 'pdf',
         title: 'PDF-Download',
         description: 'Ein echtes PDF wird mit epFetchBlob geladen und anschließend zum Download angeboten.',
         method: 'GET',
         path: '/_internal/demo/pdf',
         responseKind: 'blob',
         expectedStatus: 200,
-        downloadName: 'local-mock-api-demo.pdf'
+        downloadName: 'local-mock-api-demo.pdf',
     },
     {
         id: 'bad-request',
         group: 'HTTP-Status',
         endpointId: 'http-errors',
+        scenarioId: 'bad-request',
         title: 'Bad Request',
-        description: 'Der Fetch-Helper verwirft die JSON-Antwort mit HTTP 400.',
+        description: 'Die Antwort wird absichtlich mit HTTP 400 und einem JSON-Fehlerbody ausgeliefert.',
         method: 'GET',
         path: '/_internal/demo/errors',
         responseKind: 'json',
-        expectedStatus: 400
+        expectedStatus: 400,
     },
     {
         id: 'server-error',
         group: 'HTTP-Status',
         endpointId: 'http-errors',
+        scenarioId: 'server-error',
         title: 'Internal Server Error',
         description: 'Der Fetch-Helper verwirft die JSON-Antwort mit HTTP 500.',
         method: 'GET',
         path: '/_internal/demo/errors',
         responseKind: 'json',
-        expectedStatus: 500
+        expectedStatus: 500,
     },
     {
         id: 'no-content',
         group: 'HTTP-Status',
         endpointId: 'no-content',
+        scenarioId: 'empty',
         title: 'No Content',
         description: 'HTTP 204 wird aus einer leeren Datei ohne Response-Body ausgeliefert.',
         method: 'GET',
         path: '/_internal/demo/no-content',
         responseKind: 'text',
-        expectedStatus: 204
+        expectedStatus: 204,
+    },
+    {
+        id: 'delay-immediate',
+        group: 'Latenz',
+        endpointId: 'delay',
+        scenarioId: 'immediate',
+        title: 'Ohne Verzögerung',
+        description: 'Das immediate-Szenario liefert dieselbe Datei ohne künstliche Verzögerung aus.',
+        method: 'GET',
+        path: '/_internal/demo/delay',
+        responseKind: 'json',
+        expectedStatus: 200,
+    },
+    {
+        id: 'delay-short',
+        group: 'Latenz',
+        endpointId: 'delay',
+        scenarioId: 'short',
+        title: 'Kurze Verzögerung',
+        description: 'Das short-Szenario verzögert dieselbe Antwort um 200 Millisekunden.',
+        method: 'GET',
+        path: '/_internal/demo/delay',
+        responseKind: 'json',
+        expectedStatus: 200,
     },
     {
         id: 'delay',
         group: 'Latenz',
         endpointId: 'delay',
-        title: 'Konfigurierbare Verzögerung',
-        description: 'Derselbe Endpoint demonstriert 0, 200 und 1000 Millisekunden Verzögerung.',
+        scenarioId: 'long',
+        title: 'Lange Verzögerung',
+        description: 'Das long-Szenario verzögert dieselbe Antwort um 1000 Millisekunden.',
         method: 'GET',
         path: '/_internal/demo/delay',
         responseKind: 'json',
-        expectedStatus: 200
+        expectedStatus: 200,
     },
     {
         id: 'automatic-file',
         group: 'Latenz',
         endpointId: 'automatic-file',
+        scenarioId: 'candidate-search',
         title: 'Szenario ohne file',
         description: 'Status und Delay kommen aus dem Szenario, die Datei weiterhin aus der Kandidatensuche.',
         method: 'GET',
         path: '/_internal/demo/automatic',
         responseKind: 'json',
-        expectedStatus: 200
+        expectedStatus: 200,
     },
     {
         id: 'alternate-mode-fallback',
@@ -134,6 +166,6 @@ export const DEMO_CASES: readonly DemoCase[] = [
         method: 'GET',
         path: '/_internal/demo/legacy',
         responseKind: 'json',
-        expectedStatus: 200
-    }
+        expectedStatus: 200,
+    },
 ] as const;

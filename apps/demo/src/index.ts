@@ -1,304 +1,387 @@
-import { html, nothing } from 'lit';
-import { state } from 'lit/decorators.js';
-import { EpBaseElement, epElement, epFetch, getCookieValue, saveBlob } from '@electronicpartnerio/ui-utils';
+import '@wesflo/local-mock-api-ui';
+
 import {
-    Badge,
-    Button,
-    h1Tag,
-    h2Tag,
-    h3Tag,
-    Notification,
-    pTag,
-    resetStyles,
-    smallTag
-} from '@electronicpartnerio/uic';
+    downloadBlob,
+    getCookieValue,
+    parseScenarioCookie,
+    setCookieValue,
+    updateScenarioCookie,
+} from '@wesflo/local-mock-api-utils';
+import { html, LitElement, nothing } from 'lit';
+import { state } from 'lit/decorators.js';
 
 import { DEMO_CASES, MANIFEST_ROUTE, SCENARIO_COOKIE_NAME } from './constant';
 import type { DemoCase, DemoResult, MockEndpoint, MockManifest, MockScenario } from './interface';
 import styles from './styles';
 import { executeDemoCase } from './util/executeDemoCase';
-import { parseScenarioCookie } from './util/parseScenarioCookie';
-import { updateScenarioCookie } from './util/updateScenarioCookie';
 
-void Badge;
-void Button;
-void Notification;
-
-@epElement('wesflo-local-mock-api-demo')
-export class MockApiDemo extends EpBaseElement {
-    static styles = [resetStyles, h1Tag, h2Tag, h3Tag, pTag, smallTag, styles];
+export class MockApiDemo extends LitElement {
+    static styles = styles;
 
     @state() private manifest?: MockManifest;
     @state() private manifestError?: string;
     @state() private manifestLoading = true;
     @state() private results = new Map<string, DemoResult>();
-    @state() private runningCases = new Set<string>();
+    @state() private running = false;
+    @state() private selectedCase = DEMO_CASES.find(({ id }) => id === 'delay') ?? DEMO_CASES[0];
     @state() private selections = new Map<string, string>();
 
     connectedCallback(): void {
         super.connectedCallback();
         this.syncSelections();
+        this.applyCaseSelection(this.selectedCase);
         void this.loadManifest();
     }
 
-    private findEndpoint(endpointId?: string): MockEndpoint | undefined {
-        return endpointId ? this.manifest?.endpoints.find((endpoint) => endpoint.id === endpointId) : undefined;
-    }
+    private findEndpoint = (endpointId?: string): MockEndpoint | undefined =>
+        endpointId ? this.manifest?.endpoints.find(({ id }) => id === endpointId) : undefined;
 
-    private getExpectedStatus(testCase: DemoCase): number {
-        const selectedScenario = this.findEndpoint(testCase.endpointId)?.scenarios.find(
-            (scenario) => scenario.id === this.selections.get(testCase.endpointId ?? '')
-        );
+    private findScenario = (testCase: DemoCase): MockScenario | undefined =>
+        this.findEndpoint(testCase.endpointId)?.scenarios.find(({ id }) => id === testCase.scenarioId);
 
-        return selectedScenario?.status ?? testCase.expectedStatus;
-    }
+    private getGroups = (): string[] => [...new Set(DEMO_CASES.map(({ group }) => group))];
 
-    private getGroups(): string[] {
-        return [...new Set(DEMO_CASES.map((testCase) => testCase.group))];
-    }
-
-    private async loadManifest(): Promise<void> {
+    private loadManifest = async (): Promise<void> => {
         this.manifestLoading = true;
         this.manifestError = undefined;
 
         try {
-            const manifest = await epFetch<MockManifest>('')(MANIFEST_ROUTE);
-            this.manifest = manifest ?? { endpoints: [] };
+            const response = await fetch(MANIFEST_ROUTE);
+            if (!response.ok) {
+                throw new Error(`Manifest request failed with HTTP ${response.status}`);
+            }
+            this.manifest = (await response.json()) as MockManifest;
         } catch (error) {
             this.manifest = undefined;
             this.manifestError = error instanceof Error ? error.message : String(error);
         } finally {
             this.manifestLoading = false;
         }
-    }
+    };
 
-    private async runCase(testCase: DemoCase): Promise<void> {
-        this.runningCases = new Set(this.runningCases).add(testCase.id);
-        const result = await executeDemoCase(testCase);
-        const results = new Map(this.results);
-        results.set(testCase.id, result);
-        this.results = results;
+    private applyCaseSelection = (testCase?: DemoCase): void => {
+        if (!testCase?.endpointId) {
+            return;
+        }
 
-        const runningCases = new Set(this.runningCases);
-        runningCases.delete(testCase.id);
-        this.runningCases = runningCases;
-    }
-
-    private selectScenario(endpointId: string, scenarioId?: string): void {
-        const currentValue = getCookieValue(SCENARIO_COOKIE_NAME) ?? undefined;
-        const value = updateScenarioCookie(currentValue, endpointId, scenarioId);
-
-        document.cookie = `${SCENARIO_COOKIE_NAME}=${encodeURIComponent(value)}; Path=/; SameSite=Lax`;
+        const nextValue = updateScenarioCookie(
+            getCookieValue(SCENARIO_COOKIE_NAME),
+            testCase.endpointId,
+            testCase.scenarioId
+        );
+        setCookieValue(SCENARIO_COOKIE_NAME, nextValue);
         this.syncSelections();
-    }
+    };
 
-    private selectStaleScenario(): void {
-        this.selectScenario('json-response', 'removed-scenario');
-    }
+    private selectCase = (testCase: DemoCase): void => {
+        this.selectedCase = testCase;
+        this.applyCaseSelection(testCase);
+    };
 
-    private syncSelections(): void {
-        this.selections = parseScenarioCookie(getCookieValue(SCENARIO_COOKIE_NAME) ?? undefined);
-    }
-
-    private downloadResult(testCase: DemoCase): void {
-        const result = this.results.get(testCase.id);
-
-        if (result?.blob) {
-            saveBlob(result.blob, result.filename ?? testCase.downloadName ?? 'mock-response.pdf');
+    private runSelectedCase = async (): Promise<void> => {
+        const testCase = this.selectedCase;
+        if (!testCase) {
+            return;
         }
-    }
 
-    private renderScenarioButton(endpointId: string, scenario?: MockScenario) {
-        const scenarioId = scenario?.id;
-        const selected =
-            this.selections.get(endpointId) === scenarioId || (!scenario && !this.selections.has(endpointId));
+        this.applyCaseSelection(testCase);
+        this.running = true;
+        const result = await executeDemoCase(testCase);
+        this.results = new Map(this.results).set(testCase.id, result);
+        this.running = false;
+    };
+
+    private reset = (): void => {
+        setCookieValue(SCENARIO_COOKIE_NAME, '');
+        this.results = new Map();
+        this.syncSelections();
+    };
+
+    private syncSelections = (): void => {
+        this.selections = parseScenarioCookie(getCookieValue(SCENARIO_COOKIE_NAME));
+    };
+
+    private copyText = async (value: string): Promise<void> => {
+        await navigator.clipboard?.writeText(value);
+    };
+
+    private downloadSelected = (): void => {
+        const result = this.selectedCase ? this.results.get(this.selectedCase.id) : undefined;
+        if (result?.blob && this.selectedCase) {
+            downloadBlob(result.blob, result.filename ?? this.selectedCase.downloadName ?? 'mock-response.bin');
+        }
+    };
+
+    private renderCase = (testCase: DemoCase) => {
+        const selected = this.selectedCase?.id === testCase.id;
+        const scenario = this.findScenario(testCase);
+        const delay = scenario?.delay;
 
         return html`
-            <uic-button
-                size="xs"
-                color=${selected ? 'primary' : 'tertiary'}
-                variant=${selected ? 'filled' : 'outlined'}
-                @click=${() => this.selectScenario(endpointId, scenarioId)}
+            <button
+                class="scenario ${selected ? 'scenario--selected' : ''}"
+                type="button"
+                aria-current=${selected ? 'true' : 'false'}
+                @click=${() => this.selectCase(testCase)}
             >
-                ${scenario?.label ?? 'Default'}
-            </uic-button>
+                <span class="scenario__dot status-${testCase.expectedStatus}"></span>
+                <span class="scenario__name">${testCase.title}</span>
+                <lm-badge tone=${testCase.expectedStatus >= 400 ? 'danger' : 'success'}>
+                    ${testCase.expectedStatus} ${testCase.expectedStatus === 204 ? 'No Content' : 'HTTP'}
+                </lm-badge>
+                <span class=${`scenario__delay ${delay ? 'scenario__delay--active' : ''}`}>
+                    ${delay
+                        ? html`
+                              <lm-icon name="clock" size="14"></lm-icon>
+                              ${(delay / 1000).toFixed(1)}s
+                          `
+                        : 'No delay'}
+                </span>
+                <code>${testCase.method} ${testCase.path.replace('/_internal/demo', '') || '/'}</code>
+            </button>
         `;
-    }
+    };
 
-    private renderScenarios(testCase: DemoCase) {
-        const endpoint = this.findEndpoint(testCase.endpointId);
-
-        if (!testCase.endpointId) {
-            return html`
-                <small>Legacy-Auflösung ohne Manifest-Szenario</small>
-            `;
-        }
-
-        if (!endpoint) {
-            return html`
-                <small>Endpoint im aktuellen Manifest nicht verfügbar</small>
-            `;
-        }
-
-        return html`
-            <div class="scenario-list" aria-label="Szenario für ${endpoint.id}">
-                ${this.renderScenarioButton(endpoint.id)}
-                ${endpoint.scenarios.map((scenario) => this.renderScenarioButton(endpoint.id, scenario))}
-            </div>
-        `;
-    }
-
-    private renderResult(testCase: DemoCase) {
-        const result = this.results.get(testCase.id);
-
-        if (!result) {
-            return html`
-                <div class="result result--idle">Noch nicht ausgeführt</div>
-            `;
-        }
-
-        const expectedStatus = this.getExpectedStatus(testCase);
-        const isExpectedError = expectedStatus >= 400 && result.state === 'error';
-        const successful = result.state === 'success' || isExpectedError;
-
-        return html`
-            <div class="result ${successful ? 'result--success' : 'result--error'}">
-                <div class="result__meta">
-                    <strong>${successful ? 'Erwartetes Ergebnis' : 'Unerwartetes Ergebnis'}</strong>
-                    <span>${Math.round(result.duration)} ms gemessen</span>
+    private renderLibrary = () => html`
+        <section class="library card" aria-labelledby="library-heading">
+            <div class="section-header">
+                <div class="section-title">
+                    <span class="section-icon"><lm-icon name="folder"></lm-icon></span>
+                    <h2 id="library-heading">Scenario Library</h2>
                 </div>
-                <pre>${result.body || '(leer – kein Response-Body)'}</pre>
-                ${result.blob
-                    ? html`
-                          <uic-button
-                              size="s"
-                              color="secondary"
-                              variant="outlined"
-                              @click=${() => this.downloadResult(testCase)}
-                          >
-                              PDF herunterladen
-                          </uic-button>
-                      `
-                    : nothing}
+                <lm-badge tone="info">${DEMO_CASES.length} cases</lm-badge>
             </div>
-        `;
-    }
-
-    private renderCase(testCase: DemoCase) {
-        const running = this.runningCases.has(testCase.id);
-        const status = this.getExpectedStatus(testCase);
-        const selectedScenario = testCase.endpointId ? this.selections.get(testCase.endpointId) : undefined;
-
-        return html`
-            <article class="case-card">
-                <div class="case-card__heading">
-                    <div>
-                        <div class="badges">
-                            <uic-badge size="s" color="info">${testCase.method}</uic-badge>
-                            <uic-badge size="s" color=${status >= 400 ? 'danger' : 'success'}>HTTP ${status}</uic-badge>
+            <div class="library__body">
+                ${this.getGroups().map(
+                    (group) => html`
+                        <div class="scenario-group">
+                            <div class="scenario-group__header">
+                                <strong>${group}</strong>
+                                <span>${DEMO_CASES.filter((item) => item.group === group).length}</span>
+                            </div>
+                            ${DEMO_CASES.filter((item) => item.group === group).map(this.renderCase)}
                         </div>
-                        <h3>${testCase.title}</h3>
-                    </div>
-                    <code>${testCase.path}</code>
-                </div>
-                <p>${testCase.description}</p>
-                <div class="scenario-row">
-                    <span class="scenario-label">Auswahl</span>
-                    ${this.renderScenarios(testCase)}
-                </div>
-                ${selectedScenario
-                    ? html`
-                          <small>Cookie-Auswahl: ${testCase.endpointId}:${selectedScenario}</small>
-                      `
-                    : nothing}
-                <div class="case-card__action">
-                    <uic-button
-                        size="s"
-                        .loading=${running}
-                        .disabled=${running}
-                        @click=${() => void this.runCase(testCase)}
-                    >
-                        Request ausführen
-                    </uic-button>
-                    <span>Erwartet: HTTP ${status}</span>
-                </div>
-                ${this.renderResult(testCase)}
-            </article>
-        `;
-    }
+                    `
+                )}
+            </div>
+        </section>
+    `;
 
-    render() {
-        const cookieValue = getCookieValue(SCENARIO_COOKIE_NAME);
+    private renderResponse = (result?: DemoResult) => html`
+        <div class="code-toolbar">
+            <span>Response</span>
+            <lm-button compact @click=${() => void this.copyText(result?.body ?? '')} aria-label="Response kopieren">
+                <lm-icon name="copy" size="15"></lm-icon>
+                Copy
+            </lm-button>
+        </div>
+        <pre class="response-code"><code>${result?.body || '// Run this scenario to inspect its response.'}</code></pre>
+        ${result?.blob
+            ? html`
+                  <lm-button compact @click=${this.downloadSelected}>Download response</lm-button>
+              `
+            : nothing}
+    `;
+
+    private renderDebugCards = (result?: DemoResult) => {
+        const testCase = this.selectedCase;
+        const selectedScenario = testCase?.endpointId ? this.selections.get(testCase.endpointId) : undefined;
+        const scenario = testCase ? this.findScenario(testCase) : undefined;
 
         return html`
-            <header class="hero">
-                <div class="hero__content">
-                    <p class="eyebrow">@electronicpartnerio/vite-plugin-local-mock-api</p>
-                    <h1>Browser-Demo für lokale API-Szenarien</h1>
-                    <p class="hero__copy">
-                        Alle Requests laufen über die Fetch-Helper aus
-                        <code>ui-utils</code>
-                        . Szenarien werden live im Cookie umgeschaltet und direkt vom Vite-Plugin ausgeliefert.
+            <div class="debug-grid">
+                <article class="debug-card">
+                    <strong>Headers (${result?.headers.length ?? 0})</strong>
+                    ${result?.headers.slice(0, 4).map(
+                        ([name, value]) => html`
+                            <p>
+                                <span>${name}</span>
+                                <code>${value}</code>
+                            </p>
+                        `
+                    ) ??
+                    html`
+                        <p class="empty">Available after running</p>
+                    `}
+                </article>
+                <article class="debug-card">
+                    <strong>Cookie</strong>
+                    <code class="cookie-value">${getCookieValue(SCENARIO_COOKIE_NAME) || '(empty)'}</code>
+                </article>
+                <article class="debug-card">
+                    <strong>Applied override</strong>
+                    <b>${selectedScenario ?? 'Default file resolution'}</b>
+                    <p>
+                        <span>Delay</span>
+                        <code>${scenario?.delay ?? 0}ms</code>
                     </p>
-                </div>
-                <div class="manifest-summary">
-                    <span>Manifest</span>
-                    <strong>
-                        ${this.manifestLoading
-                            ? 'wird geladen …'
-                            : this.manifestError
-                              ? 'fehlerhaft'
-                              : `${this.manifest?.endpoints.length ?? 0} Endpoints`}
-                    </strong>
-                </div>
-            </header>
+                    <p>
+                        <span>Source</span>
+                        <code>${testCase?.endpointId ? 'Manifest' : 'Legacy resolver'}</code>
+                    </p>
+                </article>
+            </div>
+        `;
+    };
 
-            <section class="control-panel" aria-labelledby="session-heading">
-                <div>
-                    <h2 id="session-heading">Aktuelle Demo-Session</h2>
-                    <p>Mehrere Endpoint-Auswahlen bleiben gemeinsam im Szenario-Cookie erhalten.</p>
+    private renderPreview = () => {
+        const testCase = this.selectedCase;
+        if (!testCase) {
+            return nothing;
+        }
+
+        const result = this.results.get(testCase.id);
+        const status = result?.status || testCase.expectedStatus;
+        const scenario = this.findScenario(testCase);
+
+        return html`
+            <section class="preview card" aria-labelledby="preview-heading">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span class="section-icon section-icon--dark"><lm-icon name="code"></lm-icon></span>
+                        <h2 id="preview-heading">Preview &amp; Debug</h2>
+                    </div>
+                    <lm-button compact @click=${this.reset}>
+                        <lm-icon name="refresh" size="15"></lm-icon>
+                        Reset
+                    </lm-button>
                 </div>
-                <div class="cookie-display">
-                    <span>${SCENARIO_COOKIE_NAME}</span>
-                    <code>${cookieValue || '(leer)'}</code>
+                <div class="preview__body">
+                    <div class="request-bar">
+                        <strong>${testCase.method}</strong>
+                        <code>${testCase.path}</code>
+                        <lm-badge tone=${status >= 400 ? 'danger' : 'success'}>${status} HTTP</lm-badge>
+                        <span class="request-time">
+                            <lm-icon name="clock" size="15"></lm-icon>
+                            ${result ? `${Math.round(result.duration)}ms` : `${scenario?.delay ?? 0}ms`}
+                        </span>
+                        <lm-button
+                            variant="primary"
+                            ?loading=${this.running}
+                            @click=${() => void this.runSelectedCase()}
+                        >
+                            <lm-icon name="play" size="16"></lm-icon>
+                            Run
+                        </lm-button>
+                    </div>
+                    <p class="case-description">${testCase.description}</p>
+                    ${this.renderResponse(result)} ${this.renderDebugCards(result)}
                 </div>
-                <div class="control-panel__actions">
-                    <uic-button size="s" variant="outlined" @click=${() => void this.loadManifest()}>
-                        Manifest aktualisieren
-                    </uic-button>
-                    <uic-button
-                        size="s"
-                        color="tertiary"
-                        variant="outlined"
-                        @click=${() => this.selectStaleScenario()}
-                    >
-                        Veraltete Auswahl setzen
-                    </uic-button>
+            </section>
+        `;
+    };
+
+    private renderManifest = () => {
+        const testCase = this.selectedCase;
+        const scenario = testCase ? this.findScenario(testCase) : undefined;
+        const manifestText = testCase?.endpointId
+            ? [
+                  `- id: ${testCase.endpointId}`,
+                  `  method: ${testCase.method}`,
+                  `  path: ${testCase.path}`,
+                  ...(scenario
+                      ? [
+                            `  scenario: ${scenario.id}`,
+                            `  status: ${scenario.status ?? testCase.expectedStatus}`,
+                            ...(scenario.delay === undefined ? [] : [`  delay: ${scenario.delay}`]),
+                            ...(scenario.file ? [`  file: ${scenario.file}`] : []),
+                        ]
+                      : ['  scenario: default']),
+              ].join('\n')
+            : '# No manifest entry – this case exercises legacy file resolution.';
+
+        return html`
+            <section class="manifest card" aria-labelledby="manifest-heading">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span class="section-icon"><lm-icon name="code"></lm-icon></span>
+                        <div>
+                            <h2 id="manifest-heading">Example manifest</h2>
+                            <p>This is how the selected scenario is represented in the mock manifest.</p>
+                        </div>
+                    </div>
+                    <lm-button compact @click=${() => void this.copyText(manifestText)}>
+                        <lm-icon name="copy" size="15"></lm-icon>
+                        Copy
+                    </lm-button>
+                </div>
+                <pre><code>${manifestText}</code></pre>
+            </section>
+        `;
+    };
+
+    render = () => html`
+        <header class="topbar">
+            <a class="brand" href="#top" aria-label="wesflo Local Mock API">
+                <span class="brand__mark"><lm-icon name="bolt" size="23"></lm-icon></span>
+                <strong>wesflo</strong>
+                <lm-badge tone="info">Local Mock API</lm-badge>
+            </a>
+            <nav aria-label="Demo navigation">
+                <a href="https://github.com/wesflo/vite-plugin-local-mock-api" target="_blank">
+                    <lm-icon name="book"></lm-icon>
+                    Docs
+                </a>
+                <a href="#session">
+                    <lm-icon name="settings"></lm-icon>
+                    Settings
+                </a>
+            </nav>
+        </header>
+
+        <main id="top">
+            <section class="hero card">
+                <div class="hero__icon"><lm-icon name="bolt" size="42"></lm-icon></div>
+                <div class="hero__copy">
+                    <h1>Build and test mock scenarios</h1>
+                    <p>Simulate real-world API behaviors, preview responses, and iterate quickly.</p>
+                    <div class="benefits">
+                        <span>
+                            <lm-icon name="check"></lm-icon>
+                            Realistic test data
+                        </span>
+                        <span>
+                            <lm-icon name="clock"></lm-icon>
+                            Custom delays &amp; errors
+                        </span>
+                    </div>
+                </div>
+                <div class="hero__visual" aria-hidden="true">
+                    <div class="window-dots">
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                    </div>
+                    <div class="window-lines">
+                        <b></b>
+                        <span></span>
+                        <b></b>
+                        <span></span>
+                    </div>
+                    <div class="hero__bolt">
+                        <lm-icon name="bolt" size="30"></lm-icon>
+                    </div>
                 </div>
             </section>
 
-            ${this.manifestError
-                ? html`
-                      <uic-notification type="danger" heading="Manifest konnte nicht geladen werden" .noClose=${true}>
-                          ${this.manifestError}
-                      </uic-notification>
-                  `
-                : nothing}
-            ${this.getGroups().map(
-                (group) => html`
-                    <section class="case-group" aria-labelledby=${`group-${group}`}>
-                        <div class="section-heading">
-                            <h2 id=${`group-${group}`}>${group}</h2>
-                            <span>${DEMO_CASES.filter((testCase) => testCase.group === group).length} Fälle</span>
-                        </div>
-                        <div class="case-grid">
-                            ${DEMO_CASES.filter((testCase) => testCase.group === group).map((testCase) =>
-                                this.renderCase(testCase)
-                            )}
-                        </div>
-                    </section>
-                `
-            )}
-        `;
-    }
+            <div class="workspace" id="session">
+                ${this.renderLibrary()}
+                <div class="workspace__detail">
+                    ${this.manifestError
+                        ? html`
+                              <div class="notice" role="alert">${this.manifestError}</div>
+                          `
+                        : nothing}
+                    ${this.renderPreview()} ${this.renderManifest()}
+                    <p class="mode-note">
+                        Manifest:
+                        ${this.manifestLoading ? 'loading…' : `${this.manifest?.endpoints.length ?? 0} endpoints`}.
+                        Missing and invalid manifest fallbacks are available through the dedicated demo scripts.
+                    </p>
+                </div>
+            </div>
+        </main>
+    `;
 }
+
+customElements.define('wesflo-local-mock-api-demo', MockApiDemo);

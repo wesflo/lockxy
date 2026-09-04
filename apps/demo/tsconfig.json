@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "module": "ES2022",
-        "outDir": "../../../../bundle",
+        "outDir": "dist",
         "target": "es2022",
         "lib": ["ES2022", "DOM", "DOM.Iterable"],
         "types": ["vitest/globals", "vite/client", "@types/jest"],
@@ -23,7 +23,7 @@
         "esModuleInterop": true,
         "composite": true,
         "moduleResolution": "Bundler",
-        "strictFunctionTypes": false,
+        "strictFunctionTypes": false
     },
     "include": ["src/**/*.ts"]
 }

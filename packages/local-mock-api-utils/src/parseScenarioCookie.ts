@@ -3,11 +3,7 @@ const SCENARIO_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 export const parseScenarioCookie = (value?: string): Map<string, string> => {
     const selections = new Map<string, string>();
 
-    if (!value) {
-        return selections;
-    }
-
-    value.split('|').forEach((entry) => {
+    value?.split('|').forEach((entry) => {
         const parts = entry.split(':');
         const endpointId = parts[0];
         const scenarioId = parts[1];

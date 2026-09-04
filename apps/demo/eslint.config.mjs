@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint';
 import vitest from 'eslint-plugin-vitest-globals';
 import globals from 'globals';
 
-export const esLintDefaultConfig = tseslint.config({
+const esLintDefaultConfig = tseslint.config({
     extends: [eslint.configs.recommended, tseslint.configs.recommended],
     rules: {
         '@typescript-eslint/array-type': 2,
@@ -24,3 +24,5 @@ export const esLintDefaultConfig = tseslint.config({
     files: ['src/**/*.ts'],
     ignores: ['src/**/*.spec.ts', 'src/**/*.d.ts', 'coverage/**', 'dist/**', 'node_modules/**']
 });
+
+export default esLintDefaultConfig;

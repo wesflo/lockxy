@@ -11,6 +11,7 @@
         "noUncheckedIndexedAccess": true,
         "noUncheckedSideEffectImports": true,
         "verbatimModuleSyntax": true,
+        "skipLibCheck": true,
         "declaration": true,
         "outDir": "dist",
         "rootDir": "src",

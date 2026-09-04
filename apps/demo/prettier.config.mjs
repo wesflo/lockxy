@@ -1,4 +1,4 @@
-export const prettierDefaultConfig = {
+const prettierDefaultConfig = {
     arrowParens: 'always',
     bracketSpacing: true,
     endOfLine: 'auto',
@@ -15,3 +15,5 @@ export const prettierDefaultConfig = {
     htmlWhitespaceSensitivity: 'ignore',
     embeddedLanguageFormatting: 'auto'
 };
+
+export default prettierDefaultConfig;

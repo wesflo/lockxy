@@ -8,6 +8,7 @@ export interface DemoCase {
     id: string;
     group: string;
     endpointId?: string;
+    scenarioId?: string;
     title: string;
     description: string;
     method: DemoMethod;
@@ -20,8 +21,12 @@ export interface DemoCase {
 
 export interface DemoResult {
     state: DemoResultState;
+    status: number;
+    statusText: string;
     duration: number;
     body: string;
+    contentType: string;
+    headers: readonly (readonly [string, string])[];
     blob?: Blob;
     filename?: string | null;
     error?: string;

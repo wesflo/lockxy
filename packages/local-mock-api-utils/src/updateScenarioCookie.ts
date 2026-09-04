@@ -1,10 +1,6 @@
 import { parseScenarioCookie } from './parseScenarioCookie';
 
-export const updateScenarioCookie = (
-    value: string | undefined,
-    endpointId: string,
-    scenarioId?: string
-): string => {
+export const updateScenarioCookie = (value: string | undefined, endpointId: string, scenarioId?: string): string => {
     const selections = parseScenarioCookie(value);
 
     if (scenarioId) {
@@ -13,5 +9,5 @@ export const updateScenarioCookie = (
         selections.delete(endpointId);
     }
 
-    return [...selections.entries()].map(([id, selection]) => `${id}:${selection}`).join('|');
+    return [...selections].map(([id, selection]) => `${id}:${selection}`).join('|');
 };

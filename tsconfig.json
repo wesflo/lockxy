@@ -6,6 +6,12 @@
     },
     {
       "path": "./packages/vite-plugin-local-mock-api"
+    },
+    {
+      "path": "./packages/local-mock-api-ui"
+    },
+    {
+      "path": "./packages/local-mock-api-utils"
     }
   ]
 }
