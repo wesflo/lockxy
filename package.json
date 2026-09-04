@@ -6,6 +6,7 @@
   "scripts": {
     "build": "turbo run build",
     "build:app": "turbo run build --filter=@wesflo/local-mock-api-demo",
+    "build:playground": "turbo run build --filter=@wesflo/wf-vite-mock-proxy-playground",
     "build:package": "turbo run build --filter=@wesflo/vite-plugin-local-mock-api",
     "test": "turbo run test",
     "test:app": "turbo run test --filter=@wesflo/local-mock-api-demo",
@@ -20,6 +21,7 @@
     "prettier:w": "turbo run prettier:w",
     "check-types": "turbo run check-types",
     "dev": "turbo run dev --filter=@wesflo/local-mock-api-demo",
+    "dev:playground": "turbo run dev --filter=@wesflo/wf-vite-mock-proxy-playground",
     "dev:package": "turbo run dev --filter=@wesflo/vite-plugin-local-mock-api",
     "dev:missing-manifest": "turbo run dev:missing-manifest --filter=@wesflo/local-mock-api-demo",
     "dev:invalid-manifest": "turbo run dev:invalid-manifest --filter=@wesflo/local-mock-api-demo",

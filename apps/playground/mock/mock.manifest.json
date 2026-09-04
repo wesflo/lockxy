@@ -1,0 +1,60 @@
+{
+    "endpoints": [
+        {
+            "id": "playground-profile",
+            "label": "Playground-Profil",
+            "method": "GET",
+            "path": "/api/playground/profile",
+            "scenarios": [
+                {
+                    "id": "admin",
+                    "label": "Admin",
+                    "file": "scenarios/profile-admin.json"
+                },
+                {
+                    "id": "guest",
+                    "label": "Gast",
+                    "file": "scenarios/profile-guest.json"
+                }
+            ]
+        },
+        {
+            "id": "playground-orders",
+            "label": "Playground-Bestellung",
+            "method": "POST",
+            "path": "/api/playground/orders",
+            "scenarios": [
+                {
+                    "id": "created",
+                    "label": "201 Created",
+                    "status": 201,
+                    "file": "scenarios/order-created.json"
+                },
+                {
+                    "id": "validation-error",
+                    "label": "422 Validierungsfehler",
+                    "status": 422,
+                    "file": "scenarios/order-validation-error.json"
+                }
+            ]
+        },
+        {
+            "id": "playground-availability",
+            "label": "Playground-Verfügbarkeit",
+            "method": "GET",
+            "path": "/api/playground/availability",
+            "scenarios": [
+                {
+                    "id": "immediate",
+                    "label": "Sofort",
+                    "delay": 0
+                },
+                {
+                    "id": "slow",
+                    "label": "800 ms Verzögerung",
+                    "delay": 800
+                }
+            ]
+        }
+    ]
+}

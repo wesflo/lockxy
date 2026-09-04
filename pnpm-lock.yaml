@@ -61,6 +61,28 @@ importers:
         specifier: ^4.1.11
         version: 4.1.11(@types/node@22.20.1)(@vitest/coverage-v8@4.1.11)(happy-dom@20.13.2)(vite@8.2.2(@types/node@22.20.1)(yaml@2.5.1))
 
+  apps/playground:
+    dependencies:
+      '@wesflo/local-mock-api-ui':
+        specifier: workspace:*
+        version: link:../../packages/local-mock-api-ui
+      '@wesflo/wf-vite-mock-proxy':
+        specifier: workspace:*
+        version: link:../../packages/wf-vite-mock-proxy
+      lit:
+        specifier: ^3.3.1
+        version: 3.3.3
+    devDependencies:
+      '@wesflo/vite-plugin-local-mock-api':
+        specifier: workspace:*
+        version: link:../../packages/vite-plugin-local-mock-api
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+      vite:
+        specifier: 8.2.2
+        version: 8.2.2(@types/node@22.20.1)(yaml@2.5.1)
+
   packages/local-mock-api-ui:
     dependencies:
       '@lit/reactive-element':

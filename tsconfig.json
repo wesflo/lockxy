@@ -5,6 +5,9 @@
       "path": "./apps/demo"
     },
     {
+      "path": "./apps/playground"
+    },
+    {
       "path": "./packages/vite-plugin-local-mock-api"
     },
     {

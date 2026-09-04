@@ -1,0 +1,25 @@
+import { mockApiPlugin } from '@wesflo/vite-plugin-local-mock-api';
+import { defineConfig } from 'vite';
+
+const apiTarget = process.env.PLAYGROUND_API_TARGET;
+
+export default defineConfig({
+    plugins: [
+        mockApiPlugin({
+            mockRoot: new URL('./mock/', import.meta.url),
+            internalPrefix: '/api/',
+        }),
+    ],
+    server: {
+        port: 5174,
+        strictPort: true,
+        proxy: apiTarget
+            ? {
+                  '/api': {
+                      target: apiTarget,
+                      changeOrigin: true,
+                  },
+              }
+            : undefined,
+    },
+});

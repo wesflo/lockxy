@@ -47,7 +47,10 @@
         "^build"
       ],
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "passThroughEnv": [
+        "PLAYGROUND_API_TARGET"
+      ]
     },
     "dev:missing-manifest": {
       "dependsOn": [
