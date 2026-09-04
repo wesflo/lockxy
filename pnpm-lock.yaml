@@ -23,6 +23,9 @@ importers:
       '@wesflo/vite-plugin-local-mock-api':
         specifier: workspace:*
         version: link:../../packages/vite-plugin-local-mock-api
+      '@wesflo/wf-vite-mock-proxy':
+        specifier: workspace:*
+        version: link:../../packages/wf-vite-mock-proxy
     devDependencies:
       '@eslint/js':
         specifier: ^9.23.0
@@ -63,9 +66,6 @@ importers:
       '@lit/reactive-element':
         specifier: ^2.1.2
         version: 2.1.2
-      '@wesflo/local-mock-api-utils':
-        specifier: workspace:*
-        version: link:../local-mock-api-utils
       lit:
         specifier: ^3.3.1
         version: 3.3.3
@@ -149,6 +149,28 @@ importers:
       vite-plugin-banner:
         specifier: 0.8.1
         version: 0.8.1
+      vitest:
+        specifier: ^4.1.11
+        version: 4.1.11(@types/node@22.20.1)(@vitest/coverage-v8@4.1.11)(happy-dom@20.13.2)(vite@8.2.2(@types/node@22.20.1)(yaml@2.5.1))
+
+  packages/wf-vite-mock-proxy:
+    dependencies:
+      lit:
+        specifier: ^3.3.1
+        version: 3.3.3
+    devDependencies:
+      '@wesflo/local-mock-api-utils':
+        specifier: workspace:*
+        version: link:../local-mock-api-utils
+      happy-dom:
+        specifier: ^20.13.1
+        version: 20.13.2
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+      vite:
+        specifier: 8.2.2
+        version: 8.2.2(@types/node@22.20.1)(yaml@2.5.1)
       vitest:
         specifier: ^4.1.11
         version: 4.1.11(@types/node@22.20.1)(@vitest/coverage-v8@4.1.11)(happy-dom@20.13.2)(vite@8.2.2(@types/node@22.20.1)(yaml@2.5.1))

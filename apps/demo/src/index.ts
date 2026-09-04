@@ -1,4 +1,5 @@
 import { wfElement } from '@wesflo/local-mock-api-ui';
+import '@wesflo/wf-vite-mock-proxy';
 
 import {
     downloadBlob,

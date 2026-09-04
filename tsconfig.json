@@ -12,6 +12,9 @@
     },
     {
       "path": "./packages/local-mock-api-utils"
+    },
+    {
+      "path": "./packages/wf-vite-mock-proxy"
     }
   ]
 }

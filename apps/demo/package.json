@@ -24,6 +24,7 @@
     "dependencies": {
         "@wesflo/local-mock-api-ui": "workspace:*",
         "@wesflo/local-mock-api-utils": "workspace:*",
+        "@wesflo/wf-vite-mock-proxy": "workspace:*",
         "@wesflo/vite-plugin-local-mock-api": "workspace:*"
     },
     "devDependencies": {

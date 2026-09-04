@@ -7,11 +7,18 @@ Local mock responses for API requests handled by the Vite development server.
 In a Vite-powered micro frontend, register the Web Component and place it directly in the HTML:
 
 ```html
-<wesflo-mock-proxy></wesflo-mock-proxy>
+<wf-vite-mock-proxy></wf-vite-mock-proxy>
 
 <script type="module">
-    import '@wesflo/local-mock-api-ui';
+    import '@wesflo/wf-vite-mock-proxy';
 </script>
+```
+
+For a direct browser integration without a module loader, use the self-contained UMD build:
+
+```html
+<wf-vite-mock-proxy></wf-vite-mock-proxy>
+<script src="./node_modules/@wesflo/wf-vite-mock-proxy/dist/wf-vite-mock-proxy.umd.cjs"></script>
 ```
 
 The panel loads the manifest from the fixed `/_local-mock-api/manifest` route. A click on the floating button opens or closes the panel; `Escape` closes it as well. Hold Ctrl or Cmd while dragging the button to move it. Its position is saved in local storage and restored on the next visit.
