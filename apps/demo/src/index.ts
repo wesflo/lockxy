@@ -138,7 +138,7 @@ export class MockApiDemo extends LitElement {
                           `
                         : 'No delay'}
                 </span>
-                <code>${testCase.method} ${testCase.path.replace('/_internal/demo', '') || '/'}</code>
+                <code>${testCase.method} ${testCase.path.replace('/api/demo', '') || '/'}</code>
             </button>
         `;
     };

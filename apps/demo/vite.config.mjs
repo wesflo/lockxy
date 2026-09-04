@@ -19,6 +19,6 @@ export default defineConfig(({ mode }) => {
         build: {
             outDir: 'dist',
         },
-        plugins: [mockApiPlugin({ mockRoot, internalPrefix: '/_internal/' })],
+        plugins: [mockApiPlugin({ mockRoot, internalPrefix: '/api/' })],
     };
 });

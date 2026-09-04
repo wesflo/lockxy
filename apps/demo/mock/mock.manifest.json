@@ -2,8 +2,23 @@
     "endpoints": [
         {
             "id": "json-response",
+            "label": "Simple JSON response",
             "method": "GET",
-            "path": "/_internal/demo/json",
+            "path": "/api/demo/json",
+            "scenarios": [
+                {
+                    "id": "explicit-file",
+                    "label": "Explizite Datei",
+                    "file": "scenarios/explicit.json"
+                }
+            ]
+        },
+        {
+            "id": "json-response",
+            "label": "Inactive Scenario JSON response",
+            "method": "GET",
+            "path": "/api/demo/json",
+            "active": false,
             "scenarios": [
                 {
                     "id": "explicit-file",
@@ -15,7 +30,7 @@
         {
             "id": "http-errors",
             "method": "GET",
-            "path": "/_internal/demo/errors",
+            "path": "/api/demo/errors",
             "scenarios": [
                 {
                     "id": "bad-request",
@@ -34,7 +49,7 @@
         {
             "id": "no-content",
             "method": "GET",
-            "path": "/_internal/demo/no-content",
+            "path": "/api/demo/no-content",
             "scenarios": [
                 {
                     "id": "empty",
@@ -47,7 +62,7 @@
         {
             "id": "delay",
             "method": "GET",
-            "path": "/_internal/demo/delay",
+            "path": "/api/demo/delay",
             "scenarios": [
                 {
                     "id": "immediate",
@@ -69,7 +84,7 @@
         {
             "id": "automatic-file",
             "method": "GET",
-            "path": "/_internal/demo/automatic",
+            "path": "/api/demo/automatic",
             "scenarios": [
                 {
                     "id": "candidate-search",
@@ -81,7 +96,7 @@
         {
             "id": "text-document",
             "method": "GET",
-            "path": "/_internal/demo/text",
+            "path": "/api/demo/text",
             "scenarios": [
                 {
                     "id": "text",
@@ -93,7 +108,7 @@
         {
             "id": "pdf-document",
             "method": "GET",
-            "path": "/_internal/demo/pdf",
+            "path": "/api/demo/pdf",
             "scenarios": [
                 {
                     "id": "pdf",
