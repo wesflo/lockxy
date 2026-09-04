@@ -45,3 +45,8 @@ export type ManifestReadResult =
     | { status: 'invalid'; error: Error };
 
 export type ScenarioSelections = ReadonlyMap<string, string>;
+
+export interface BypassSelections {
+    all: boolean;
+    endpointIds: ReadonlySet<string>;
+}

@@ -5,6 +5,10 @@ import type { MockManifest } from './interface.js';
  */
 export const SCENARIO_COOKIE_NAME = 'wesflo-mock-api-scenarios';
 
+export const BYPASS_COOKIE_NAME = 'wesflo-mock-api-bypass';
+
+export const BYPASS_ALL_VALUE = '*';
+
 export const SCENARIO_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 
 export const EMPTY_MANIFEST: MockManifest = { endpoints: [] };

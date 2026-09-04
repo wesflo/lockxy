@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
     handleMockRequest: vi.fn(),
     handleScenarioRequest: vi.fn(),
     normalizeMockRoot: vi.fn(),
+    shouldBypassMockRequest: vi.fn(),
     defaultMockRoot: new URL('file:///default/mocks/')
 }));
 
@@ -30,6 +31,10 @@ vi.mock('./util/normalizeMockRoot.js', () => ({
     normalizeMockRoot: mocks.normalizeMockRoot
 }));
 
+vi.mock('./util/shouldBypassMockRequest.js', () => ({
+    shouldBypassMockRequest: mocks.shouldBypassMockRequest
+}));
+
 import { mockApiPlugin } from './index.js';
 
 type Middleware = (
@@ -45,6 +50,7 @@ describe('mockApiPlugin', () => {
         vi.resetAllMocks();
         mocks.normalizeMockRoot.mockReturnValue(normalizedMockRoot);
         mocks.handleScenarioRequest.mockResolvedValue(false);
+        mocks.shouldBypassMockRequest.mockResolvedValue(false);
     });
 
     it('creates the original named plugin and normalizes the default mock root', () => {
@@ -119,5 +125,25 @@ describe('mockApiPlugin', () => {
             manifestFileName: 'mock.manifest.json',
             manifestRoute: '/_local-mock-api/manifest'
         });
+    });
+
+    it('passes bypassed requests directly to the next middleware', async () => {
+        let middleware: Middleware | undefined;
+        const use = vi.fn((registeredMiddleware: Middleware) => {
+            middleware = registeredMiddleware;
+        });
+        const plugin = mockApiPlugin();
+        const configureServer = plugin.configureServer as (server: ViteDevServer) => void;
+        configureServer({ middlewares: { use } } as unknown as ViteDevServer);
+        const request = {} as IncomingMessage;
+        const response = {} as ServerResponse;
+        const next = vi.fn();
+        mocks.shouldBypassMockRequest.mockResolvedValue(true);
+
+        await middleware!(request, response, next);
+
+        expect(next).toHaveBeenCalledOnce();
+        expect(mocks.handleScenarioRequest).not.toHaveBeenCalled();
+        expect(mocks.handleMockRequest).not.toHaveBeenCalled();
     });
 });

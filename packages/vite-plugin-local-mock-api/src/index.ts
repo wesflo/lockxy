@@ -12,6 +12,9 @@ import {
 } from './constant.js';
 import type { MockApiPluginOptions } from './interface.js';
 import { normalizeMockRoot } from './util/normalizeMockRoot.js';
+import { shouldBypassMockRequest } from './util/shouldBypassMockRequest.js';
+
+export { BYPASS_ALL_VALUE, BYPASS_COOKIE_NAME } from './constant.js';
 
 export const mockApiPlugin = ({
     mockRoot = DEFAULT_MOCK_ROOT,
@@ -35,6 +38,11 @@ export const mockApiPlugin = ({
 
         configureServer: (server) => {
             server.middlewares.use(async (req, res, next) => {
+                if (await shouldBypassMockRequest(req, options)) {
+                    next();
+                    return;
+                }
+
                 const handled = await handleScenarioRequest(req, res, options);
 
                 if (!handled) {
