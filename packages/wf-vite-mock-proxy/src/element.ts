@@ -10,6 +10,7 @@ import {
     updateBypassCookie,
     updateScenarioCookie,
 } from '@wesflo/local-mock-api-utils';
+import { wfElement } from '@wesflo/local-mock-api-ui';
 import { html, LitElement } from 'lit';
 import { state } from 'lit/decorators.js';
 
@@ -18,22 +19,22 @@ import {
     MOCK_PROXY_TAG_NAME,
     POSITION_STORAGE_KEY,
     VIEWPORT_GAP,
-} from '../../constant.js';
-import type { MockEndpoint, MockManifest } from '../../interface.js';
+    ENDPOINTS_TAB,
+    SETTINGS_TAB,
+} from './constant.js';
+import type { DragState, MockEndpoint, MockManifest, MockProxyTab, Position } from './interface.js';
 import type {
     EndpointChangeDetail,
     ProxyChangeDetail,
     QueryChangeDetail,
     ScenarioChangeDetail,
-} from '../Endpoints/interface.js';
-import '../Endpoints/Endpoints.js';
-import '../Icon/Icon.js';
-import type { SettingChangeDetail } from '../Settings/interface.js';
-import '../Settings/Settings.js';
-import { ENDPOINTS_TAB, SETTINGS_TAB } from './constant.js';
-import type { DragState, MockProxyTab, Position } from './interface.js';
+} from './component/Endpoints/interface.js';
+import './component/Endpoints/element.js';
+import type { SettingChangeDetail } from './component/Settings/interface.js';
+import './component/Settings/element.js';
 import { mockProxyStyle } from './style.js';
 
+@wfElement(MOCK_PROXY_TAG_NAME)
 export class WfViteMockProxy extends LitElement {
     static styles = mockProxyStyle;
 
@@ -312,7 +313,7 @@ export class WfViteMockProxy extends LitElement {
             @pointerup=${this.handleLauncherPointerUp}
             @pointercancel=${this.handleLauncherPointerUp}
         >
-            <wf-vite-mock-proxy-icon name="rocket" size="29"></wf-vite-mock-proxy-icon>
+            <wf-icon name="rocket" size="29"></wf-icon>
         </button>
 
         <aside
@@ -326,12 +327,12 @@ export class WfViteMockProxy extends LitElement {
             <header class="panel-header">
                 <div class="brand">
                     <span class="brand-mark">
-                        <wf-vite-mock-proxy-icon name="rocket" size="27"></wf-vite-mock-proxy-icon>
+                        <wf-icon name="rocket" size="27"></wf-icon>
                     </span>
                     <strong>Mock Proxy</strong>
                 </div>
                 <button class="icon-button close" type="button" aria-label="Mock Proxy schließen" @click=${this.closePanel}>
-                    <wf-vite-mock-proxy-icon name="close" size="24"></wf-vite-mock-proxy-icon>
+                    <wf-icon name="close" size="24"></wf-icon>
                 </button>
             </header>
 
@@ -346,7 +347,7 @@ export class WfViteMockProxy extends LitElement {
                     tabindex=${this.activeTab === ENDPOINTS_TAB ? '0' : '-1'}
                     @click=${() => this.selectTab(ENDPOINTS_TAB)}
                 >
-                    <wf-vite-mock-proxy-icon name="sliders" size="19"></wf-vite-mock-proxy-icon>
+                    <wf-icon name="sliders" size="19"></wf-icon>
                     Endpoints
                 </button>
                 <button
@@ -359,7 +360,7 @@ export class WfViteMockProxy extends LitElement {
                     tabindex=${this.activeTab === SETTINGS_TAB ? '0' : '-1'}
                     @click=${() => this.selectTab(SETTINGS_TAB)}
                 >
-                    <wf-vite-mock-proxy-icon name="settings" size="19"></wf-vite-mock-proxy-icon>
+                    <wf-icon name="settings" size="19"></wf-icon>
                     Einstellungen
                 </button>
             </nav>
@@ -367,8 +368,4 @@ export class WfViteMockProxy extends LitElement {
             <div class="content">${this.renderContent()}</div>
         </aside>
     `;
-}
-
-if (typeof customElements !== 'undefined' && !customElements.get(MOCK_PROXY_TAG_NAME)) {
-    customElements.define(MOCK_PROXY_TAG_NAME, WfViteMockProxy);
 }

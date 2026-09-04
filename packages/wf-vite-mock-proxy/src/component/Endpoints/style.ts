@@ -1,6 +1,6 @@
 import { css } from 'lit';
 
-import { theme } from '../../style.js';
+import { theme } from '../theme.style.js';
 
 export const endpointsStyle = [
     theme,
@@ -27,7 +27,7 @@ export const endpointsStyle = [
             margin: 12px 0;
         }
 
-        .search wf-vite-mock-proxy-icon {
+        .search wf-icon {
             position: absolute;
             top: 50%;
             left: 13px;

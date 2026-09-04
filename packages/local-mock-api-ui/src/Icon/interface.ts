@@ -5,7 +5,11 @@ export type WfIconName =
     | 'clock'
     | 'code'
     | 'copy'
+    | 'close'
     | 'folder'
     | 'play'
     | 'refresh'
-    | 'settings';
+    | 'rocket'
+    | 'search'
+    | 'settings'
+    | 'sliders';

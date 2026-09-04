@@ -3,10 +3,11 @@
 import { BYPASS_COOKIE_NAME, getCookieValue, MANIFEST_ROUTE, SCENARIO_COOKIE_NAME } from '@wesflo/local-mock-api-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { MockProxyEndpoints } from '../Endpoints/Endpoints.js';
-import type { MockProxySwitch } from '../Switch/Switch.js';
-import './MockProxy.js';
-import type { WfViteMockProxy } from './MockProxy.js';
+import type { WfSwitch } from '@wesflo/local-mock-api-ui';
+
+import type { MockProxyEndpoints } from './component/Endpoints/element.js';
+import './element.js';
+import type { WfViteMockProxy } from './element.js';
 
 const manifest = {
     endpoints: [
@@ -37,7 +38,7 @@ const createElement = async (): Promise<WfViteMockProxy> => {
 const getEndpoints = (element: WfViteMockProxy): MockProxyEndpoints =>
     element.shadowRoot?.querySelector<MockProxyEndpoints>('wf-vite-mock-proxy-endpoints') as MockProxyEndpoints;
 
-const clickSwitch = async (element: MockProxySwitch): Promise<void> => {
+const clickSwitch = async (element: WfSwitch): Promise<void> => {
     element.shadowRoot?.querySelector<HTMLInputElement>('input')?.click();
     await element.updateComplete;
 };
@@ -81,7 +82,7 @@ describe('wf-vite-mock-proxy', () => {
     it('writes global, endpoint and scenario choices to cookies', async () => {
         const element = await createElement();
         const endpoints = getEndpoints(element);
-        const switches = endpoints.shadowRoot?.querySelectorAll<MockProxySwitch>('wf-vite-mock-proxy-switch');
+        const switches = endpoints.shadowRoot?.querySelectorAll<WfSwitch>('wf-switch');
 
         await clickSwitch(switches![0]);
         expect(getCookieValue(BYPASS_COOKIE_NAME)).toBe('*');

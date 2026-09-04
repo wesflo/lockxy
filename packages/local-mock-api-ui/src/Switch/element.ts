@@ -1,12 +1,13 @@
 import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 
-import { MOCK_PROXY_SWITCH_TAG_NAME } from '../../constant.js';
-import { SWITCH_CHANGE_EVENT } from './constant.js';
+import { wfElement } from '../util/wfElement.js';
+import { SWITCH_CHANGE_EVENT, WF_SWITCH_TAG_NAME } from './constant.js';
 import type { SwitchChangeDetail } from './interface.js';
 import { switchStyle } from './style.js';
 
-export class MockProxySwitch extends LitElement {
+@wfElement(WF_SWITCH_TAG_NAME)
+export class WfSwitch extends LitElement {
     static styles = switchStyle;
 
     @property({ type: Boolean }) checked = false;
@@ -37,8 +38,4 @@ export class MockProxySwitch extends LitElement {
             <span aria-hidden="true"></span>
         </label>
     `;
-}
-
-if (typeof customElements !== 'undefined' && !customElements.get(MOCK_PROXY_SWITCH_TAG_NAME)) {
-    customElements.define(MOCK_PROXY_SWITCH_TAG_NAME, MockProxySwitch);
 }

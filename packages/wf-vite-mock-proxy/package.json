@@ -24,6 +24,7 @@
         "check-types": "tsc --noEmit -p tsconfig.json"
     },
     "dependencies": {
+        "@wesflo/local-mock-api-ui": "workspace:*",
         "lit": "^3.3.1"
     },
     "devDependencies": {

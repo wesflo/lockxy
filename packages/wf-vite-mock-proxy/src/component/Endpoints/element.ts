@@ -1,11 +1,10 @@
+import { wfElement } from '@wesflo/local-mock-api-ui';
+import type { SwitchChangeDetail } from '@wesflo/local-mock-api-ui';
 import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 
 import { MOCK_PROXY_ENDPOINTS_TAG_NAME } from '../../constant.js';
 import type { BypassSelection, MockEndpoint } from '../../interface.js';
-import '../Icon/Icon.js';
-import type { SwitchChangeDetail } from '../Switch/interface.js';
-import '../Switch/Switch.js';
 import {
     ENDPOINT_CHANGE_EVENT,
     PROXY_CHANGE_EVENT,
@@ -21,6 +20,7 @@ import type {
 } from './interface.js';
 import { endpointsStyle } from './style.js';
 
+@wfElement(MOCK_PROXY_ENDPOINTS_TAG_NAME)
 export class MockProxyEndpoints extends LitElement {
     static styles = endpointsStyle;
 
@@ -83,7 +83,7 @@ export class MockProxyEndpoints extends LitElement {
                             )}
                         </select>
                     </label>
-                    <wf-vite-mock-proxy-switch
+                    <wf-switch
                         .checked=${active}
                         .disabled=${disabled}
                         .label=${`Mock für ${endpoint.method} ${endpoint.path} aktiv`}
@@ -92,7 +92,7 @@ export class MockProxyEndpoints extends LitElement {
                                 endpoint,
                                 active: event.detail.checked,
                             })}
-                    ></wf-vite-mock-proxy-switch>
+                    ></wf-switch>
                 </div>
             </article>
         `;
@@ -103,17 +103,17 @@ export class MockProxyEndpoints extends LitElement {
 
         return html`
             <div class="master-toggle">
-                <wf-vite-mock-proxy-switch
+                <wf-switch
                     .checked=${!this.bypass.all}
                     label="Proxy aktiv"
                     @switch-change=${(event: CustomEvent<SwitchChangeDetail>) =>
                         this.emit<ProxyChangeDetail>(PROXY_CHANGE_EVENT, { active: event.detail.checked })}
-                ></wf-vite-mock-proxy-switch>
+                ></wf-switch>
                 <strong>Proxy aktiv</strong>
             </div>
             <label class="search">
                 <span class="sr-only">Endpoints durchsuchen</span>
-                <wf-vite-mock-proxy-icon name="search" size="18"></wf-vite-mock-proxy-icon>
+                <wf-icon name="search" size="18"></wf-icon>
                 <input
                     type="search"
                     placeholder="Endpoints suchen…"
@@ -140,8 +140,4 @@ export class MockProxyEndpoints extends LitElement {
                     : html`<div class="empty">Keine passenden Endpoints gefunden.</div>`}
         `;
     };
-}
-
-if (typeof customElements !== 'undefined' && !customElements.get(MOCK_PROXY_ENDPOINTS_TAG_NAME)) {
-    customElements.define(MOCK_PROXY_ENDPOINTS_TAG_NAME, MockProxyEndpoints);
 }

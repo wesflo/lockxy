@@ -1,6 +1,6 @@
 import { css } from 'lit';
 
-import { theme } from '../../style.js';
+import { theme } from '../style/theme.style.js';
 
 export const switchStyle = [
     theme,

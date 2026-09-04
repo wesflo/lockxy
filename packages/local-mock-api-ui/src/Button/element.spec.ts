@@ -3,8 +3,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { html, render } from 'lit';
 
-import './Button.js';
-import type { WfButton } from './Button.js';
+import './element.js';
+import type { WfButton } from './element.js';
 
 describe('wf-button', () => {
     it('emits onClick for an enabled button', async () => {

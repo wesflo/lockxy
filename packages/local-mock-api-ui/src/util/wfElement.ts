@@ -7,6 +7,10 @@ export const wfElement =
         classOrTarget: Omit<typeof HTMLElement, 'new'> | Constructor<HTMLElement>,
         context?: ClassDecoratorContext<Constructor<HTMLElement>>
     ) => {
+        if (typeof customElements === 'undefined') {
+            return;
+        }
+
         if (!customElements.get(tagName)) {
             if (context !== undefined) {
                 context.addInitializer(() => {

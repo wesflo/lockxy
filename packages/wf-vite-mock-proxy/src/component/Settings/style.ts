@@ -1,6 +1,6 @@
 import { css } from 'lit';
 
-import { theme } from '../../style.js';
+import { theme } from '../theme.style.js';
 
 export const settingsStyle = [
     theme,
