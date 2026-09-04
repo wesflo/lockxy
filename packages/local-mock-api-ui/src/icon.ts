@@ -2,8 +2,9 @@ import { html, LitElement, svg } from 'lit';
 import { property } from 'lit/decorators.js';
 
 import { theme } from './theme';
+import { wfElement } from './wfElement';
 
-export type LocalMockIconName =
+export type WfIconName =
     | 'bolt'
     | 'book'
     | 'check'
@@ -15,7 +16,7 @@ export type LocalMockIconName =
     | 'refresh'
     | 'settings';
 
-const paths: Record<LocalMockIconName, ReturnType<typeof svg>> = {
+const paths: Record<WfIconName, ReturnType<typeof svg>> = {
     bolt: svg`<path d="m13 2-8 11h6l-1 9 8-12h-6l1-8Z"/>`,
     book: svg`<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Zm16 0A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5v-16Z"/>`,
     check: svg`<path d="m5 12 4 4L19 6"/>`,
@@ -28,10 +29,11 @@ const paths: Record<LocalMockIconName, ReturnType<typeof svg>> = {
     settings: svg`<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/>`,
 };
 
-export class LocalMockIcon extends LitElement {
+@wfElement('wf-icon')
+export class WfIcon extends LitElement {
     static styles = theme;
 
-    @property({ type: String }) name: LocalMockIconName = 'bolt';
+    @property({ type: String }) name: WfIconName = 'bolt';
     @property({ type: Number }) size = 18;
 
     render = () => html`
@@ -50,5 +52,3 @@ export class LocalMockIcon extends LitElement {
         </svg>
     `;
 }
-
-customElements.define('lm-icon', LocalMockIcon);

@@ -2,8 +2,10 @@ import { css, html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 
 import { theme } from './theme';
+import { wfElement } from './wfElement';
 
-export class LocalMockButton extends LitElement {
+@wfElement('wf-button')
+export class WfButton extends LitElement {
     static styles = [
         theme,
         css`
@@ -18,10 +20,10 @@ export class LocalMockButton extends LitElement {
                 gap: 8px;
                 align-items: center;
                 justify-content: center;
-                color: var(--lm-color-ink);
-                border: 1px solid var(--lm-color-line);
+                color: var(--wf-color-ink);
+                border: 1px solid var(--wf-color-line);
                 border-radius: 9px;
-                background: var(--lm-color-surface);
+                background: var(--wf-color-surface);
                 box-shadow: 0 1px 2px rgb(16 24 40 / 5%);
                 font: inherit;
                 font-size: 0.875rem;
@@ -45,8 +47,8 @@ export class LocalMockButton extends LitElement {
 
             button.primary {
                 color: #fff;
-                border-color: var(--lm-color-primary);
-                background: linear-gradient(135deg, var(--lm-color-primary), #06addc);
+                border-color: var(--wf-color-primary);
+                background: linear-gradient(135deg, var(--wf-color-primary), #06addc);
                 box-shadow: 0 7px 16px rgb(6 155 215 / 22%);
             }
 
@@ -90,8 +92,26 @@ export class LocalMockButton extends LitElement {
     @property({ type: Boolean, reflect: true }) disabled = false;
     @property({ type: Boolean, reflect: true }) loading = false;
 
+    private handleClick = (event: MouseEvent): void => {
+        event.stopPropagation();
+
+        if (this.disabled || this.loading) {
+            event.preventDefault();
+            return;
+        }
+
+        this.dispatchEvent(
+            new CustomEvent('onClick', {
+                bubbles: true,
+                composed: true,
+                detail: { sourceEvent: event },
+            })
+        );
+    };
+
     render = () => html`
         <button
+            @click=${this.handleClick}
             class=${`${this.variant} ${this.compact ? 'compact' : ''}`}
             ?disabled=${this.disabled || this.loading}
             type="button"
@@ -105,5 +125,3 @@ export class LocalMockButton extends LitElement {
         </button>
     `;
 }
-
-customElements.define('lm-button', LocalMockButton);

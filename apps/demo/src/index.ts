@@ -1,4 +1,4 @@
-import '@wesflo/local-mock-api-ui';
+import { wfElement } from '@wesflo/local-mock-api-ui';
 
 import {
     downloadBlob,
@@ -15,6 +15,7 @@ import type { DemoCase, DemoResult, MockEndpoint, MockManifest, MockScenario } f
 import styles from './styles';
 import { executeDemoCase } from './util/executeDemoCase';
 
+@wfElement('wesflo-local-mock-api-demo')
 export class MockApiDemo extends LitElement {
     static styles = styles;
 
@@ -126,13 +127,13 @@ export class MockApiDemo extends LitElement {
             >
                 <span class="scenario__dot status-${testCase.expectedStatus}"></span>
                 <span class="scenario__name">${testCase.title}</span>
-                <lm-badge tone=${testCase.expectedStatus >= 400 ? 'danger' : 'success'}>
+                <wf-badge tone=${testCase.expectedStatus >= 400 ? 'danger' : 'success'}>
                     ${testCase.expectedStatus} ${testCase.expectedStatus === 204 ? 'No Content' : 'HTTP'}
-                </lm-badge>
+                </wf-badge>
                 <span class=${`scenario__delay ${delay ? 'scenario__delay--active' : ''}`}>
                     ${delay
                         ? html`
-                              <lm-icon name="clock" size="14"></lm-icon>
+                              <wf-icon name="clock" size="14"></wf-icon>
                               ${(delay / 1000).toFixed(1)}s
                           `
                         : 'No delay'}
@@ -146,10 +147,10 @@ export class MockApiDemo extends LitElement {
         <section class="library card" aria-labelledby="library-heading">
             <div class="section-header">
                 <div class="section-title">
-                    <span class="section-icon"><lm-icon name="folder"></lm-icon></span>
+                    <span class="section-icon"><wf-icon name="folder"></wf-icon></span>
                     <h2 id="library-heading">Scenario Library</h2>
                 </div>
-                <lm-badge tone="info">${DEMO_CASES.length} cases</lm-badge>
+                <wf-badge tone="info">${DEMO_CASES.length} cases</wf-badge>
             </div>
             <div class="library__body">
                 ${this.getGroups().map(
@@ -170,15 +171,15 @@ export class MockApiDemo extends LitElement {
     private renderResponse = (result?: DemoResult) => html`
         <div class="code-toolbar">
             <span>Response</span>
-            <lm-button compact @click=${() => void this.copyText(result?.body ?? '')} aria-label="Response kopieren">
-                <lm-icon name="copy" size="15"></lm-icon>
+            <wf-button compact @onClick=${() => void this.copyText(result?.body ?? '')} aria-label="Response kopieren">
+                <wf-icon name="copy" size="15"></wf-icon>
                 Copy
-            </lm-button>
+            </wf-button>
         </div>
         <pre class="response-code"><code>${result?.body || '// Run this scenario to inspect its response.'}</code></pre>
         ${result?.blob
             ? html`
-                  <lm-button compact @click=${this.downloadSelected}>Download response</lm-button>
+                  <wf-button compact @onClick=${this.downloadSelected}>Download response</wf-button>
               `
             : nothing}
     `;
@@ -238,31 +239,31 @@ export class MockApiDemo extends LitElement {
             <section class="preview card" aria-labelledby="preview-heading">
                 <div class="section-header">
                     <div class="section-title">
-                        <span class="section-icon section-icon--dark"><lm-icon name="code"></lm-icon></span>
+                        <span class="section-icon section-icon--dark"><wf-icon name="code"></wf-icon></span>
                         <h2 id="preview-heading">Preview &amp; Debug</h2>
                     </div>
-                    <lm-button compact @click=${this.reset}>
-                        <lm-icon name="refresh" size="15"></lm-icon>
+                    <wf-button compact @onClick=${this.reset}>
+                        <wf-icon name="refresh" size="15"></wf-icon>
                         Reset
-                    </lm-button>
+                    </wf-button>
                 </div>
                 <div class="preview__body">
                     <div class="request-bar">
                         <strong>${testCase.method}</strong>
                         <code>${testCase.path}</code>
-                        <lm-badge tone=${status >= 400 ? 'danger' : 'success'}>${status} HTTP</lm-badge>
+                        <wf-badge tone=${status >= 400 ? 'danger' : 'success'}>${status} HTTP</wf-badge>
                         <span class="request-time">
-                            <lm-icon name="clock" size="15"></lm-icon>
+                            <wf-icon name="clock" size="15"></wf-icon>
                             ${result ? `${Math.round(result.duration)}ms` : `${scenario?.delay ?? 0}ms`}
                         </span>
-                        <lm-button
+                        <wf-button
                             variant="primary"
                             ?loading=${this.running}
-                            @click=${() => void this.runSelectedCase()}
+                            @onClick=${() => void this.runSelectedCase()}
                         >
-                            <lm-icon name="play" size="16"></lm-icon>
+                            <wf-icon name="play" size="16"></wf-icon>
                             Run
-                        </lm-button>
+                        </wf-button>
                     </div>
                     <p class="case-description">${testCase.description}</p>
                     ${this.renderResponse(result)} ${this.renderDebugCards(result)}
@@ -294,16 +295,16 @@ export class MockApiDemo extends LitElement {
             <section class="manifest card" aria-labelledby="manifest-heading">
                 <div class="section-header">
                     <div class="section-title">
-                        <span class="section-icon"><lm-icon name="code"></lm-icon></span>
+                        <span class="section-icon"><wf-icon name="code"></wf-icon></span>
                         <div>
                             <h2 id="manifest-heading">Example manifest</h2>
                             <p>This is how the selected scenario is represented in the mock manifest.</p>
                         </div>
                     </div>
-                    <lm-button compact @click=${() => void this.copyText(manifestText)}>
-                        <lm-icon name="copy" size="15"></lm-icon>
+                    <wf-button compact @onClick=${() => void this.copyText(manifestText)}>
+                        <wf-icon name="copy" size="15"></wf-icon>
                         Copy
-                    </lm-button>
+                    </wf-button>
                 </div>
                 <pre><code>${manifestText}</code></pre>
             </section>
@@ -313,17 +314,17 @@ export class MockApiDemo extends LitElement {
     render = () => html`
         <header class="topbar">
             <a class="brand" href="#top" aria-label="wesflo Local Mock API">
-                <span class="brand__mark"><lm-icon name="bolt" size="23"></lm-icon></span>
+                <span class="brand__mark"><wf-icon name="bolt" size="23"></wf-icon></span>
                 <strong>wesflo</strong>
-                <lm-badge tone="info">Local Mock API</lm-badge>
+                <wf-badge tone="info">Local Mock API</wf-badge>
             </a>
             <nav aria-label="Demo navigation">
                 <a href="https://github.com/wesflo/vite-plugin-local-mock-api" target="_blank">
-                    <lm-icon name="book"></lm-icon>
+                    <wf-icon name="book"></wf-icon>
                     Docs
                 </a>
                 <a href="#session">
-                    <lm-icon name="settings"></lm-icon>
+                    <wf-icon name="settings"></wf-icon>
                     Settings
                 </a>
             </nav>
@@ -331,17 +332,17 @@ export class MockApiDemo extends LitElement {
 
         <main id="top">
             <section class="hero card">
-                <div class="hero__icon"><lm-icon name="bolt" size="42"></lm-icon></div>
+                <div class="hero__icon"><wf-icon name="bolt" size="42"></wf-icon></div>
                 <div class="hero__copy">
                     <h1>Build and test mock scenarios</h1>
                     <p>Simulate real-world API behaviors, preview responses, and iterate quickly.</p>
                     <div class="benefits">
                         <span>
-                            <lm-icon name="check"></lm-icon>
+                            <wf-icon name="check"></wf-icon>
                             Realistic test data
                         </span>
                         <span>
-                            <lm-icon name="clock"></lm-icon>
+                            <wf-icon name="clock"></wf-icon>
                             Custom delays &amp; errors
                         </span>
                     </div>
@@ -359,7 +360,7 @@ export class MockApiDemo extends LitElement {
                         <span></span>
                     </div>
                     <div class="hero__bolt">
-                        <lm-icon name="bolt" size="30"></lm-icon>
+                        <wf-icon name="bolt" size="30"></wf-icon>
                     </div>
                 </div>
             </section>
@@ -383,5 +384,3 @@ export class MockApiDemo extends LitElement {
         </main>
     `;
 }
-
-customElements.define('wesflo-local-mock-api-demo', MockApiDemo);

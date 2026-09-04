@@ -155,7 +155,7 @@ export default css`
         font-size: 0.8rem;
     }
 
-    .benefits lm-icon {
+    .benefits wf-icon {
         color: var(--primary);
     }
 
@@ -416,7 +416,7 @@ export default css`
         font-weight: 650;
     }
 
-    .request-bar lm-button {
+    .request-bar wf-button {
         margin-left: auto;
     }
 
@@ -616,7 +616,7 @@ export default css`
     }
 
     @media (max-width: 480px) {
-        .brand lm-badge,
+        .brand wf-badge,
         nav {
             display: none;
         }
@@ -634,7 +634,7 @@ export default css`
             padding: 10px 0;
         }
 
-        .request-bar lm-button {
+        .request-bar wf-button {
             width: 100%;
             margin-left: 0;
         }

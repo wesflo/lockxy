@@ -2,8 +2,10 @@ import { css, html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 
 import { theme } from './theme';
+import { wfElement } from './wfElement';
 
-export class LocalMockBadge extends LitElement {
+@wfElement('wf-badge')
+export class WfBadge extends LitElement {
     static styles = [
         theme,
         css`
@@ -40,7 +42,7 @@ export class LocalMockBadge extends LitElement {
 
             span.info {
                 color: #0786bc;
-                background: var(--lm-color-primary-soft);
+                background: var(--wf-color-primary-soft);
             }
         `,
     ];
@@ -51,5 +53,3 @@ export class LocalMockBadge extends LitElement {
         <span class=${this.tone}><slot></slot></span>
     `;
 }
-
-customElements.define('lm-badge', LocalMockBadge);

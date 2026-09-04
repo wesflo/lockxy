@@ -1,14 +1,15 @@
-export { LocalMockBadge } from './badge';
-export { LocalMockButton } from './button';
-export { LocalMockIcon, type LocalMockIconName } from './icon';
-export { LocalMockPanel } from './panel';
+export { WfBadge } from './badge';
+export { WfButton } from './button';
+export { WfIcon, type WfIconName } from './icon';
+export { WfPanel } from './panel';
 export { theme } from './theme';
+export { wfElement } from './wfElement';
 
 declare global {
     interface HTMLElementTagNameMap {
-        'lm-badge': import('./badge').LocalMockBadge;
-        'lm-button': import('./button').LocalMockButton;
-        'lm-icon': import('./icon').LocalMockIcon;
-        'lm-panel': import('./panel').LocalMockPanel;
+        'wf-badge': import('./badge').WfBadge;
+        'wf-button': import('./button').WfButton;
+        'wf-icon': import('./icon').WfIcon;
+        'wf-panel': import('./panel').WfPanel;
     }
 }
