@@ -6,10 +6,10 @@
     "main": "src/index.ts",
     "scripts": {
         "cleanViteCache": "rm -rf node_modules/.vite",
-        "dev": "pnpm run cleanViteCache && vite --config=vite.config.federation.mjs",
-        "dev:missing-manifest": "pnpm run cleanViteCache && vite --config=vite.config.federation.mjs --mode missing-manifest",
-        "dev:invalid-manifest": "pnpm run cleanViteCache && vite --config=vite.config.federation.mjs --mode invalid-manifest",
-        "build": "rm -rf ./dist && vite build --config=vite.config.iife.mjs && vite build --config=vite.config.federation.mjs",
+        "dev": "pnpm run cleanViteCache && vite --config=vite.config.mjs",
+        "dev:missing-manifest": "pnpm run cleanViteCache && vite --config=vite.config.mjs --mode missing-manifest",
+        "dev:invalid-manifest": "pnpm run cleanViteCache && vite --config=vite.config.mjs --mode invalid-manifest",
+        "build": "rm -rf ./dist && vite build --config=vite.config.mjs",
         "serve": "http-server ./dist -p 5001 --cors='*'",
         "test": "vitest run --passWithNoTests",
         "test:watch": "vitest",
@@ -22,7 +22,7 @@
         "prettier:w": "prettier -w --config ./prettier.config.mjs ./src"
     },
     "dependencies": {
-
+        "@wesflo/vite-plugin-local-mock-api": "workspace:*"
     },
     "devDependencies": {
 

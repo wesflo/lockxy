@@ -5,15 +5,26 @@
   "packageManager": "pnpm@11.24.0",
   "scripts": {
     "build": "turbo run build",
-    "build:app": "turbo run build --filter=@wesflo/ep-local-mock-api",
+    "build:app": "turbo run build --filter=@wesflo/local-mock-api-demo",
     "build:package": "turbo run build --filter=@wesflo/vite-plugin-local-mock-api",
     "test": "turbo run test",
-    "test:app": "turbo run test --filter=@wesflo/ep-local-mock-api",
+    "test:app": "turbo run test --filter=@wesflo/local-mock-api-demo",
     "test:package": "turbo run test --filter=@wesflo/vite-plugin-local-mock-api",
+    "test:c": "turbo run test:c",
+    "test:watch:app": "turbo run test:watch --filter=@wesflo/local-mock-api-demo",
+    "test:watch:package": "turbo run test:watch --filter=@wesflo/vite-plugin-local-mock-api",
+    "test:ui:app": "turbo run test:ui --filter=@wesflo/local-mock-api-demo",
     "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "prettier": "turbo run prettier",
     "prettier:w": "turbo run prettier:w",
     "check-types": "turbo run check-types",
-    "dev": "turbo run dev"
+    "dev": "turbo run dev --filter=@wesflo/local-mock-api-demo",
+    "dev:package": "turbo run dev --filter=@wesflo/vite-plugin-local-mock-api",
+    "dev:missing-manifest": "turbo run dev:missing-manifest --filter=@wesflo/local-mock-api-demo",
+    "dev:invalid-manifest": "turbo run dev:invalid-manifest --filter=@wesflo/local-mock-api-demo",
+    "serve": "turbo run serve --filter=@wesflo/local-mock-api-demo",
+    "bundle:local": "turbo run bundle:local --filter=@wesflo/vite-plugin-local-mock-api"
   },
   "devDependencies": {
     "turbo": "2.10.11"

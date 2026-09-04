@@ -10,19 +10,32 @@
       ]
     },
     "test": {
-      "outputs": [
-        "coverage/**"
-      ]
+      "outputs": []
     },
     "test:c": {
       "outputs": [
         "coverage/**"
       ]
     },
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:ui": {
+      "cache": false,
+      "persistent": true
+    },
     "lint": {
       "outputs": []
     },
+    "lint:fix": {
+      "cache": false,
+      "outputs": []
+    },
     "check-types": {
+      "outputs": []
+    },
+    "prettier": {
       "outputs": []
     },
     "prettier:w": {
@@ -30,8 +43,35 @@
       "outputs": []
     },
     "dev": {
+      "dependsOn": [
+        "^build"
+      ],
       "cache": false,
       "persistent": true
+    },
+    "dev:missing-manifest": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": false,
+      "persistent": true
+    },
+    "dev:invalid-manifest": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": false,
+      "persistent": true
+    },
+    "serve": {
+      "dependsOn": [
+        "build"
+      ],
+      "cache": false,
+      "persistent": true
+    },
+    "bundle:local": {
+      "cache": false
     },
     "storybook": {
       "cache": false,

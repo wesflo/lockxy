@@ -12,7 +12,11 @@ importers:
         specifier: 2.10.11
         version: 2.10.11
 
-  apps/demo: {}
+  apps/demo:
+    dependencies:
+      '@wesflo/vite-plugin-local-mock-api':
+        specifier: workspace:*
+        version: link:../../packages/vite-plugin-local-mock-api
 
   packages/vite-plugin-local-mock-api:
     devDependencies:
