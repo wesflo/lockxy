@@ -1,5 +1,23 @@
 {
+    "delay": 400,
     "endpoints": [
+        {
+            "path": "/api/demo/direct-file",
+            "file": "scenarios/explicit.json"
+        },
+        {
+            "path": "/api/demo/direct-no-content",
+            "status": 204
+        },
+        {
+            "id": "endpoint-defaults",
+            "label": "Direct endpoint configuration",
+            "method": "GET",
+            "path": "/api/demo/endpoint-defaults",
+            "file": "scenarios/endpoint-defaults.json",
+            "status": 202,
+            "delay": 150
+        },
         {
             "id": "json-response",
             "label": "Simple JSON response",
@@ -83,6 +101,7 @@
         },
         {
             "id": "automatic-file",
+            "label": "Automatic single scenario",
             "method": "GET",
             "path": "/api/demo/automatic",
             "scenarios": [

@@ -37,11 +37,22 @@ export class MockApiDemo extends LitElement {
         void this.loadManifest();
     }
 
-    private findEndpoint = (endpointId?: string): MockEndpoint | undefined =>
-        endpointId ? this.manifest?.endpoints.find(({ id }) => id === endpointId) : undefined;
+    private findEndpoint = (testCase: DemoCase): MockEndpoint | undefined =>
+        this.manifest?.endpoints?.find(
+            (endpoint) =>
+                (testCase.endpointId ? endpoint.id === testCase.endpointId : endpoint.path === testCase.path) &&
+                (!endpoint.method || endpoint.method === testCase.method)
+        );
 
-    private findScenario = (testCase: DemoCase): MockScenario | undefined =>
-        this.findEndpoint(testCase.endpointId)?.scenarios.find(({ id }) => id === testCase.scenarioId);
+    private findScenario = (testCase: DemoCase): MockScenario | undefined => {
+        const scenarios = this.findEndpoint(testCase)?.scenarios ?? [];
+
+        if (scenarios.length === 1) {
+            return scenarios[0];
+        }
+
+        return scenarios.find(({ id }) => id === testCase.scenarioId);
+    };
 
     private getGroups = (): string[] => [...new Set(DEMO_CASES.map(({ group }) => group))];
 
@@ -119,7 +130,8 @@ export class MockApiDemo extends LitElement {
     private renderCase = (testCase: DemoCase) => {
         const selected = this.selectedCase?.id === testCase.id;
         const scenario = this.findScenario(testCase);
-        const delay = scenario?.delay;
+        const endpoint = this.findEndpoint(testCase);
+        const delay = scenario?.delay ?? endpoint?.delay ?? this.manifest?.delay;
 
         return html`
             <button
@@ -191,6 +203,8 @@ export class MockApiDemo extends LitElement {
         const testCase = this.selectedCase;
         const selectedScenario = testCase?.endpointId ? this.selections.get(testCase.endpointId) : undefined;
         const scenario = testCase ? this.findScenario(testCase) : undefined;
+        const endpoint = testCase ? this.findEndpoint(testCase) : undefined;
+        const delay = scenario?.delay ?? endpoint?.delay ?? this.manifest?.delay ?? 0;
 
         return html`
             <div class="debug-grid">
@@ -217,11 +231,11 @@ export class MockApiDemo extends LitElement {
                     <b>${selectedScenario ?? 'Default file resolution'}</b>
                     <p>
                         <span>Delay</span>
-                        <code>${scenario?.delay ?? 0}ms</code>
+                        <code>${delay}ms</code>
                     </p>
                     <p>
                         <span>Source</span>
-                        <code>${testCase?.endpointId ? 'Manifest' : 'Legacy resolver'}</code>
+                        <code>${endpoint ? 'Manifest' : 'Naming convention'}</code>
                     </p>
                 </article>
             </div>
@@ -237,6 +251,8 @@ export class MockApiDemo extends LitElement {
         const result = this.results.get(testCase.id);
         const status = result?.status || testCase.expectedStatus;
         const scenario = this.findScenario(testCase);
+        const endpoint = this.findEndpoint(testCase);
+        const delay = scenario?.delay ?? endpoint?.delay ?? this.manifest?.delay ?? 0;
 
         return html`
             <section class="preview card" aria-labelledby="preview-heading">
@@ -257,7 +273,7 @@ export class MockApiDemo extends LitElement {
                         <wf-badge tone=${status >= 400 ? 'danger' : 'success'}>${status} HTTP</wf-badge>
                         <span class="request-time">
                             <wf-icon name="clock" size="15"></wf-icon>
-                            ${result ? `${Math.round(result.duration)}ms` : `${scenario?.delay ?? 0}ms`}
+                            ${result ? `${Math.round(result.duration)}ms` : `${delay}ms`}
                         </span>
                         <wf-button
                             variant="primary"
@@ -278,21 +294,30 @@ export class MockApiDemo extends LitElement {
     private renderManifest = () => {
         const testCase = this.selectedCase;
         const scenario = testCase ? this.findScenario(testCase) : undefined;
-        const manifestText = testCase?.endpointId
+        const endpoint = testCase ? this.findEndpoint(testCase) : undefined;
+        const manifestText = endpoint
             ? [
-                  `- id: ${testCase.endpointId}`,
-                  `  method: ${testCase.method}`,
-                  `  path: ${testCase.path}`,
+                  `delay: ${this.manifest?.delay ?? '(not set)'}`,
+                  'endpoints:',
+                  ...(endpoint.id ? [`  - id: ${endpoint.id}`] : ['  - # id is optional']),
+                  ...(endpoint.label ? [`    label: ${endpoint.label}`] : []),
+                  ...(endpoint.method ? [`    method: ${endpoint.method}`] : []),
+                  `    path: ${endpoint.path}`,
+                  ...(endpoint.status === undefined ? [] : [`    status: ${endpoint.status}`]),
+                  ...(endpoint.delay === undefined ? [] : [`    delay: ${endpoint.delay}`]),
+                  ...(endpoint.file ? [`    file: ${endpoint.file}`] : []),
                   ...(scenario
                       ? [
-                            `  scenario: ${scenario.id}`,
-                            `  status: ${scenario.status ?? testCase.expectedStatus}`,
-                            ...(scenario.delay === undefined ? [] : [`  delay: ${scenario.delay}`]),
-                            ...(scenario.file ? [`  file: ${scenario.file}`] : []),
+                            '    scenarios:',
+                            `      - id: ${scenario.id}`,
+                            `        label: ${scenario.label}`,
+                            ...(scenario.status === undefined ? [] : [`        status: ${scenario.status}`]),
+                            ...(scenario.delay === undefined ? [] : [`        delay: ${scenario.delay}`]),
+                            ...(scenario.file ? [`        file: ${scenario.file}`] : []),
                         ]
-                      : ['  scenario: default']),
+                      : []),
               ].join('\n')
-            : '# No manifest entry – this case exercises legacy file resolution.';
+            : `delay: ${this.manifest?.delay ?? '(not set)'}\n# Response file resolved through naming conventions.`;
 
         return html`
             <section class="manifest card" aria-labelledby="manifest-heading">
