@@ -20,7 +20,7 @@ export const DEMO_CASES: readonly DemoCase[] = [
         path: '/api/demo/orders',
         responseKind: 'json',
         expectedStatus: 200,
-        body: { article: 'EP-DEMO', quantity: 1 },
+        body: { article: 'DEMO', quantity: 1 },
     },
     {
         id: 'default-json',
