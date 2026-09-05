@@ -69,6 +69,7 @@ export class MockProxyEndpoints extends LitElement {
         const disabled = unavailable || this.bypass.all;
         const method = endpoint.method ?? 'ANY';
         const scenarios = endpoint.scenarios ?? [];
+        const automaticScenario = scenarios.length === 1 ? scenarios[0] : undefined;
 
         return html`
             <article class=${`endpoint ${unavailable ? 'inactive' : ''}`}>
@@ -80,15 +81,19 @@ export class MockProxyEndpoints extends LitElement {
                     <label>
                         <span class="sr-only">Scenario for ${method} ${endpoint.path}</span>
                         <select
-                            .value=${this.scenarios.get(endpoint.id ?? '') ?? ''}
-                            ?disabled=${disabled || !active}
+                            .value=${automaticScenario?.id ?? this.scenarios.get(endpoint.id ?? '') ?? ''}
+                            ?disabled=${disabled || !active || scenarios.length <= 1}
                             @change=${(event: Event) =>
                                 this.emit<ScenarioChangeDetail>(SCENARIO_CHANGE_EVENT, {
                                     endpoint,
                                     scenarioId: (event.currentTarget as HTMLSelectElement).value,
                                 })}
                         >
-                            <option value="">Default file resolution</option>
+                            ${scenarios.length !== 1
+                                ? html`<option value="">
+                                      ${scenarios.length ? 'Default file resolution' : 'Endpoint configuration'}
+                                  </option>`
+                                : undefined}
                             ${scenarios.map(
                                 (scenario) => html`<option value=${scenario.id}>${scenario.label}</option>`
                             )}

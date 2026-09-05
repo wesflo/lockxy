@@ -16,6 +16,7 @@ export default defineConfig({
 });`;
 
 const fileTree = `mock/
+├── PUT_profile.json
 └── users/
     ├── profile.json
     └── POST_profile.json`;
@@ -46,6 +47,9 @@ const entry = `import '@wesflo/wf-vite-mock-proxy';`;
         <p>
             A <code>GET /api/users/profile</code> request resolves to <code>mock/users/profile.json</code>. For
             <code>POST</code>, the method-specific <code>POST_profile.json</code> wins before the generic file.
+            With the shown files, the nested generic file also wins for <code>PUT</code>. Nesting is optional: once that
+            more specific fallback is absent, <code>PUT /api/users/profile</code> resolves to the root-level
+            <code>mock/PUT_profile.json</code>.
         </p>
 
         <h2 id="3-start-vite">3. Start Vite</h2>

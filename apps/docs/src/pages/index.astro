@@ -4,6 +4,7 @@ import DocsLayout from '../layouts/DocsLayout.astro';
 
 const install = `pnpm add -D @wesflo/vite-plugin-local-mock-api`;
 const fileTree = `mock/
+├── PUT_profile.json
 └── users/
     ├── profile.json
     └── POST_profile.json`;
@@ -44,7 +45,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <p>
             The default workflow is intentionally file-based. For example, <code>GET /api/users/profile</code> resolves to
             <code>mock/users/profile.json</code>. A <code>POST</code> request prefers <code>POST_profile.json</code> and falls
-            back to <code>profile.json</code>. The same convention works for JSON, text, CSV, images, and PDFs.
+            back to <code>profile.json</code>. In the tree below, that nested generic file also wins for <code>PUT</code>.
+            If it is absent, the root-level <code>mock/PUT_profile.json</code> can answer
+            <code>PUT /api/users/profile</code>. Directory nesting is useful for specificity, but optional.
         </p>
         <Code code={fileTree} label="project structure" />
 
@@ -67,9 +70,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <h2 id="how-a-request-is-resolved">How a request is resolved</h2>
         <ol>
             <li>The plugin checks whether the URL is inside the configured API prefix.</li>
-            <li>If an optional manifest scenario is selected, its status, delay, and file settings are applied.</li>
-            <li>Otherwise, the plugin looks for a method-specific file and then a generic file.</li>
-            <li>If browser bypass is enabled, the request continues to the next Vite middleware or configured proxy.</li>
+            <li>If browser bypass is enabled, the request continues unchanged to the next Vite middleware or proxy.</li>
+            <li>A matching automatic or selected scenario overrides endpoint settings; endpoint settings override root delay.</li>
+            <li>If no explicit file applies, the plugin uses method-specific and generic naming-convention candidates.</li>
         </ol>
     </article>
 </DocsLayout>

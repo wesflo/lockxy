@@ -28,6 +28,42 @@ const manifest = `{
     }
   ]
 }`;
+
+const rootDelay = `{
+  "delay": 400
+}`;
+
+const directEndpoint = `{
+  "endpoints": [
+    {
+      "id": "json-response",
+      "label": "Simple JSON response",
+      "method": "GET",
+      "path": "/api/demo/json",
+      "file": "scenarios/explicit.json",
+      "status": 200,
+      "delay": 150
+    }
+  ]
+}`;
+
+const directFile = `{
+  "endpoints": [
+    {
+      "path": "/api/demo/json",
+      "file": "scenarios/explicit.json"
+    }
+  ]
+}`;
+
+const noContent = `{
+  "endpoints": [
+    {
+      "path": "/api/demo/json",
+      "status": 204
+    }
+  ]
+}`;
 ---
 
 <DocsLayout title="Configuration" description="Plugin options, manifests, and file resolution." activePath="/configuration/">
@@ -53,8 +89,16 @@ const manifest = `{
             </tbody>
         </table>
         <p>
-            More specific route candidates are tried before suffix and parent fallbacks. Supported defaults include JSON,
-            PDF, CSV, text, JPEG, PNG, and WebP.
+            More specific route candidates are tried before suffix and parent fallbacks. First, all candidates for
+            <code>users/profile</code> are checked; within each configured extension, the method-prefixed filename wins
+            over the generic filename. Only then does resolution continue with the root-level <code>profile</code> suffix.
+            Looking only at JSON, <code>PUT /api/users/profile</code> therefore checks
+            <code>users/PUT_profile.json</code>, <code>users/profile.json</code>, <code>PUT_profile.json</code>, and
+            <code>profile.json</code> in that order. Parent fallbacks follow afterwards.
+        </p>
+        <p>
+            The <code>*</code> candidates use the configured extension order. Supported defaults include JSON, PDF, CSV,
+            text, JPEG, PNG, and WebP.
         </p>
 
         <h2 id="plugin-options">Plugin options</h2>
@@ -77,18 +121,49 @@ const manifest = `{
             Create <code>mock.manifest.json</code> only for endpoints that need additional handling. Other requests continue
             to use normal file resolution, so adopting a manifest is not an all-or-nothing decision.
         </p>
+
+        <h3 id="root-fields">Root fields</h3>
+        <p>
+            The optional root-level <code>delay</code> applies to every mocked API request. This is already a complete
+            manifest; an <code>endpoints</code> array is not required:
+        </p>
+        <Code code={rootDelay} label="mock/mock.manifest.json" />
+
+        <h3 id="direct-endpoint-handling">Direct endpoint handling</h3>
+        <p>
+            An endpoint can define <code>file</code>, <code>status</code>, and <code>delay</code> directly, independently or
+            in combination. Only <code>path</code> is required. Without <code>method</code>, the endpoint matches every HTTP
+            method; without <code>file</code>, normal naming-convention resolution remains active.
+        </p>
+        <Code code={directEndpoint} label="complete endpoint configuration" />
+        <Code code={directFile} label="minimal explicit response file" />
+        <Code code={noContent} label="file-free 204 response" />
+        <p>
+            A direct <code>status: 204</code> is the exception to file resolution: it immediately returns a real empty
+            response because a 204 response cannot have a body.
+        </p>
+
+        <h3 id="multiple-scenarios">Multiple scenarios</h3>
         <Code code={manifest} label="mock/mock.manifest.json" />
+        <p>
+            Exactly one configured scenario is selected automatically—no panel and no scenario cookie are needed. With
+            multiple scenarios, the panel or scenario cookie chooses one. Until a choice exists, endpoint-level settings
+            and then normal file resolution are used.
+        </p>
 
         <h3 id="endpoint-fields">Endpoint fields</h3>
         <table>
             <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
             <tbody>
-                <tr><td><code>id</code></td><td>Yes</td><td>Stable ID used by scenario and bypass cookies.</td></tr>
-                <tr><td><code>method</code></td><td>Yes</td><td>HTTP method matched case-insensitively.</td></tr>
+                <tr><td><code>id</code></td><td>No</td><td>Stable ID required only for panel controls, scenario cookies, and selective bypass.</td></tr>
+                <tr><td><code>method</code></td><td>No</td><td>HTTP method matched case-insensitively. When omitted, every method matches.</td></tr>
                 <tr><td><code>path</code></td><td>Yes</td><td>Exact path shape. Segments beginning with <code>:</code> match dynamic values.</td></tr>
                 <tr><td><code>label</code></td><td>No</td><td>Human-readable name displayed in the proxy panel.</td></tr>
                 <tr><td><code>active</code></td><td>No</td><td>Set to <code>false</code> to exclude the endpoint from scenario matching.</td></tr>
-                <tr><td><code>scenarios</code></td><td>Yes</td><td>Selectable response variants.</td></tr>
+                <tr><td><code>file</code></td><td>No</td><td>Explicit response file relative to <code>mockRoot</code>.</td></tr>
+                <tr><td><code>status</code></td><td>No</td><td>HTTP response status. A file-free <code>204</code> returns an empty response.</td></tr>
+                <tr><td><code>delay</code></td><td>No</td><td>Endpoint-specific delay in milliseconds.</td></tr>
+                <tr><td><code>scenarios</code></td><td>No</td><td>One automatic or multiple selectable response variants.</td></tr>
             </tbody>
         </table>
 
@@ -98,6 +173,13 @@ const manifest = `{
             <code>mockRoot</code>; <code>status</code> changes the HTTP status and <code>delay</code> waits in milliseconds.
             If <code>file</code> is omitted, normal candidate resolution is used.
         </p>
+        <Callout title="Response precedence">
+            <p>
+                A selected or automatic scenario overrides endpoint-level <code>file</code>, <code>status</code>, and
+                <code>delay</code>. Endpoint values override the root delay. Any remaining file lookup follows the naming
+                conventions.
+            </p>
+        </Callout>
         <Callout title="Typical manifest use cases">
             <p>
                 Return a real <code>204</code> response, simulate <code>400</code> or <code>500</code> failures, delay a call
