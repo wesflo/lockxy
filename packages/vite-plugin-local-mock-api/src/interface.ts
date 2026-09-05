@@ -20,23 +20,28 @@ export type ResponseBody = string | Buffer;
 export type ResponseHeaders = Record<string, string | number | readonly string[]>;
 
 export interface MockManifest {
-    endpoints: MockEndpoint[];
+    delay?: number;
+    endpoints?: MockEndpoint[];
 }
 
-export interface MockEndpoint {
-    id: string;
-    active?: boolean;
-    method: string;
-    path: string;
-    scenarios: MockScenario[];
-}
-
-export interface MockScenario {
-    id: string;
-    label: string;
+export interface MockResponseConfig {
     status?: number;
     file?: string;
     delay?: number;
+}
+
+export interface MockEndpoint extends MockResponseConfig {
+    id?: string;
+    label?: string;
+    active?: boolean;
+    method?: string;
+    path: string;
+    scenarios?: MockScenario[];
+}
+
+export interface MockScenario extends MockResponseConfig {
+    id: string;
+    label: string;
 }
 
 export type ManifestReadResult =

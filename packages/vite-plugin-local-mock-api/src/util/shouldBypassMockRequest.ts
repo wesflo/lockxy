@@ -33,5 +33,5 @@ export const shouldBypassMockRequest = async (
     const { pathname } = new URL(req.url, 'http://localhost');
     const endpoint = findMockEndpoint(manifestResult.manifest, req.method, pathname);
 
-    return endpoint ? selections.endpointIds.has(endpoint.id) : false;
+    return endpoint?.id ? selections.endpointIds.has(endpoint.id) : false;
 };

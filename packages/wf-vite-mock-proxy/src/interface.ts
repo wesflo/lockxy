@@ -4,16 +4,20 @@ export interface BypassSelection {
 }
 
 export interface MockManifest {
-    endpoints: MockEndpoint[];
+    delay?: number;
+    endpoints?: MockEndpoint[];
 }
 
 export interface MockEndpoint {
-    id: string;
+    id?: string;
     label?: string;
     active?: boolean;
-    method: string;
+    method?: string;
     path: string;
-    scenarios: MockScenario[];
+    status?: number;
+    file?: string;
+    delay?: number;
+    scenarios?: MockScenario[];
 }
 
 export interface MockScenario {

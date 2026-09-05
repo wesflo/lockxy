@@ -59,45 +59,56 @@ export const handleScenarioRequest = async (
         return false;
     }
 
-    const endpoint = findMockEndpoint(manifestResult.manifest, req.method, pathname);
+    const manifest = manifestResult.manifest;
+    const endpoint = findMockEndpoint(manifest, req.method, pathname);
 
-    if (!endpoint) {
+    if (!endpoint && manifest.delay === undefined) {
         return false;
     }
 
     const selections = parseScenarioSelections(req.headers.cookie);
-    const scenario = findSelectedScenario(endpoint, selections);
+    const scenario = endpoint ? findSelectedScenario(endpoint, selections) : undefined;
+    const file = scenario?.file ?? endpoint?.file;
+    const status = scenario?.status ?? endpoint?.status ?? 200;
+    const delay = scenario?.delay ?? endpoint?.delay ?? manifest.delay;
 
-    if (!scenario) {
+    if (file && !isSafeScenarioFile(file)) {
         return false;
     }
 
-    if (scenario.file && !isSafeScenarioFile(scenario.file)) {
-        return false;
+    if (status === 204 && !file) {
+        if (delay) {
+            await wait(delay);
+        }
+
+        send(res, status, {}, '');
+        return true;
     }
 
-    const candidatePaths = scenario.file
-        ? [scenario.file]
+    const candidatePaths = file
+        ? [file]
         : getCandidatePaths(internalRouteParts, req.method, options.extensions);
 
     for (const path of candidatePaths) {
         const file = await readExistingFile(path, options.mockRoot);
 
         if (file) {
-            if (scenario.delay) {
-                await wait(scenario.delay);
+            if (delay) {
+                await wait(delay);
             }
 
             console.log(`mocking request for: ${req.url} with content from: ${path}`);
 
             send(
                 res,
-                scenario.status ?? 200,
-                {
-                    'content-type': getContentType(file.extension, options.contentTypes),
-                    'content-length': String(file.content.length)
-                },
-                file.content
+                status,
+                status === 204
+                    ? {}
+                    : {
+                          'content-type': getContentType(file.extension, options.contentTypes),
+                          'content-length': String(file.content.length)
+                      },
+                status === 204 ? '' : file.content
             );
 
             return true;

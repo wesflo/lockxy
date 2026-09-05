@@ -11,8 +11,12 @@ export const readMockManifest = async (
         const content = await readFile(toMockUrl(manifestFileName, mockRoot), 'utf8');
         const manifest = JSON.parse(content) as MockManifest;
 
-        if (!manifest || !Array.isArray(manifest.endpoints)) {
-            throw new TypeError(`${manifestFileName} must contain an endpoints array`);
+        if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
+            throw new TypeError(`${manifestFileName} must contain an object`);
+        }
+
+        if (manifest.endpoints !== undefined && !Array.isArray(manifest.endpoints)) {
+            throw new TypeError(`${manifestFileName} endpoints must be an array when provided`);
         }
 
         return { status: 'valid', manifest };

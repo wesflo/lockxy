@@ -215,6 +215,10 @@ export class WfViteMockProxy extends LitElement {
     };
 
     private setEndpointActive = (endpoint: MockEndpoint, active: boolean): void => {
+        if (!endpoint.id) {
+            return;
+        }
+
         setCookieValue(
             BYPASS_COOKIE_NAME,
             updateBypassCookie(getCookieValue(BYPASS_COOKIE_NAME), endpoint.id, !active)
@@ -223,6 +227,10 @@ export class WfViteMockProxy extends LitElement {
     };
 
     private setScenario = (endpoint: MockEndpoint, scenarioId: string): void => {
+        if (!endpoint.id) {
+            return;
+        }
+
         setCookieValue(
             SCENARIO_COOKIE_NAME,
             updateScenarioCookie(getCookieValue(SCENARIO_COOKIE_NAME), endpoint.id, scenarioId || undefined)

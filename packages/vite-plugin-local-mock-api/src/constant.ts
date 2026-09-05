@@ -1,6 +1,6 @@
 import type { MockManifest } from './interface.js';
 
-export const EMPTY_MANIFEST: MockManifest = { endpoints: [] };
+export const EMPTY_MANIFEST: MockManifest = {};
 export const EXTENSIONS = ['.json', '.pdf', '.csv', '.txt', '.jpg', '.jpeg', '.png', '.webp'];
 
 export const CONTENT_TYPES: Readonly<Record<string, string>> = {

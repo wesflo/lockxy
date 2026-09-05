@@ -37,20 +37,29 @@ export class MockProxyEndpoints extends LitElement {
 
     private visibleEndpoints = (): readonly MockEndpoint[] => {
         const query = this.query.trim().toLocaleLowerCase();
+        const configurableEndpoints = this.endpoints.filter((endpoint) => endpoint.id);
 
         if (!query) {
-            return this.endpoints;
+            return configurableEndpoints;
         }
 
-        return this.endpoints.filter((endpoint) =>
-            [endpoint.id, endpoint.label, endpoint.method, endpoint.path, ...endpoint.scenarios.map(({ label }) => label)]
+        return configurableEndpoints.filter((endpoint) =>
+            [
+                endpoint.id,
+                endpoint.label,
+                endpoint.method,
+                endpoint.path,
+                ...(endpoint.scenarios ?? []).map(({ label }) => label),
+            ]
                 .filter(Boolean)
                 .some((value) => value!.toLocaleLowerCase().includes(query))
         );
     };
 
     private isEndpointActive = (endpoint: MockEndpoint): boolean =>
-        endpoint.active !== false && !this.bypass.all && !this.bypass.endpointIds.has(endpoint.id);
+        endpoint.active !== false &&
+        !this.bypass.all &&
+        (!endpoint.id || !this.bypass.endpointIds.has(endpoint.id));
 
     private displayPath = (path: string): string => path.replace(/^\/api(?=\/|$)/, '') || '/';
 
@@ -58,18 +67,20 @@ export class MockProxyEndpoints extends LitElement {
         const active = this.isEndpointActive(endpoint);
         const unavailable = endpoint.active === false;
         const disabled = unavailable || this.bypass.all;
+        const method = endpoint.method ?? 'ANY';
+        const scenarios = endpoint.scenarios ?? [];
 
         return html`
             <article class=${`endpoint ${unavailable ? 'inactive' : ''}`}>
                 <div class="endpoint-heading">
-                    <span class=${`method ${endpoint.method.toLocaleLowerCase()}`}>${endpoint.method.toUpperCase()}</span>
+                    <span class=${`method ${method.toLocaleLowerCase()}`}>${method.toUpperCase()}</span>
                     <span class="path" title=${endpoint.path}>${this.displayPath(endpoint.path)}</span>
                 </div>
                 <div class="endpoint-control">
                     <label>
-                        <span class="sr-only">Scenario for ${endpoint.method} ${endpoint.path}</span>
+                        <span class="sr-only">Scenario for ${method} ${endpoint.path}</span>
                         <select
-                            .value=${this.scenarios.get(endpoint.id) ?? ''}
+                            .value=${this.scenarios.get(endpoint.id ?? '') ?? ''}
                             ?disabled=${disabled || !active}
                             @change=${(event: Event) =>
                                 this.emit<ScenarioChangeDetail>(SCENARIO_CHANGE_EVENT, {
@@ -78,7 +89,7 @@ export class MockProxyEndpoints extends LitElement {
                                 })}
                         >
                             <option value="">Default file resolution</option>
-                            ${endpoint.scenarios.map(
+                            ${scenarios.map(
                                 (scenario) => html`<option value=${scenario.id}>${scenario.label}</option>`
                             )}
                         </select>
@@ -86,7 +97,7 @@ export class MockProxyEndpoints extends LitElement {
                     <wf-switch
                         .checked=${active}
                         .disabled=${disabled}
-                        .label=${`Mock for ${endpoint.method} ${endpoint.path} active`}
+                        .label=${`Mock for ${method} ${endpoint.path} active`}
                         @switch-change=${(event: CustomEvent<SwitchChangeDetail>) =>
                             this.emit<EndpointChangeDetail>(ENDPOINT_CHANGE_EVENT, {
                                 endpoint,
