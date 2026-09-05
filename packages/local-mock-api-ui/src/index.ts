@@ -3,11 +3,11 @@ export type { WfBadgeTone } from './Badge/interface.js';
 export { WfButton } from './Button/element.js';
 export type { WfButtonVariant } from './Button/interface.js';
 export { WfIcon } from './Icon/element.js';
-export type { WfIconName } from './Icon/interface.js';
+export type { WfIconName, WfIconSize } from './Icon/interface.js';
 export { WfPanel } from './Panel/element.js';
 export { WfSwitch } from './Switch/element.js';
 export type { SwitchChangeDetail } from './Switch/interface.js';
-export { theme } from './style/theme.style.js';
+export { resetStyles } from './style/resetStyles.js';
 export { wfElement } from './util/wfElement.js';
 
 declare global {

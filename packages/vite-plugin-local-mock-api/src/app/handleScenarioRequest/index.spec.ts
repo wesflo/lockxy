@@ -91,8 +91,8 @@ describe('handleScenarioRequest', () => {
         );
     });
 
-    it('returns an empty 204 response without requiring a file', async () => {
-        const endpoint = { path: '/api/profile', status: 204 };
+    it('returns an empty 204 response without reading a configured file', async () => {
+        const endpoint = { path: '/api/profile', status: 204, file: 'must-not-be-read.json' };
         mocks.readMockManifest.mockResolvedValue({ status: 'valid', manifest: { endpoints: [endpoint] } });
         mocks.findMockEndpoint.mockReturnValue(endpoint);
         mocks.findSelectedScenario.mockReturnValue(undefined);

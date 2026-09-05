@@ -50,9 +50,26 @@ export interface MockEndpoint {
 }
 
 export interface MockScenario {
-    id: string;
-    label: string;
+    id?: string;
+    label?: string;
     status?: number;
     file?: string;
     delay?: number;
+}
+
+export interface DemoViewModel {
+    manifest?: MockManifest;
+    manifestError?: string;
+    manifestLoading: boolean;
+    results: ReadonlyMap<string, DemoResult>;
+    running: boolean;
+    selectedCase?: DemoCase;
+    selections: ReadonlyMap<string, string>;
+}
+
+export interface DemoViewActions {
+    downloadSelected(): void;
+    reset(): void;
+    runSelectedCase(): Promise<void>;
+    selectCase(testCase: DemoCase): void;
 }

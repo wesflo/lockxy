@@ -1,4 +1,4 @@
-import { wfElement } from '@wesflo/local-mock-api-ui';
+import { resetStyles, wfElement } from '@wesflo/local-mock-api-ui';
 import { html, LitElement, nothing } from 'lit';
 import { state } from 'lit/decorators.js';
 
@@ -8,7 +8,7 @@ import { playgroundStyle } from './style.js';
 
 @wfElement(PLAYGROUND_TAG_NAME)
 export class WfMockProxyPlayground extends LitElement {
-    static styles = playgroundStyle;
+    static styles = [resetStyles, playgroundStyle];
 
     @state() private activeRequestId?: string;
     @state() private result?: PlaygroundResult;

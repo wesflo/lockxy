@@ -72,17 +72,17 @@ export const handleScenarioRequest = async (
     const status = scenario?.status ?? endpoint?.status ?? 200;
     const delay = scenario?.delay ?? endpoint?.delay ?? manifest.delay;
 
-    if (file && !isSafeScenarioFile(file)) {
-        return false;
-    }
-
-    if (status === 204 && !file) {
+    if (status === 204) {
         if (delay) {
             await wait(delay);
         }
 
         send(res, status, {}, '');
         return true;
+    }
+
+    if (file && !isSafeScenarioFile(file)) {
+        return false;
     }
 
     const candidatePaths = file
@@ -102,13 +102,11 @@ export const handleScenarioRequest = async (
             send(
                 res,
                 status,
-                status === 204
-                    ? {}
-                    : {
-                          'content-type': getContentType(file.extension, options.contentTypes),
-                          'content-length': String(file.content.length)
-                      },
-                status === 204 ? '' : file.content
+                {
+                    'content-type': getContentType(file.extension, options.contentTypes),
+                    'content-length': String(file.content.length)
+                },
+                file.content
             );
 
             return true;

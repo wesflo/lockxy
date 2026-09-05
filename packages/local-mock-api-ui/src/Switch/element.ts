@@ -2,13 +2,14 @@ import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 
 import { wfElement } from '../util/wfElement.js';
-import { SWITCH_CHANGE_EVENT, WF_SWITCH_TAG_NAME } from './constant.js';
+import { resetStyles } from '../style/resetStyles.js';
+import { ON_SWITCH_CHANGE_EVENT, SWITCH_TAG_NAME } from './constant.js';
 import type { SwitchChangeDetail } from './interface.js';
 import { switchStyle } from './style.js';
 
-@wfElement(WF_SWITCH_TAG_NAME)
+@wfElement(SWITCH_TAG_NAME)
 export class WfSwitch extends LitElement {
-    static styles = switchStyle;
+    static styles = [resetStyles, switchStyle];
 
     @property({ type: Boolean }) checked = false;
     @property({ type: Boolean }) disabled = false;
@@ -18,9 +19,7 @@ export class WfSwitch extends LitElement {
         const checked = (event.currentTarget as HTMLInputElement).checked;
         this.checked = checked;
         this.dispatchEvent(
-            new CustomEvent<SwitchChangeDetail>(SWITCH_CHANGE_EVENT, {
-                bubbles: true,
-                composed: true,
+            new CustomEvent<SwitchChangeDetail>(ON_SWITCH_CHANGE_EVENT, {
                 detail: { checked },
             })
         );

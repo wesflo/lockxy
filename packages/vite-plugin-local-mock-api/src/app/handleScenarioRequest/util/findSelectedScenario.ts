@@ -20,5 +20,5 @@ export const findSelectedScenario = (
         return undefined;
     }
 
-    return scenarios.find((scenario) => scenario.id === scenarioId);
+    return scenarios.find((scenario) => scenario.id === scenarioId) ?? scenarios[0];
 };

@@ -2,13 +2,14 @@ import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 
 import { wfElement } from '../util/wfElement.js';
-import { WF_BUTTON_TAG_NAME } from './constant.js';
+import { resetStyles } from '../style/resetStyles.js';
+import { BUTTON_TAG_NAME, ON_CLICK_EVENT } from './constant.js';
 import type { WfButtonVariant } from './interface.js';
 import { buttonStyle } from './style.js';
 
-@wfElement(WF_BUTTON_TAG_NAME)
+@wfElement(BUTTON_TAG_NAME)
 export class WfButton extends LitElement {
-    static styles = buttonStyle;
+    static styles = [resetStyles, buttonStyle];
 
     @property({ type: String, reflect: true }) variant: WfButtonVariant = 'default';
     @property({ type: Boolean, reflect: true }) compact = false;
@@ -24,9 +25,7 @@ export class WfButton extends LitElement {
         }
 
         this.dispatchEvent(
-            new CustomEvent('onClick', {
-                bubbles: true,
-                composed: true,
+            new CustomEvent(ON_CLICK_EVENT, {
                 detail: { sourceEvent: event },
             })
         );

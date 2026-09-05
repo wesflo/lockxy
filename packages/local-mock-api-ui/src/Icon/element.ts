@@ -2,22 +2,23 @@ import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 
 import { wfElement } from '../util/wfElement.js';
-import { ICON_PATHS, WF_ICON_TAG_NAME } from './constant.js';
-import type { WfIconName } from './interface.js';
+import { resetStyles } from '../style/resetStyles.js';
+import { ICON_PATHS, ICON_SIZES, ICON_TAG_NAME } from './constant.js';
+import type { WfIconName, WfIconSize } from './interface.js';
 import { iconStyle } from './style.js';
 
-@wfElement(WF_ICON_TAG_NAME)
+@wfElement(ICON_TAG_NAME)
 export class WfIcon extends LitElement {
-    static styles = iconStyle;
+    static styles = [resetStyles, iconStyle];
 
     @property({ type: String }) name: WfIconName = 'bolt';
-    @property({ type: Number }) size = 18;
+    @property({ type: String }) size: WfIconSize = 'm';
 
     render = () => html`
         <svg
             aria-hidden="true"
-            width=${this.size}
-            height=${this.size}
+            width=${ICON_SIZES[this.size]}
+            height=${ICON_SIZES[this.size]}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"

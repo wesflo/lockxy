@@ -1,2 +1,2 @@
-export const SETTING_CHANGE_EVENT = 'setting-change';
-export const RESET_SETTINGS_EVENT = 'reset-settings';
+export const ON_SETTING_CHANGE_EVENT = 'onSettingChange';
+export const ON_RESET_SETTINGS_EVENT = 'onResetSettings';

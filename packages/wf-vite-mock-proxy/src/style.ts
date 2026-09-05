@@ -13,7 +13,7 @@ export const mockProxyStyle = [
             display: block;
             width: 0;
             height: 0;
-            font-size: 14px;
+            font-size: var(--wf-font-size-s);
             line-height: 1.4;
         }
 
@@ -26,7 +26,7 @@ export const mockProxyStyle = [
             z-index: 0;
             inset: 0;
             border: 0;
-            background: rgb(27 39 65 / 10%);
+            background: var(--wf-backdrop);
             cursor: default;
             opacity: 0;
             pointer-events: none;
@@ -46,11 +46,11 @@ export const mockProxyStyle = [
             height: ${LAUNCHER_SIZE}px;
             padding: 0;
             place-items: center;
-            color: #fff;
+            color: var(--wf-white);
             border: 0;
-            border-radius: 13px;
-            background: linear-gradient(145deg, #35bfda, #12a5c8);
-            box-shadow: 0 9px 22px rgb(5 95 124 / 28%);
+            border-radius: 14px;
+            background: linear-gradient(145deg, var(--wf-primary), var(--wf-primary));
+            box-shadow: 0 10px 22px var(--wf-primary-shadow);
             cursor: pointer;
             touch-action: none;
             transition:
@@ -59,8 +59,8 @@ export const mockProxyStyle = [
         }
 
         .launcher:hover {
-            box-shadow: 0 11px 28px rgb(5 95 124 / 35%);
-            transform: translateY(-1px);
+            box-shadow: 0 12px 28px var(--wf-primary-shadow-strong);
+            transform: translateY(-2px);
         }
 
         .launcher.dragging {
@@ -78,9 +78,9 @@ export const mockProxyStyle = [
             height: 100dvh;
             flex-direction: column;
             overflow: hidden;
-            border-left: 1px solid #e3e9f0;
-            background: #fff;
-            box-shadow: -12px 0 36px rgb(16 24 40 / 12%);
+            border-left: 1px solid var(--wf-line);
+            background: var(--wf-white);
+            box-shadow: -12px 0 36px var(--wf-shadow-l);
             transform: translateX(102%);
             visibility: hidden;
             transition:
@@ -97,16 +97,16 @@ export const mockProxyStyle = [
         .panel-header {
             display: flex;
             min-height: 72px;
-            padding: 0 20px;
+            padding: 0 var(--wf-gap-l);
             align-items: center;
             justify-content: space-between;
         }
 
         .brand {
             display: inline-flex;
-            gap: 10px;
+            gap: var(--wf-gap-m);
             align-items: center;
-            font-size: 18px;
+            font-size: var(--wf-font-size-l);
             letter-spacing: -0.02em;
         }
 
@@ -115,7 +115,7 @@ export const mockProxyStyle = [
             width: 32px;
             height: 32px;
             place-items: center;
-            color: var(--wf-mock-color-primary);
+            color: var(--wf-primary);
         }
 
         .icon-button {
@@ -124,32 +124,32 @@ export const mockProxyStyle = [
             height: 38px;
             padding: 0;
             place-items: center;
-            color: #475467;
+            color: var(--wf-ink-soft);
             border: 0;
-            border-radius: 9px;
+            border-radius: 10px;
             background: transparent;
             cursor: pointer;
         }
 
         .icon-button:hover {
-            background: #f2f6f9;
+            background: var(--wf-surface-soft);
         }
 
         .tabs {
             display: grid;
-            padding: 0 20px;
+            padding: 0 var(--wf-gap-l);
             grid-template-columns: 1fr 1fr;
-            border-bottom: 1px solid #e5ebf1;
+            border-bottom: 1px solid var(--wf-line-soft);
         }
 
         .tab {
             position: relative;
             display: inline-flex;
             min-height: 50px;
-            gap: 8px;
+            gap: var(--wf-gap-m);
             align-items: center;
             justify-content: center;
-            color: #667085;
+            color: var(--wf-muted);
             border: 0;
             background: transparent;
             cursor: pointer;
@@ -158,17 +158,17 @@ export const mockProxyStyle = [
         .tab::after {
             position: absolute;
             right: 0;
-            bottom: -1px;
+            bottom: -2px;
             left: 0;
-            height: 3px;
-            border-radius: 3px 3px 0 0;
-            background: var(--wf-mock-color-primary);
+            height: 4px;
+            border-radius: 4px 4px 0 0;
+            background: var(--wf-primary);
             content: '';
             opacity: 0;
         }
 
         .tab[aria-selected='true'] {
-            color: var(--wf-mock-color-primary);
+            color: var(--wf-primary);
             font-weight: 650;
         }
 

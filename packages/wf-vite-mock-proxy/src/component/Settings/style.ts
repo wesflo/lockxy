@@ -7,57 +7,57 @@ export const settingsStyle = [
     css`
         :host {
             display: block;
-            padding: 24px 22px;
+            padding: var(--wf-gap-l) var(--wf-gap-l);
         }
 
         h3 {
-            margin: 0 0 20px;
-            font-size: 16px;
+            margin: 0 0 var(--wf-gap-l);
+            font-size: var(--wf-font-size-m);
         }
 
         .setting {
             display: grid;
-            margin-bottom: 20px;
-            gap: 13px;
+            margin-bottom: var(--wf-gap-l);
+            gap: var(--wf-gap-l);
             align-items: start;
             grid-template-columns: auto 1fr;
         }
 
         .setting strong {
             display: block;
-            margin-bottom: 3px;
+            margin-bottom: var(--wf-gap-xs);
             font-weight: 650;
         }
 
         .setting p {
             margin: 0;
-            color: #778398;
-            font-size: 12px;
+            color: var(--wf-muted);
+            font-size: var(--wf-font-size-xs);
         }
 
         .divider {
             height: 1px;
-            margin: 26px 0;
-            background: #e7ecf1;
+            margin: var(--wf-gap-xl) 0;
+            background: var(--wf-line-soft);
         }
 
         .reset {
             display: inline-flex;
             width: 100%;
             min-height: 48px;
-            gap: 9px;
+            gap: var(--wf-gap-m);
             align-items: center;
             justify-content: center;
             color: inherit;
             border: 0;
-            border-radius: 9px;
-            background: #f4f6f8;
+            border-radius: 10px;
+            background: var(--wf-surface-soft);
             font-weight: 650;
             cursor: pointer;
         }
 
         .reset:hover {
-            background: #e9edf2;
+            background: var(--wf-line-soft);
         }
     `,
 ];

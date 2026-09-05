@@ -8,3 +8,4 @@ export const SETTINGS_TAB = 'settings';
 export const POSITION_STORAGE_KEY = 'wesflo-mock-api-button-position';
 export const LAUNCHER_SIZE = 56;
 export const VIEWPORT_GAP = 12;
+export const RESIZE_DEBOUNCE = 200;

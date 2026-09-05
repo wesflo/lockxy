@@ -1,1 +1,1 @@
-export const WF_BADGE_TAG_NAME = 'wf-badge';
+export const BADGE_TAG_NAME = 'wf-badge';

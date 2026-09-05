@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 
 import type { ManifestReadResult, MockManifest } from '../../../interface.js';
 import { toMockUrl } from '../../../util/toMockUrl.js';
+import { normalizeMockManifest } from './normalizeMockManifest.js';
 
 export const readMockManifest = async (
     mockRoot: URL,
@@ -19,7 +20,7 @@ export const readMockManifest = async (
             throw new TypeError(`${manifestFileName} endpoints must be an array when provided`);
         }
 
-        return { status: 'valid', manifest };
+        return { status: 'valid', manifest: normalizeMockManifest(manifest) };
     } catch (error) {
         if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
             return { status: 'missing' };

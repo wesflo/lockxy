@@ -39,7 +39,7 @@ To bypass only selected endpoints, set the cookie to their manifest IDs separate
 document.cookie = 'wesflo-mock-api-bypass=orders|user-details; Path=/; SameSite=Lax';
 ```
 
-Selective bypasses use the endpoint `id` from `mock.manifest.json`, while matching the current request by HTTP method and path. All other endpoints continue to use their selected scenario or their local fallback file. The manifest route remains available even while global bypass is on.
+Selective bypasses use the endpoint `id` from `mock.manifest.json`, while matching the current request by HTTP method and path. When an ID is omitted, the manifest response generates one from method and path. All other endpoints continue to use their selected scenario or their local fallback file. The manifest route remains available even while global bypass is on.
 
 Remove the bypass by expiring the cookie:
 

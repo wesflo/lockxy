@@ -1,9 +1,5 @@
 import { BYPASS_ALL_VALUE, ENDPOINT_ID_PATTERN } from './constant.js';
-
-export interface BypassSelection {
-    all: boolean;
-    endpointIds: ReadonlySet<string>;
-}
+import type { BypassSelection } from './interface.js';
 
 export const parseBypassCookie = (value?: string): BypassSelection => {
     const endpointIds = new Set<string>();

@@ -28,4 +28,19 @@ describe('findSelectedScenario', () => {
         );
         expect(findSelectedScenario(endpoint, new Map())).toBeUndefined();
     });
+
+    it('falls back to the first scenario when a stored selection no longer exists', () => {
+        const endpoint: MockEndpoint = {
+            id: 'profile',
+            path: '/api/profile',
+            scenarios: [
+                { id: 'first', label: 'First' },
+                { id: 'second', label: 'Second' }
+            ]
+        };
+
+        expect(findSelectedScenario(endpoint, new Map([['profile', 'removed-fourth']]))).toEqual(
+            endpoint.scenarios?.[0]
+        );
+    });
 });

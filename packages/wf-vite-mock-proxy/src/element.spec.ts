@@ -16,7 +16,7 @@ const manifest = {
             method: 'GET',
             path: '/api/orders',
             scenarios: [
-                { id: 'success', label: 'Erfolgreich' },
+                { id: 'success', label: 'Success' },
                 { id: 'error', label: '500 Server Error' },
             ],
         },
@@ -134,7 +134,7 @@ describe('wf-vite-mock-proxy', () => {
         launcher?.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, pointerId: 1 }));
         await element.updateComplete;
 
-        expect(launcher?.getAttribute('style')).toBe('left:178px;top:120px');
+        expect(launcher?.getAttribute('style')).toBe('left: 178px;top: 120px');
         expect(localStorage.getItem('wesflo-mock-api-button-position')).toBe('{"x":178,"y":120}');
     });
 });

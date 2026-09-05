@@ -1,5 +1,7 @@
 import type { DemoCase } from './interface';
 
+export const DEMO_TAG_NAME = 'wesflo-local-mock-api-demo';
+
 export const DEMO_CASES: readonly DemoCase[] = [
     {
         id: 'root-method-fallback',

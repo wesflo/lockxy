@@ -1,3 +1,7 @@
-import { theme } from '../style/theme.style.js';
+import { css } from 'lit';
 
-export const iconStyle = theme;
+export const iconStyle = css`
+    :host {
+        display: inline-flex;
+    }
+`;

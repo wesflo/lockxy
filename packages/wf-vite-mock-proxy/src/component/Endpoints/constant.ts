@@ -1,5 +1,5 @@
-export const PROXY_CHANGE_EVENT = 'proxy-change';
-export const ENDPOINT_CHANGE_EVENT = 'endpoint-change';
-export const SCENARIO_CHANGE_EVENT = 'scenario-change';
-export const QUERY_CHANGE_EVENT = 'query-change';
-export const RETRY_MANIFEST_EVENT = 'retry-manifest';
+export const ON_PROXY_CHANGE_EVENT = 'onProxyChange';
+export const ON_ENDPOINT_CHANGE_EVENT = 'onEndpointChange';
+export const ON_SCENARIO_CHANGE_EVENT = 'onScenarioChange';
+export const ON_QUERY_CHANGE_EVENT = 'onQueryChange';
+export const ON_RETRY_MANIFEST_EVENT = 'onRetryManifest';

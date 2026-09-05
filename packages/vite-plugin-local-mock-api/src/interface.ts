@@ -40,12 +40,26 @@ export interface MockEndpoint extends MockResponseConfig {
 }
 
 export interface MockScenario extends MockResponseConfig {
+    id?: string;
+    label?: string;
+}
+
+export interface NormalizedMockManifest extends Omit<MockManifest, 'endpoints'> {
+    endpoints?: NormalizedMockEndpoint[];
+}
+
+export interface NormalizedMockEndpoint extends Omit<MockEndpoint, 'id' | 'scenarios'> {
+    id: string;
+    scenarios?: NormalizedMockScenario[];
+}
+
+export interface NormalizedMockScenario extends Omit<MockScenario, 'id' | 'label'> {
     id: string;
     label: string;
 }
 
 export type ManifestReadResult =
-    | { status: 'valid'; manifest: MockManifest }
+    | { status: 'valid'; manifest: NormalizedMockManifest }
     | { status: 'missing' }
     | { status: 'invalid'; error: Error };
 

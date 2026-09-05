@@ -13,3 +13,5 @@ export type WfIconName =
     | 'search'
     | 'settings'
     | 'sliders';
+
+export type WfIconSize = 'xs' | 's' | 'm' | 'l' | 'xl' | 'xxl';

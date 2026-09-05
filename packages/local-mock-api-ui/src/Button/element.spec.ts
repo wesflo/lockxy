@@ -17,6 +17,7 @@ describe('wf-button', () => {
         element.shadowRoot?.querySelector('button')?.click();
 
         expect(listener).toHaveBeenCalledOnce();
+        expect(listener.mock.calls[0]?.[0]).toMatchObject({ bubbles: false, composed: false });
     });
 
     it('does not emit onClick when disabled', async () => {

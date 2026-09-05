@@ -1,8 +1,17 @@
 import { svg } from 'lit';
 
-import type { WfIconName } from './interface.js';
+import type { WfIconName, WfIconSize } from './interface.js';
 
-export const WF_ICON_TAG_NAME = 'wf-icon';
+export const ICON_TAG_NAME = 'wf-icon';
+
+export const ICON_SIZES: Record<WfIconSize, number> = {
+    xs: 12,
+    s: 16,
+    m: 20,
+    l: 24,
+    xl: 32,
+    xxl: 40
+};
 
 export const ICON_PATHS: Record<WfIconName, ReturnType<typeof svg>> = {
     bolt: svg`<path d="m13 2-8 11h6l-1 9 8-12h-6l1-8Z"/>`,

@@ -55,7 +55,8 @@ const scriptUsage = `<wf-vite-mock-proxy></wf-vite-mock-proxy>
         <p>
             Scenario selections use <code>wesflo-mock-api-scenarios</code>. Entries are encoded as
             <code>endpoint-id:scenario-id</code> and separated with <code>|</code>. Prefer the panel or the exported utility
-            helpers over constructing this value manually.
+            helpers over constructing this value manually. If a stored scenario no longer exists after the manifest is
+            changed, the endpoint automatically uses its first configured scenario.
         </p>
     </article>
 </DocsLayout>
