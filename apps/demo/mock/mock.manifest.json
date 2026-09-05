@@ -1,6 +1,9 @@
 {
     "endpoints": [
         {
+            "delay": 400
+        },
+        {
             "id": "json-response",
             "label": "Simple JSON response",
             "method": "GET",

@@ -49,20 +49,6 @@ document.cookie = 'wesflo-mock-api-bypass=; Max-Age=0; Path=/; SameSite=Lax';
 
 The cookie name and global marker are exported as `BYPASS_COOKIE_NAME` and `BYPASS_ALL_VALUE`.
 
-## Playground
-
-The standalone micro-frontend playground under `apps/playground` combines the Vite plugin with the proxy panel and a small set of executable API requests:
-
-```sh
-pnpm dev:playground
-```
-
-To forward disabled mocks to a development API, provide the Vite proxy target when starting it:
-
-```sh
-PLAYGROUND_API_TARGET=https://dev-api.example.com pnpm dev:playground
-```
-
 ## Documentation
 
 The Astro documentation application lives in `apps/docs`:

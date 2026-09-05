@@ -2,22 +2,25 @@
 import Code from '../components/Code.astro';
 import DocsLayout from '../layouts/DocsLayout.astro';
 
-const install = `pnpm add -D @wesflo/vite-plugin-local-mock-api
-pnpm add @wesflo/wf-vite-mock-proxy`;
+const install = `pnpm add -D @wesflo/vite-plugin-local-mock-api`;
+const fileTree = `mock/
+└── users/
+    ├── profile.json
+    └── POST_profile.json`;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <DocsLayout
     title="Overview"
-    description="Local mock responses, selectable scenarios, and per-endpoint API passthrough for Vite."
+    description="Plug-and-play local API mocks for Vite, with optional manifests and browser controls."
     activePath="/"
 >
     <article>
-        <p class="kicker">Develop against the response you need</p>
-        <h1>Local API mocks without an all-or-nothing switch.</h1>
+        <p class="kicker">The Vite plugin is all you need</p>
+        <h1>Drop in mock files. Start Vite. Done.</h1>
         <p class="lead">
-            Serve realistic mock files from Vite, select scenarios in the browser, and pass individual endpoints through
-            to a development API without removing the plugin from your configuration.
+            Add the plugin and place local response files below your mock directory. Requests are matched automatically
+            through naming conventions—no manifest, browser panel, or application-side fetch wrapper is required.
         </p>
 
         <Code code={install} label="terminal" />
@@ -25,47 +28,48 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <div class="cards">
             <a class="card" href={`${base}/getting-started/`}>
                 <strong>Get started →</strong>
-                <span>Add the plugin, create a mock file, and make your first request.</span>
-            </a>
-            <a class="card" href={`${base}/proxy-panel/`}>
-                <strong>Use the proxy panel →</strong>
-                <span>Switch scenarios and bypass all mocks or a single endpoint.</span>
+                <span>Add the plugin, create one mock file, and make your first request.</span>
             </a>
             <a class="card" href={`${base}/configuration/`}>
-                <strong>Configure the plugin →</strong>
-                <span>Understand resolution rules, manifest fields, and plugin options.</span>
+                <strong>Learn the naming conventions →</strong>
+                <span>See how URLs and HTTP methods resolve to local files.</span>
             </a>
-            <a class="card" href={`${base}/playground/`}>
-                <strong>Open the playground guide →</strong>
-                <span>Exercise the panel and plugin together in a small micro frontend.</span>
+            <a class="card" href={`${base}/proxy-panel/`}>
+                <strong>Add optional browser controls →</strong>
+                <span>Switch manifest scenarios or bypass individual endpoints.</span>
             </a>
         </div>
 
-        <h2>Three focused packages</h2>
-        <table>
-            <thead><tr><th>Package</th><th>Purpose</th></tr></thead>
-            <tbody>
-                <tr>
-                    <td><code>@wesflo/vite-plugin-local-mock-api</code></td>
-                    <td>Vite development-server middleware for local files, scenarios, status codes, and delays.</td>
-                </tr>
-                <tr>
-                    <td><code>@wesflo/wf-vite-mock-proxy</code></td>
-                    <td>Embeddable Web Component that manages scenario and bypass cookies.</td>
-                </tr>
-                <tr>
-                    <td><code>@wesflo/local-mock-api-utils</code></td>
-                    <td>Shared cookie helpers and the fixed manifest route used by server and browser packages.</td>
-                </tr>
-            </tbody>
-        </table>
+        <h2 id="plugin-first">Plugin first</h2>
+        <p>
+            The default workflow is intentionally file-based. For example, <code>GET /api/users/profile</code> resolves to
+            <code>mock/users/profile.json</code>. A <code>POST</code> request prefers <code>POST_profile.json</code> and falls
+            back to <code>profile.json</code>. The same convention works for JSON, text, CSV, images, and PDFs.
+        </p>
+        <Code code={fileTree} label="project structure" />
 
-        <h2>How requests flow</h2>
+        <h2 id="optional-extensions">Optional extensions</h2>
+        <div class="cards">
+            <a class="card" href={`${base}/configuration/#optional-manifest`}>
+                <strong>Manifest</strong>
+                <span>Add special behavior only where you need it: exact status codes, delayed responses, failures, or explicit files.</span>
+            </a>
+            <a class="card" href={`${base}/proxy-panel/`}>
+                <strong>Proxy panel</strong>
+                <span>Expose multiple manifest scenarios per URL and switch between them directly in the browser.</span>
+            </a>
+        </div>
+        <p>
+            Both layers are optional. Start with local files and naming conventions, then introduce a manifest or the panel
+            only when a request needs more control.
+        </p>
+
+        <h2 id="how-a-request-is-resolved">How a request is resolved</h2>
         <ol>
-            <li>The Vite middleware checks whether the request is inside the configured API prefix.</li>
-            <li>A bypass cookie can send the request to the next middleware or configured Vite proxy.</li>
-            <li>A selected manifest scenario can define a response file, status code, and delay.</li>
-            <li>Without a selected scenario, the plugin resolves method-specific and generic mock files.</li>
+            <li>The plugin checks whether the URL is inside the configured API prefix.</li>
+            <li>If an optional manifest scenario is selected, its status, delay, and file settings are applied.</li>
+            <li>Otherwise, the plugin looks for a method-specific file and then a generic file.</li>
+            <li>If browser bypass is enabled, the request continues to the next Vite middleware or configured proxy.</li>
         </ol>
     </article>
 </DocsLayout>

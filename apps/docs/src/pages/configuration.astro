@@ -32,11 +32,32 @@ const manifest = `{
 
 <DocsLayout title="Configuration" description="Plugin options, manifests, and file resolution." activePath="/configuration/">
     <article>
-        <p class="kicker">Reference</p>
-        <h1>Configuration and resolution.</h1>
-        <p class="lead">Keep the default resolver for simple cases, then add a manifest when you need selectable behavior.</p>
+        <p class="kicker">Convention before configuration</p>
+        <h1>File naming first. Manifest when needed.</h1>
+        <p class="lead">
+            Most projects only need local files. The plugin derives candidates from the request URL and HTTP method;
+            configuration becomes useful when individual calls need exceptional behavior.
+        </p>
 
-        <h2>Plugin options</h2>
+        <h2 id="file-naming-conventions">File naming conventions</h2>
+        <p>
+            A URL becomes a path below <code>mockRoot</code>. For each candidate, the plugin checks the uppercased HTTP
+            method prefix first and the generic filename second.
+        </p>
+        <table>
+            <thead><tr><th>Request</th><th>Preferred file</th><th>Generic fallback</th></tr></thead>
+            <tbody>
+                <tr><td><code>GET /api/users/profile</code></td><td><code>users/GET_profile.json</code></td><td><code>users/profile.json</code></td></tr>
+                <tr><td><code>POST /api/users/profile</code></td><td><code>users/POST_profile.json</code></td><td><code>users/profile.json</code></td></tr>
+                <tr><td><code>GET /api/reports/monthly</code></td><td><code>reports/GET_monthly.pdf</code></td><td><code>reports/monthly.pdf</code></td></tr>
+            </tbody>
+        </table>
+        <p>
+            More specific route candidates are tried before suffix and parent fallbacks. Supported defaults include JSON,
+            PDF, CSV, text, JPEG, PNG, and WebP.
+        </p>
+
+        <h2 id="plugin-options">Plugin options</h2>
         <table>
             <thead><tr><th>Option</th><th>Type</th><th>Description</th></tr></thead>
             <tbody>
@@ -51,10 +72,14 @@ const manifest = `{
             <p><code>MANIFEST_ROUTE</code> is intentionally fixed and cannot be overridden by plugin options.</p>
         </Callout>
 
-        <h2>Manifest</h2>
+        <h2 id="optional-manifest">Optional manifest</h2>
+        <p>
+            Create <code>mock.manifest.json</code> only for endpoints that need additional handling. Other requests continue
+            to use normal file resolution, so adopting a manifest is not an all-or-nothing decision.
+        </p>
         <Code code={manifest} label="mock/mock.manifest.json" />
 
-        <h3>Endpoint fields</h3>
+        <h3 id="endpoint-fields">Endpoint fields</h3>
         <table>
             <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
             <tbody>
@@ -67,18 +92,17 @@ const manifest = `{
             </tbody>
         </table>
 
-        <h3>Scenario fields</h3>
+        <h3 id="scenario-fields">Scenario fields</h3>
         <p>
             Every scenario needs an <code>id</code> and <code>label</code>. The optional <code>file</code> is relative to
             <code>mockRoot</code>; <code>status</code> changes the HTTP status and <code>delay</code> waits in milliseconds.
             If <code>file</code> is omitted, normal candidate resolution is used.
         </p>
-
-        <h2>File resolution</h2>
-        <p>
-            The resolver tries the most specific route first, then shorter suffix and parent candidates. For every
-            candidate it checks a method-prefixed filename before the generic filename. Supported defaults include JSON,
-            PDF, CSV, text, JPEG, PNG, and WebP.
-        </p>
+        <Callout title="Typical manifest use cases">
+            <p>
+                Return a real <code>204</code> response, simulate <code>400</code> or <code>500</code> failures, delay a call
+                to test loading and timeout behavior, or point one endpoint at an explicit response file.
+            </p>
+        </Callout>
     </article>
 </DocsLayout>

@@ -14,18 +14,21 @@ const scriptUsage = `<wf-vite-mock-proxy></wf-vite-mock-proxy>
 
 <DocsLayout title="Proxy panel" description="Embed and operate the Local Mock API proxy panel." activePath="/proxy-panel/">
     <article>
-        <p class="kicker">Browser controls</p>
-        <h1>Choose what stays local.</h1>
-        <p class="lead">The panel reads the server manifest and writes only cookies understood by the Vite middleware.</p>
+        <p class="kicker">Optional browser controls</p>
+        <h1>Switch manifest behavior without changing files.</h1>
+        <p class="lead">
+            The plugin works without the panel. Add it when a manifest defines multiple behaviors per URL and developers
+            should be able to select them—or bypass individual endpoints—directly in the browser.
+        </p>
 
-        <h2>Module integration</h2>
+        <h2 id="module-integration">Module integration</h2>
         <Code code={moduleUsage} label="index.html" />
 
-        <h2>Classic script integration</h2>
+        <h2 id="classic-script-integration">Classic script integration</h2>
         <Code code={scriptUsage} label="index.html" />
         <p>The UMD build is self-contained. The package also publishes an ES module and TypeScript declarations.</p>
 
-        <h2>Controls</h2>
+        <h2 id="controls">Controls</h2>
         <ul>
             <li>Click the floating launcher to open or close the panel.</li>
             <li>Press <code>Escape</code> to close it and return focus to the launcher.</li>
@@ -35,7 +38,7 @@ const scriptUsage = `<wf-vite-mock-proxy></wf-vite-mock-proxy>
             <li>Disable an endpoint switch to pass through only that manifest endpoint.</li>
         </ul>
 
-        <h2>Bypass cookie</h2>
+        <h2 id="bypass-cookie">Bypass cookie</h2>
         <Code code={`document.cookie = 'wesflo-mock-api-bypass=*; Path=/; SameSite=Lax';`} label="bypass all mocks" />
         <Code
             code={`document.cookie = 'wesflo-mock-api-bypass=orders|user-profile; Path=/; SameSite=Lax';`}
@@ -48,7 +51,7 @@ const scriptUsage = `<wf-vite-mock-proxy></wf-vite-mock-proxy>
             </p>
         </Callout>
 
-        <h2>Scenario cookie</h2>
+        <h2 id="scenario-cookie">Scenario cookie</h2>
         <p>
             Scenario selections use <code>wesflo-mock-api-scenarios</code>. Entries are encoded as
             <code>endpoint-id:scenario-id</code> and separated with <code>|</code>. Prefer the panel or the exported utility

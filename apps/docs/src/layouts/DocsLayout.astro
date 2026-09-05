@@ -9,59 +9,171 @@ interface Props {
 
 const { title, description, activePath } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const links = [
-    { href: '/', label: 'Overview' },
-    { href: '/getting-started/', label: 'Getting started' },
-    { href: '/configuration/', label: 'Configuration' },
-    { href: '/proxy-panel/', label: 'Proxy panel' },
-    { href: '/playground/', label: 'Playground' },
-];
 const url = (path: string) => `${base}${path}`;
+const links = [
+    { href: '/', label: 'Overview', icon: '⌂' },
+    { href: '/getting-started/', label: 'Getting started', icon: '→' },
+    { href: '/configuration/', label: 'Configuration', icon: '◇' },
+    { href: '/proxy-panel/', label: 'Proxy panel', icon: '≋' },
+];
+const pageSections: Record<string, Array<{ href: string; label: string }>> = {
+    '/': [
+        { href: '#plugin-first', label: 'Plugin first' },
+        { href: '#optional-extensions', label: 'Optional extensions' },
+        { href: '#how-a-request-is-resolved', label: 'Request resolution' },
+    ],
+    '/getting-started/': [
+        { href: '#1-add-the-vite-plugin', label: 'Add the plugin' },
+        { href: '#2-add-a-mock-file', label: 'Add a mock file' },
+        { href: '#3-start-vite', label: 'Start Vite' },
+        { href: '#optional-mount-the-proxy-panel', label: 'Optional panel' },
+    ],
+    '/configuration/': [
+        { href: '#file-naming-conventions', label: 'Naming conventions' },
+        { href: '#plugin-options', label: 'Plugin options' },
+        { href: '#optional-manifest', label: 'Optional manifest' },
+        { href: '#endpoint-fields', label: 'Endpoint fields' },
+        { href: '#scenario-fields', label: 'Scenario fields' },
+    ],
+    '/proxy-panel/': [
+        { href: '#module-integration', label: 'Module integration' },
+        { href: '#classic-script-integration', label: 'Classic script' },
+        { href: '#controls', label: 'Controls' },
+        { href: '#bypass-cookie', label: 'Bypass cookie' },
+        { href: '#scenario-cookie', label: 'Scenario cookie' },
+    ],
+};
+const activeLabel = links.find(({ href }) => href === activePath)?.label ?? title;
+const sections = pageSections[activePath] ?? [];
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="chirpy-light">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
         <meta name="description" content={description} />
-        <meta name="theme-color" content="#0b1220" />
-        <link rel="icon" href={`data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%2315a9ca%22/><path d=%22M37 7 17 35h15l-4 22 20-31H34z%22 fill=%22white%22/></svg>`} />
+        <meta name="generator" content={Astro.generator} />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f7f8" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1b1b1e" />
+        <link rel="icon" href={`data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%232a408e%22/><path d=%22M37 7 17 35h15l-4 22 20-31H34z%22 fill=%22white%22/></svg>`} />
         <title>{title} · Local Mock API</title>
+        <script is:inline>
+            (() => {
+                try {
+                    const saved = localStorage.getItem('docs-theme');
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    document.documentElement.dataset.theme = saved || (prefersDark ? 'chirpy-dark' : 'chirpy-light');
+                } catch {}
+            })();
+        </script>
     </head>
     <body>
-        <header class="topbar">
-            <a class="brand" href={url('/')} aria-label="Local Mock API documentation home">
-                <span class="brand-mark" aria-hidden="true">ϟ</span>
-                <span>
+        <a class="skip-link" href="#main">Skip to content</a>
+
+        <aside id="sidebar" class="chirpy-sidebar" aria-label="Documentation sidebar">
+            <header class="profile">
+                <a href={url('/')} aria-label="Local Mock API documentation home">
+                    <span class="avatar" aria-hidden="true"><span>ϟ</span></span>
                     <strong>Local Mock API</strong>
-                    <small>Vite plugin</small>
-                </span>
-            </a>
-            <a class="github-link" href="https://github.com/wesflo/vite-plugin-local-mock-api">View on GitHub ↗</a>
-        </header>
-        <div class="shell">
-            <aside class="sidebar">
-                <nav aria-label="Documentation">
-                    <p>Documentation</p>
+                </a>
+                <p>Flexible local API responses for Vite-powered frontends.</p>
+            </header>
+
+            <nav class="chirpy-nav" aria-label="Documentation">
+                <ul>
                     {links.map((link) => (
-                        <a href={url(link.href)} aria-current={activePath === link.href ? 'page' : undefined}>
-                            {link.label}
-                        </a>
+                        <li>
+                            <a href={url(link.href)} aria-current={activePath === link.href ? 'page' : undefined}>
+                                <span class="nav-icon" aria-hidden="true">{link.icon}</span>
+                                <span>{link.label}</span>
+                            </a>
+                        </li>
                     ))}
-                </nav>
-                <div class="sidebar-meta">
-                    <span>Packages</span>
-                    <code>@wesflo/*</code>
+                </ul>
+            </nav>
+
+            <div class="sidebar-actions">
+                <button class="round-action" type="button" data-theme-toggle aria-label="Switch color theme">
+                    <span class="light-icon" aria-hidden="true">☾</span>
+                    <span class="dark-icon" aria-hidden="true">☀</span>
+                </button>
+                <a class="round-action" href="https://github.com/wesflo/vite-plugin-local-mock-api" aria-label="View repository on GitHub">
+                    <span aria-hidden="true">⌘</span>
+                </a>
+            </div>
+        </aside>
+
+        <button class="sidebar-mask" type="button" data-sidebar-mask aria-label="Close sidebar" tabindex="-1"></button>
+
+        <div class="chirpy-main-wrapper">
+            <div class="chirpy-shell">
+                <header class="chirpy-topbar" aria-label="Top bar">
+                    <button type="button" class="menu-button" data-sidebar-toggle aria-label="Open navigation">☰</button>
+                    <nav aria-label="Breadcrumb">
+                        <a href={url('/')}>Home</a>
+                        <span aria-hidden="true">/</span>
+                        <strong>{activeLabel}</strong>
+                    </nav>
+                    <a class="mobile-title" href={url('/')}>Local Mock API</a>
+                    <a class="repository-link" href="https://github.com/wesflo/vite-plugin-local-mock-api">GitHub ↗</a>
+                </header>
+
+                <div class="chirpy-columns">
+                    <div class="main-column">
+                        <main id="main" class="content" aria-label="Main content"><slot /></main>
+                        <footer aria-label="Site information">
+                            <p>© {new Date().getFullYear()} wesflo.</p>
+                            <p>
+                                Powered by <a href="https://astro.build">Astro</a> · Theme adapted from {' '}
+                                <a href="https://github.com/kannansuresh/chirping-astro">Chirping Astro</a>
+                            </p>
+                        </footer>
+                    </div>
+
+                    <aside class="chirpy-panel" aria-label="On this page">
+                        <section>
+                            <h2>On this page</h2>
+                            <ol>{sections.map((section) => <li><a href={section.href}>{section.label}</a></li>)}</ol>
+                        </section>
+                        <section>
+                            <h2>Packages</h2>
+                            <div class="tag-list"><span>Vite</span><span>Web Component</span><span>Mock API</span></div>
+                        </section>
+                    </aside>
                 </div>
-            </aside>
-            <main class="content">
-                <slot />
-                <footer>
-                    <span>Built with Astro.</span>
-                    <a href="https://github.com/wesflo/vite-plugin-local-mock-api/issues">Report an issue</a>
-                </footer>
-            </main>
+            </div>
         </div>
+
+        <button class="back-to-top" type="button" data-back-to-top aria-label="Back to top">↑</button>
+
+        <script is:inline>
+            const sidebar = document.querySelector('#sidebar');
+            const mask = document.querySelector('[data-sidebar-mask]');
+            const themeButton = document.querySelector('[data-theme-toggle]');
+            const backToTop = document.querySelector('[data-back-to-top]');
+            const closeSidebar = () => {
+                sidebar?.classList.remove('is-open');
+                mask?.classList.remove('is-visible');
+                document.body.style.overflow = '';
+            };
+
+            document.querySelector('[data-sidebar-toggle]')?.addEventListener('click', () => {
+                sidebar?.classList.add('is-open');
+                mask?.classList.add('is-visible');
+                document.body.style.overflow = 'hidden';
+            });
+            mask?.addEventListener('click', closeSidebar);
+            document.addEventListener('keydown', (event) => event.key === 'Escape' && closeSidebar());
+            themeButton?.addEventListener('click', () => {
+                const next = document.documentElement.dataset.theme === 'chirpy-dark' ? 'chirpy-light' : 'chirpy-dark';
+                document.documentElement.dataset.theme = next;
+                try { localStorage.setItem('docs-theme', next); } catch {}
+            });
+            const updateBackToTop = () => backToTop?.classList.toggle('is-visible', window.scrollY > 320);
+            window.addEventListener('scroll', updateBackToTop, { passive: true });
+            backToTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+            updateBackToTop();
+        </script>
     </body>
 </html>
