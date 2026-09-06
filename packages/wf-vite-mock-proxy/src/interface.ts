@@ -4,9 +4,11 @@ export interface BypassSelection {
 }
 
 export interface MockManifest {
-    delay?: number;
+    delay?: MockDelay;
     endpoints?: MockEndpoint[];
 }
+
+export type MockDelay = number | readonly [number, number];
 
 export interface MockEndpoint {
     id?: string;
@@ -16,7 +18,7 @@ export interface MockEndpoint {
     path: string;
     status?: number;
     file?: string;
-    delay?: number;
+    delay?: MockDelay;
     scenarios?: MockScenario[];
 }
 
@@ -25,7 +27,7 @@ export interface MockScenario {
     label?: string;
     status?: number;
     file?: string;
-    delay?: number;
+    delay?: MockDelay;
 }
 
 export interface EndpointViewState {

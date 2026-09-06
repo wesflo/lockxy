@@ -5,7 +5,8 @@ import { getCandidatePaths } from '../../util/getCandidatePaths.js';
 import { getContentType } from '../../util/getContentType.js';
 import { getInternalRouteParts } from '../../util/getInternalRouteParts.js';
 import { readExistingFile } from '../../util/readExistingFile.js';
-import { logError, logRequest } from '../../util/logger.js';
+import { logError } from '../../util/logError.js';
+import { logRequest } from '../../util/logRequest.js';
 import { send } from '../../util/send.js';
 import { sendJson } from '../../util/sendJson.js';
 

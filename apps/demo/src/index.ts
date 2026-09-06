@@ -16,7 +16,7 @@ import type { DemoCase, DemoResult, MockManifest } from './interface';
 import styles from './style';
 import { renderDemo } from './view';
 import { executeDemoCase } from './util/executeDemoCase';
-import { loadManifest } from './util/manifest';
+import { loadManifest } from './util/loadManifest';
 
 @wfElement(DEMO_TAG_NAME)
 export class MockApiDemo extends LitElement {

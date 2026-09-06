@@ -4,19 +4,8 @@ import type {
     NormalizedMockManifest,
     NormalizedMockScenario
 } from '../../../interface.js';
-
-const toGeneratedId = (value: string): string =>
-    value
-        .trim()
-        .toLocaleLowerCase()
-        .replace(/[^a-z0-9]+/g, '_')
-        .replace(/^_+|_+$/g, '') || 'mock';
-
-export const createEndpointId = (method: string | undefined, path: string): string =>
-    toGeneratedId(`${method ?? 'any'}_${path}`);
-
-export const createScenarioId = (endpointPath: string, index: number): string =>
-    toGeneratedId(`${endpointPath}_${index + 1}`);
+import { createEndpointId } from './createEndpointId.js';
+import { createScenarioId } from './createScenarioId.js';
 
 export const normalizeMockManifest = (manifest: MockManifest): NormalizedMockManifest => {
     const { endpoints, ...root } = manifest;

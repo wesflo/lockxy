@@ -15,9 +15,20 @@
   },
   "$defs": {
     "delay": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Artificial response delay in milliseconds."
+      "description": "A fixed delay or inclusive random delay range in milliseconds.",
+      "oneOf": [
+        { "type": "integer", "minimum": 0 },
+        {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "prefixItems": [
+            { "type": "integer", "minimum": 0 },
+            { "type": "integer", "minimum": 0 }
+          ],
+          "items": false
+        }
+      ]
     },
     "status": {
       "type": "integer",

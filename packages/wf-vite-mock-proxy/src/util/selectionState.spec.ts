@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import type { MockEndpoint } from '../interface.js';
-import { createCookieSelectionValues, mergeStoredEndpointSelections } from './selectionState.js';
+import { createCookieSelectionValues } from './createCookieSelectionValues.js';
+import { mergeStoredEndpointSelections } from './mergeStoredEndpointSelections.js';
 
 const endpoints: MockEndpoint[] = [{
     id: 'orders',

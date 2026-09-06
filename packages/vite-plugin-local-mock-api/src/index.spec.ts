@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { ViteDevServer } from 'vite';
+import type { ResolvedConfig, ViteDevServer } from 'vite';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
@@ -145,5 +145,22 @@ describe('mockApiPlugin', () => {
         expect(next).toHaveBeenCalledOnce();
         expect(mocks.handleScenarioRequest).not.toHaveBeenCalled();
         expect(mocks.handleMockRequest).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        ['build', 'production'],
+        ['serve', 'production']
+    ])('warns and refuses middleware for command %s in mode %s', (command, mode) => {
+        const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+        const use = vi.fn();
+        const plugin = mockApiPlugin();
+        const configResolved = plugin.configResolved as (config: ResolvedConfig) => void;
+        const configureServer = plugin.configureServer as (server: ViteDevServer) => void;
+
+        configResolved({ command, mode } as ResolvedConfig);
+        configureServer({ middlewares: { use } } as unknown as ViteDevServer);
+
+        expect(warning).toHaveBeenCalledWith(expect.stringContaining('SAFETY WARNING'));
+        expect(use).not.toHaveBeenCalled();
     });
 });

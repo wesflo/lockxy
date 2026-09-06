@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { clampPosition, defaultPosition, persistPosition, restorePosition } from './position.js';
+import { clampPosition } from './clampPosition.js';
+import { defaultPosition } from './defaultPosition.js';
+import { persistPosition } from './persistPosition.js';
+import { restorePosition } from './restorePosition.js';
 
 const viewport = { width: 800, height: 600 };
 

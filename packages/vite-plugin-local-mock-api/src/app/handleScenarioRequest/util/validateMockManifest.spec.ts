@@ -5,7 +5,8 @@ import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import type { MockManifest } from '../../../interface.js';
-import { validateManifestStructure, validateMockManifest } from './validateMockManifest.js';
+import { validateManifestStructure } from './validateManifestStructure.js';
+import { validateMockManifest } from './validateMockManifest.js';
 
 describe('validateManifestStructure', () => {
     it.each([
@@ -53,6 +54,19 @@ describe('validateMockManifest', () => {
     it('accepts an empty or delay-only manifest', async () => {
         await expect(validate({})).resolves.toBeUndefined();
         await expect(validate({ delay: 0 })).resolves.toBeUndefined();
+        await expect(validate({ delay: [200, 600] })).resolves.toBeUndefined();
+    });
+
+    it.each([
+        [[600, 200]],
+        [[200]],
+        [[200, 600, 800]],
+        [[-1, 200]],
+        [[200.5, 600]]
+    ])('rejects the invalid delay range %j', async (delay) => {
+        await expect(validate({ delay: delay as [number, number] })).rejects.toThrow(
+            /delay: must be a non-negative integer or an ascending \[minimum, maximum\] range/
+        );
     });
 
     it('accepts existing endpoint and scenario files', async () => {

@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { logDebug, logError, logRequest } from './logger.js';
+import { logDebug } from './logDebug.js';
+import { logError } from './logError.js';
+import { logRequest } from './logRequest.js';
 
 describe('logger', () => {
     it('logs the request fields in one line', () => {

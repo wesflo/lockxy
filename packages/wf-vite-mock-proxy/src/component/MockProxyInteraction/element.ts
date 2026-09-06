@@ -3,7 +3,10 @@ import { state } from 'lit/decorators.js';
 
 import { ENDPOINTS_TAB, POSITION_STORAGE_KEY, RESIZE_DEBOUNCE, SETTINGS_TAB } from '../../constant.js';
 import type { DragState, MockProxyTab, Position } from '../../interface.js';
-import { clampPosition, defaultPosition, persistPosition, restorePosition } from '../../util/position.js';
+import { clampPosition } from '../../util/clampPosition.js';
+import { defaultPosition } from '../../util/defaultPosition.js';
+import { persistPosition } from '../../util/persistPosition.js';
+import { restorePosition } from '../../util/restorePosition.js';
 
 export abstract class MockProxyInteractionElement extends LitElement {
     @state() protected activeTab: MockProxyTab = ENDPOINTS_TAB;

@@ -6,7 +6,7 @@ const mockRoots = {
     'missing-manifest': './mock-missing/',
     'invalid-manifest': './mock-invalid/',
 };
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ command, mode }) => {
     const mockRoot = new URL(mockRoots[mode] ?? mockRoots.development, import.meta.url);
 
     return {
@@ -19,6 +19,6 @@ export default defineConfig(({ mode }) => {
         build: {
             outDir: 'dist',
         },
-        plugins: [mockApiPlugin({ mockRoot, internalPrefix: '/api/' })],
+        plugins: command === 'serve' ? [mockApiPlugin({ mockRoot, internalPrefix: '/api/' })] : [],
     };
 });

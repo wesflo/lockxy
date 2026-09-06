@@ -21,16 +21,18 @@ export type ResponseBody = string | Buffer;
 
 export type ResponseHeaders = Record<string, string | number | readonly string[]>;
 
+export type MockDelay = number | readonly [number, number];
+
 export interface MockManifest {
     $schema?: string;
-    delay?: number;
+    delay?: MockDelay;
     endpoints?: MockEndpoint[];
 }
 
 export interface MockResponseConfig {
     status?: number;
     file?: string;
-    delay?: number;
+    delay?: MockDelay;
 }
 
 export interface MockEndpoint extends MockResponseConfig {

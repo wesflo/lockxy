@@ -1,16 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { SettingsStorage } from '../interface.js';
-import {
-    getEndpointSelectionKey,
-    persistBooleanSetting,
-    persistEndpointSelections,
-    removeStoredSetting,
-    restoreBooleanSetting,
-    restoreEndpointSelections,
-    resetPanelStorage,
-    restorePanelSettings
-} from './settingsStorage.js';
+import { getEndpointSelectionKey } from './getEndpointSelectionKey.js';
+import { persistBooleanSetting } from './persistBooleanSetting.js';
+import { persistEndpointSelections } from './persistEndpointSelections.js';
+import { removeStoredSetting } from './removeStoredSetting.js';
+import { resetPanelStorage } from './resetPanelStorage.js';
+import { restoreBooleanSetting } from './restoreBooleanSetting.js';
+import { restoreEndpointSelections } from './restoreEndpointSelections.js';
+import { restorePanelSettings } from './restorePanelSettings.js';
 
 const createStorage = (value: string | null = null): SettingsStorage => ({
     getItem: vi.fn(() => value),

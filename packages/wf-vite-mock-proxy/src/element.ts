@@ -25,16 +25,16 @@ import { MockProxyInteractionElement } from './component/MockProxyInteraction/el
 import type { SettingChangeDetail } from './component/Settings/interface.js';
 import './component/Settings/element.js';
 import { mockProxyStyle } from './style.js';
-import { createCookieSelectionValues, mergeStoredEndpointSelections } from './util/selectionState.js';
-import {
-    persistBooleanSetting,
-    persistEndpointSelections,
-    removeStoredSetting,
-    resetPanelStorage,
-    restoreEndpointSelections,
-    restorePanelSettings
-} from './util/settingsStorage.js';
+import { createCookieSelectionValues } from './util/createCookieSelectionValues.js';
+import { mergeStoredEndpointSelections } from './util/mergeStoredEndpointSelections.js';
+import { persistBooleanSetting } from './util/persistBooleanSetting.js';
+import { persistEndpointSelections } from './util/persistEndpointSelections.js';
+import { removeStoredSetting } from './util/removeStoredSetting.js';
+import { resetPanelStorage } from './util/resetPanelStorage.js';
+import { restoreEndpointSelections } from './util/restoreEndpointSelections.js';
+import { restorePanelSettings } from './util/restorePanelSettings.js';
 import { renderMockProxy } from './view.js';
+import {nothing} from "lit";
 
 @wfElement(MOCK_PROXY_TAG_NAME)
 export class WfViteMockProxy extends MockProxyInteractionElement {
@@ -169,6 +169,7 @@ export class WfViteMockProxy extends MockProxyInteractionElement {
     };
 
     render = () =>
+        this.manifest ?
         renderMockProxy(
             {
                 activeTab: this.activeTab,
@@ -200,5 +201,5 @@ export class WfViteMockProxy extends MockProxyInteractionElement {
                 selectTab: this.selectTab,
                 togglePanel: this.togglePanel
             }
-        );
+        ) : nothing;
 }

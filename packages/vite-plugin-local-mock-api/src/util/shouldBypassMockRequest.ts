@@ -4,7 +4,7 @@ import type { MockApiPluginOptions } from '../interface.js';
 import { findMockEndpoint } from '../app/handleScenarioRequest/util/findMockEndpoint.js';
 import { readMockManifest } from '../app/handleScenarioRequest/util/readMockManifest.js';
 import { getInternalRouteParts } from './getInternalRouteParts.js';
-import { logError } from './logger.js';
+import { logError } from './logError.js';
 import { parseBypassSelections } from './parseBypassSelections.js';
 
 export const shouldBypassMockRequest = async (

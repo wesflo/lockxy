@@ -1,5 +1,9 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { MANIFEST_ROUTE } from '@wesflo/local-mock-api-utils';
+import {
+    DEVELOPMENT_HEADER_NAME,
+    DEVELOPMENT_HEADER_VALUE,
+    MANIFEST_ROUTE
+} from '@wesflo/local-mock-api-utils';
 
 import { EMPTY_MANIFEST } from '../../constant.js';
 import type { MockApiPluginOptions } from '../../interface.js';
@@ -7,7 +11,9 @@ import { getCandidatePaths } from '../../util/getCandidatePaths.js';
 import { getContentType } from '../../util/getContentType.js';
 import { getInternalRouteParts } from '../../util/getInternalRouteParts.js';
 import { readExistingFile } from '../../util/readExistingFile.js';
-import { logDebug, logError, logRequest } from '../../util/logger.js';
+import { logDebug } from '../../util/logDebug.js';
+import { logError } from '../../util/logError.js';
+import { logRequest } from '../../util/logRequest.js';
 import { send } from '../../util/send.js';
 import { sendJson } from '../../util/sendJson.js';
 import { findMockEndpoint } from './util/findMockEndpoint.js';
@@ -15,6 +21,7 @@ import { findSelectedScenario } from './util/findSelectedScenario.js';
 import { isSafeScenarioFile } from './util/isSafeScenarioFile.js';
 import { parseScenarioSelections } from './util/parseScenarioSelections.js';
 import { readMockManifest } from './util/readMockManifest.js';
+import { resolveDelay } from './util/resolveDelay.js';
 import { wait } from './util/wait.js';
 
 export const handleScenarioRequest = async (
@@ -29,6 +36,7 @@ export const handleScenarioRequest = async (
     const { pathname } = new URL(req.url, 'http://localhost');
 
     if (req.method?.toUpperCase() === 'GET' && pathname === MANIFEST_ROUTE) {
+        res.setHeader(DEVELOPMENT_HEADER_NAME, DEVELOPMENT_HEADER_VALUE);
         const result = await readMockManifest(options.mockRoot, options.manifestFileName, options.debug);
 
         if (result.status === 'valid') {
@@ -80,7 +88,7 @@ export const handleScenarioRequest = async (
     const scenario = endpoint ? findSelectedScenario(endpoint, selections) : undefined;
     const file = scenario?.file ?? endpoint?.file;
     const status = scenario?.status ?? endpoint?.status ?? 200;
-    const delay = scenario?.delay ?? endpoint?.delay ?? manifest.delay;
+    const delay = resolveDelay(scenario?.delay ?? endpoint?.delay ?? manifest.delay);
 
     if (status === 204 || status === 304) {
         if (delay) {
@@ -91,7 +99,7 @@ export const handleScenarioRequest = async (
         logRequest(options.logging, {
             method: req.method ?? 'GET',
             url: req.url,
-            delay: delay ?? 0,
+            delay,
             status,
             source: 'manifest'
         });
@@ -128,7 +136,7 @@ export const handleScenarioRequest = async (
             logRequest(options.logging, {
                 method: req.method ?? 'GET',
                 url: req.url,
-                delay: delay ?? 0,
+                delay,
                 status,
                 source: 'manifest'
             });

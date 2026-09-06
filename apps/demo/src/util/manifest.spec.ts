@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import type { DemoCase, MockManifest } from '../interface';
-import { findEndpoint, findScenario, getGroups, loadManifest } from './manifest';
+import { findEndpoint } from './findEndpoint';
+import { findScenario } from './findScenario';
+import { getGroups } from './getGroups';
+import { loadManifest } from './loadManifest';
 
 const testCase: DemoCase = {
     id: 'profile',

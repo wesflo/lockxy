@@ -4,7 +4,8 @@ import type { ManifestReadResult, MockManifest } from '../../../interface.js';
 import { toMockUrl } from '../../../util/toMockUrl.js';
 import { normalizeMockManifest } from './normalizeMockManifest.js';
 import { formatJsonError } from './formatJsonError.js';
-import { validateManifestStructure, validateMockManifest } from './validateMockManifest.js';
+import { validateManifestStructure } from './validateManifestStructure.js';
+import { validateMockManifest } from './validateMockManifest.js';
 
 export const readMockManifest = async (
     mockRoot: URL,

@@ -89,8 +89,8 @@
                 },
                 {
                     "id": "short",
-                    "label": "200 ms",
-                    "delay": 200
+                    "label": "Random 200–600 ms",
+                    "delay": [200, 600]
                 },
                 {
                     "id": "long",

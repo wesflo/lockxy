@@ -6,14 +6,14 @@ import DocsLayout from '../layouts/DocsLayout.astro';
 const viteConfig = `import { defineConfig } from 'vite';
 import { mockApiPlugin } from '@wesflo/vite-plugin-local-mock-api';
 
-export default defineConfig({
-  plugins: [
+export default defineConfig(({ command }) => ({
+  plugins: command === 'serve' ? [
     mockApiPlugin({
       mockRoot: new URL('./mock/', import.meta.url),
       internalPrefix: '/api/',
     }),
-  ],
-});`;
+  ] : [],
+}));`;
 
 const fileTree = `mock/
 ├── PUT_profile.json
@@ -39,7 +39,10 @@ const entry = `import '@wesflo/wf-vite-mock-proxy';`;
         <h2 id="1-add-the-vite-plugin">1. Add the Vite plugin</h2>
         <Code code={viteConfig} label="vite.config.ts" />
         <Callout title="Development only">
-            <p>The plugin uses Vite's development-server middleware. A production build does not ship your local mock files.</p>
+            <p>
+                The configuration above excludes the plugin from builds. As an additional safety net, the plugin refuses
+                to register mock middleware in a production build or production mode and prints a prominent warning.
+            </p>
         </Callout>
 
         <h2 id="2-add-a-mock-file">2. Add a mock file</h2>
@@ -74,5 +77,12 @@ const entry = `import '@wesflo/wf-vite-mock-proxy';`;
             endpoint passthrough. The panel reads the optional manifest from the fixed
             <code>/_local-mock-api/manifest</code> route.
         </p>
+        <Callout title="Runtime safety check">
+            <p>
+                The panel renders only after the development mock server confirms itself through a dedicated response
+                header. If the panel is accidentally bundled or mounted in production, it stays disabled and prints a
+                browser-console warning.
+            </p>
+        </Callout>
     </article>
 </DocsLayout>

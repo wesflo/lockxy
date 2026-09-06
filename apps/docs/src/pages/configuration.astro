@@ -33,6 +33,10 @@ const rootDelay = `{
   "delay": 400
 }`;
 
+const randomDelay = `{
+  "delay": [200, 600]
+}`;
+
 const directEndpoint = `{
   "endpoints": [
     {
@@ -171,6 +175,12 @@ const diagnosticsConfig = `mockApiPlugin({
             manifest; an <code>endpoints</code> array is not required:
         </p>
         <Code code={rootDelay} label="mock/mock.manifest.json" />
+        <p>
+            A two-value range chooses a new inclusive random delay for every request. For example,
+            <code>[200, 600]</code> produces an integer delay from 200 through 600 milliseconds. The minimum must not exceed
+            the maximum.
+        </p>
+        <Code code={randomDelay} label="random root delay" />
 
         <h3 id="direct-endpoint-handling">Direct endpoint handling</h3>
         <p>
@@ -205,7 +215,7 @@ const diagnosticsConfig = `mockApiPlugin({
                 <tr><td><code>active</code></td><td>No</td><td>Set to <code>false</code> to exclude the endpoint from scenario matching.</td></tr>
                 <tr><td><code>file</code></td><td>No</td><td>Explicit response file relative to <code>mockRoot</code>.</td></tr>
                 <tr><td><code>status</code></td><td>No</td><td>HTTP response status. A file-free <code>204</code> returns an empty response.</td></tr>
-                <tr><td><code>delay</code></td><td>No</td><td>Endpoint-specific delay in milliseconds.</td></tr>
+                <tr><td><code>delay</code></td><td>No</td><td>Fixed milliseconds or an inclusive <code>[minimum, maximum]</code> range.</td></tr>
                 <tr><td><code>scenarios</code></td><td>No</td><td>One automatic or multiple selectable response variants.</td></tr>
             </tbody>
         </table>
@@ -215,7 +225,8 @@ const diagnosticsConfig = `mockApiPlugin({
             Scenario <code>id</code> and <code>label</code> are optional. A missing ID is generated from the parent endpoint
             path and the scenario's one-based position; a missing label falls back to the explicit or generated ID. The
             optional <code>file</code> is relative to <code>mockRoot</code>; <code>status</code> changes the HTTP status and
-            <code>delay</code> waits in milliseconds. If <code>file</code> is omitted, normal candidate resolution is used.
+            <code>delay</code> accepts fixed milliseconds or an inclusive random range. If <code>file</code> is omitted,
+            normal candidate resolution is used.
             Because generated scenario IDs include their position, define explicit IDs when selections must remain stable
             while scenarios are reordered. If a cookie references a scenario that no longer exists, the first configured
             scenario is used as a safe fallback.

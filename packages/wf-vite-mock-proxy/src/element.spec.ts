@@ -1,6 +1,13 @@
 // @vitest-environment happy-dom
 
-import { BYPASS_COOKIE_NAME, getCookieValue, MANIFEST_ROUTE, SCENARIO_COOKIE_NAME } from '@wesflo/local-mock-api-utils';
+import {
+    BYPASS_COOKIE_NAME,
+    DEVELOPMENT_HEADER_NAME,
+    DEVELOPMENT_HEADER_VALUE,
+    getCookieValue,
+    MANIFEST_ROUTE,
+    SCENARIO_COOKIE_NAME
+} from '@wesflo/local-mock-api-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { WfSwitch } from '@wesflo/local-mock-api-ui';
@@ -69,7 +76,10 @@ describe('wf-vite-mock-proxy', () => {
             vi.fn().mockImplementation(async () =>
                 new Response(JSON.stringify(manifest), {
                     status: 200,
-                    headers: { 'content-type': 'application/json' },
+                    headers: {
+                        'content-type': 'application/json',
+                        [DEVELOPMENT_HEADER_NAME]: DEVELOPMENT_HEADER_VALUE
+                    },
                 })
             )
         );
@@ -102,6 +112,17 @@ describe('wf-vite-mock-proxy', () => {
 
         expect(getCookieValue(BYPASS_COOKIE_NAME)).toBe('');
         expect(getCookieValue(SCENARIO_COOKIE_NAME)).toBe('');
+    });
+
+    it('stays disabled and warns without the development server marker', async () => {
+        vi.mocked(fetch).mockResolvedValue(new Response('{}', { status: 200 }));
+        const element = document.createElement('wf-vite-mock-proxy') as WfViteMockProxy;
+
+        document.body.append(element);
+        await vi.waitFor(() => expect(fetch).toHaveBeenCalled());
+        await element.updateComplete;
+
+        expect(element.shadowRoot?.querySelector('.launcher')).toBeNull();
     });
 
     it('writes global, endpoint and scenario choices to cookies', async () => {
@@ -177,7 +198,13 @@ describe('wf-vite-mock-proxy', () => {
         vi.mocked(fetch).mockImplementation(async () =>
             new Response(JSON.stringify({
                 endpoints: [{ ...manifest.endpoints[0], id: 'orders-v2' }]
-            }), { status: 200, headers: { 'content-type': 'application/json' } })
+            }), {
+                status: 200,
+                headers: {
+                    'content-type': 'application/json',
+                    [DEVELOPMENT_HEADER_NAME]: DEVELOPMENT_HEADER_VALUE
+                }
+            })
         );
         await createElement();
 

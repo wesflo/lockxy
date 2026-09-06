@@ -3,7 +3,10 @@ import { html, nothing } from 'lit';
 
 import { DEMO_CASES } from './constant';
 import type { DemoCase, DemoResult, DemoViewActions, DemoViewModel } from './interface';
-import { findEndpoint, findScenario, getGroups } from './util/manifest';
+import { findEndpoint } from './util/findEndpoint';
+import { findScenario } from './util/findScenario';
+import { formatDelay } from './util/formatDelay';
+import { getGroups } from './util/getGroups';
 
 export const renderDemo = (model: DemoViewModel, actions: DemoViewActions) => {
     const renderCase = (testCase: DemoCase) => {
@@ -28,7 +31,7 @@ export const renderDemo = (model: DemoViewModel, actions: DemoViewActions) => {
                     ${delay
                         ? html`
                               <wf-icon name="clock" size="s"></wf-icon>
-                              ${(delay / 1000).toFixed(1)}s
+                              ${formatDelay(delay)}
                           `
                         : 'No delay'}
                 </span>

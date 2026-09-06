@@ -18,7 +18,8 @@ import {
     LOGGING
 } from './constant.js';
 import type { MockApiPluginOptions } from './interface.js';
-import { logError, logRequest } from './util/logger.js';
+import { logError } from './util/logError.js';
+import { logRequest } from './util/logRequest.js';
 import { normalizeMockRoot } from './util/normalizeMockRoot.js';
 import { sendJson } from './util/sendJson.js';
 import { shouldBypassMockRequest } from './util/shouldBypassMockRequest.js';
@@ -37,6 +38,7 @@ export const mockApiPlugin = ({
     debug = DEBUG,
     logging = LOGGING
 }: MockApiPluginOptions = {}): Plugin => {
+    let developmentServer = true;
     const options: Required<MockApiPluginOptions> = {
         mockRoot: normalizeMockRoot(mockRoot),
         internalPrefix,
@@ -50,7 +52,21 @@ export const mockApiPlugin = ({
     return {
         name: 'local-mock-api',
 
+        configResolved: (config) => {
+            developmentServer = config.command === 'serve' && config.mode !== 'production';
+            if (!developmentServer) {
+                console.warn(
+                    '[local-mock-api] SAFETY WARNING: the mock API plugin was included in a production build or mode. ' +
+                        'Mock middleware is disabled; include this plugin only in development configuration.'
+                );
+            }
+        },
+
         configureServer: (server) => {
+            if (!developmentServer) {
+                return;
+            }
+
             server.middlewares.use(async (req, res, next) => {
                 try {
                     if (await shouldBypassMockRequest(req, options)) {

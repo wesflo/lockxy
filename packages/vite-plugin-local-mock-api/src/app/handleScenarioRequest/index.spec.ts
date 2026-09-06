@@ -1,5 +1,10 @@
 import { Buffer } from 'node:buffer';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import {
+    DEVELOPMENT_HEADER_NAME,
+    DEVELOPMENT_HEADER_VALUE,
+    MANIFEST_ROUTE
+} from '@wesflo/local-mock-api-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { MockApiPluginOptions } from '../../interface.js';
@@ -69,6 +74,19 @@ describe('handleScenarioRequest', () => {
         expect(debug).not.toHaveBeenCalled();
     });
 
+    it('marks the manifest response as development-only', async () => {
+        const setHeader = vi.fn();
+        mocks.readMockManifest.mockResolvedValue({ status: 'valid', manifest: {} });
+
+        await expect(handleScenarioRequest(
+            { url: MANIFEST_ROUTE, method: 'GET', headers: {} } as IncomingMessage,
+            { setHeader } as unknown as ServerResponse,
+            options
+        )).resolves.toBe(true);
+
+        expect(setHeader).toHaveBeenCalledWith(DEVELOPMENT_HEADER_NAME, DEVELOPMENT_HEADER_VALUE);
+    });
+
     it('applies a root delay while keeping naming-convention resolution', async () => {
         mocks.readMockManifest.mockResolvedValue({ status: 'valid', manifest: { delay: 400 } });
         mocks.findMockEndpoint.mockReturnValue(undefined);
@@ -108,6 +126,18 @@ describe('handleScenarioRequest', () => {
             mockFile.content,
             'GET'
         );
+    });
+
+    it('resolves a new random delay inside the configured range', async () => {
+        vi.spyOn(Math, 'random').mockReturnValue(0.5);
+        const endpoint = { path: '/api/profile', delay: [200, 600] as const };
+        mocks.readMockManifest.mockResolvedValue({ status: 'valid', manifest: { endpoints: [endpoint] } });
+        mocks.findMockEndpoint.mockReturnValue(endpoint);
+        mocks.findSelectedScenario.mockReturnValue(undefined);
+
+        await expect(handleScenarioRequest(request, response, options)).resolves.toBe(true);
+
+        expect(mocks.wait).toHaveBeenCalledWith(400);
     });
 
     it('returns an empty 204 response without reading a configured file', async () => {
