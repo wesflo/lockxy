@@ -64,6 +64,16 @@ const noContent = `{
     }
   ]
 }`;
+
+const schemaManifest = `{
+  "$schema": "../node_modules/@wesflo/vite-plugin-local-mock-api/mock.manifest.schema.json",
+  "delay": 400
+}`;
+
+const diagnosticsConfig = `mockApiPlugin({
+  debug: true,
+  logging: true
+})`;
 ---
 
 <DocsLayout title="Configuration" description="Plugin options, manifests, and file resolution." activePath="/configuration/">
@@ -110,6 +120,8 @@ const noContent = `{
                 <tr><td><code>extensions</code></td><td><code>string[]</code></td><td>Additional file extensions appended to the built-in candidates.</td></tr>
                 <tr><td><code>contentTypes</code></td><td><code>Record&lt;string, string&gt;</code></td><td>Additional or overridden extension-to-content-type mappings.</td></tr>
                 <tr><td><code>manifestFileName</code></td><td><code>string</code></td><td>Manifest filename inside <code>mockRoot</code>. Defaults to <code>mock.manifest.json</code>.</td></tr>
+                <tr><td><code>debug</code></td><td><code>boolean</code></td><td>Enables semantic manifest and referenced-file validation. Defaults to <code>false</code>.</td></tr>
+                <tr><td><code>logging</code></td><td><code>boolean</code></td><td>Logs handled requests and runtime errors. Defaults to <code>true</code>.</td></tr>
             </tbody>
         </table>
         <Callout title="Fixed route">
@@ -120,6 +132,37 @@ const noContent = `{
         <p>
             Create <code>mock.manifest.json</code> only for endpoints that need additional handling. Other requests continue
             to use normal file resolution, so adopting a manifest is not an all-or-nothing decision.
+        </p>
+        <Callout title="A missing manifest is valid">
+            <p>
+                The plugin deliberately treats a missing manifest as “no overrides configured,” not as an error. A project
+                containing only convention-based mock files therefore remains plug and play. If a manifest exists but is
+                malformed, the plugin reports the error instead of treating it as absent.
+            </p>
+        </Callout>
+
+        <h3 id="json-schema">JSON Schema</h3>
+        <p>
+            The npm package ships <code>mock.manifest.schema.json</code> for editor autocomplete and inline validation.
+            Add <code>$schema</code> to the manifest and adjust the relative path if <code>mockRoot</code> is elsewhere.
+            The same schema is also available from the
+            <a href="https://wesflo.github.io/vite-plugin-local-mock-api/schema/mock.manifest.schema.json">documentation site</a>.
+        </p>
+        <Code code={schemaManifest} label="mock/mock.manifest.json" />
+
+        <h3 id="validation-and-logging">Validation and logging</h3>
+        <p>
+            JSON parsing and the minimum structure required for safe request handling are always checked. Enable
+            <code>debug</code> during manifest development for the more expensive checks: invalid status codes and delays,
+            unsafe or missing response files, duplicate endpoint or scenario IDs, and active routes that can match the same
+            method and path shape. Diagnostics include the exact field path; JSON syntax errors also include line and column.
+        </p>
+        <Code code={diagnosticsConfig} label="vite.config.ts" />
+        <p>
+            Request logging is enabled by default and prints method, URL, effective delay, status, and whether the response
+            came from the manifest, naming conventions, or passthrough. Runtime problems such as corrupt selection cookies,
+            unsafe paths, missing files, and invalid manifests use the same <code>[local-mock-api]</code> prefix. Set
+            <code>logging: false</code> for a quiet development server.
         </p>
 
         <h3 id="root-fields">Root fields</h3>
@@ -139,8 +182,8 @@ const noContent = `{
         <Code code={directFile} label="minimal explicit response file" />
         <Code code={noContent} label="file-free 204 response" />
         <p>
-            A direct <code>status: 204</code> is the exception to file resolution: it immediately returns a real empty
-            response because a 204 response cannot have a body.
+            Direct <code>204</code> and <code>304</code> statuses are exceptions to file resolution: they immediately return
+            empty responses. Responses to <code>HEAD</code> requests never include a body either.
         </p>
 
         <h3 id="multiple-scenarios">Multiple scenarios</h3>

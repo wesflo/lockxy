@@ -7,6 +7,7 @@ import { getCandidatePaths } from '../../util/getCandidatePaths.js';
 import { getContentType } from '../../util/getContentType.js';
 import { getInternalRouteParts } from '../../util/getInternalRouteParts.js';
 import { readExistingFile } from '../../util/readExistingFile.js';
+import { logDebug, logError, logRequest } from '../../util/logger.js';
 import { send } from '../../util/send.js';
 import { sendJson } from '../../util/sendJson.js';
 import { findMockEndpoint } from './util/findMockEndpoint.js';
@@ -28,16 +29,25 @@ export const handleScenarioRequest = async (
     const { pathname } = new URL(req.url, 'http://localhost');
 
     if (req.method?.toUpperCase() === 'GET' && pathname === MANIFEST_ROUTE) {
-        const result = await readMockManifest(options.mockRoot, options.manifestFileName);
+        const result = await readMockManifest(options.mockRoot, options.manifestFileName, options.debug);
 
         if (result.status === 'valid') {
-            sendJson(res, 200, result.manifest);
+            logDebug(options.debug && options.logging, `${options.manifestFileName} passed manifest validation.`);
+            sendJson(res, 200, result.manifest, req.method);
         } else if (result.status === 'missing') {
-            sendJson(res, 200, EMPTY_MANIFEST);
+            sendJson(res, 200, EMPTY_MANIFEST, req.method);
         } else {
-            console.error(`Failed to read mock manifest: ${result.error.message}`, result.error);
-            sendJson(res, 500, { error: `Failed to read mock manifest: ${result.error.message}` });
+            logError(options.logging, `Failed to read mock manifest: ${result.error.message}`);
+            sendJson(res, 500, { error: `Failed to read mock manifest: ${result.error.message}` }, req.method);
         }
+
+        logRequest(options.logging, {
+            method: req.method ?? 'GET',
+            url: req.url,
+            delay: 0,
+            status: result.status === 'invalid' ? 500 : 200,
+            source: 'manifest'
+        });
 
         return true;
     }
@@ -48,14 +58,14 @@ export const handleScenarioRequest = async (
         return false;
     }
 
-    const manifestResult = await readMockManifest(options.mockRoot, options.manifestFileName);
+    const manifestResult = await readMockManifest(options.mockRoot, options.manifestFileName, options.debug);
 
     if (manifestResult.status === 'missing') {
         return false;
     }
 
     if (manifestResult.status === 'invalid') {
-        console.error(`Failed to read mock manifest: ${manifestResult.error.message}`, manifestResult.error);
+        logError(options.logging, `Failed to read mock manifest: ${manifestResult.error.message}`);
         return false;
     }
 
@@ -66,22 +76,30 @@ export const handleScenarioRequest = async (
         return false;
     }
 
-    const selections = parseScenarioSelections(req.headers.cookie);
+    const selections = parseScenarioSelections(req.headers.cookie, (message) => logError(options.logging, message));
     const scenario = endpoint ? findSelectedScenario(endpoint, selections) : undefined;
     const file = scenario?.file ?? endpoint?.file;
     const status = scenario?.status ?? endpoint?.status ?? 200;
     const delay = scenario?.delay ?? endpoint?.delay ?? manifest.delay;
 
-    if (status === 204) {
+    if (status === 204 || status === 304) {
         if (delay) {
             await wait(delay);
         }
 
-        send(res, status, {}, '');
+        send(res, status, {}, '', req.method);
+        logRequest(options.logging, {
+            method: req.method ?? 'GET',
+            url: req.url,
+            delay: delay ?? 0,
+            status,
+            source: 'manifest'
+        });
         return true;
     }
 
     if (file && !isSafeScenarioFile(file)) {
+        logError(options.logging, `Ignoring unsafe manifest file path "${file}" for ${req.method ?? 'GET'} ${req.url}.`);
         return false;
     }
 
@@ -97,8 +115,6 @@ export const handleScenarioRequest = async (
                 await wait(delay);
             }
 
-            console.log(`mocking request for: ${req.url} with content from: ${path}`);
-
             send(
                 res,
                 status,
@@ -106,15 +122,36 @@ export const handleScenarioRequest = async (
                     'content-type': getContentType(file.extension, options.contentTypes),
                     'content-length': String(file.content.length)
                 },
-                file.content
+                file.content,
+                req.method
             );
+            logRequest(options.logging, {
+                method: req.method ?? 'GET',
+                url: req.url,
+                delay: delay ?? 0,
+                status,
+                source: 'manifest'
+            });
 
             return true;
         }
     }
 
+    logError(
+        options.logging,
+        file
+            ? `Manifest response file "${file}" not found for ${req.method ?? 'GET'} ${req.url}.`
+            : `No local mock file found for ${req.method ?? 'GET'} ${req.url}. Tried: ${candidatePaths.join(', ')}.`
+    );
     sendJson(res, 404, {
         error: `No local mock found for ${internalRouteParts.join('/')}`
+    }, req.method);
+    logRequest(options.logging, {
+        method: req.method ?? 'GET',
+        url: req.url,
+        delay: 0,
+        status: 404,
+        source: 'manifest'
     });
 
     return true;

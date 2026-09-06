@@ -34,7 +34,9 @@ describe('handleScenarioRequest', () => {
         internalPrefix: '/api/',
         extensions: ['.json'],
         contentTypes: { '.json': 'application/json' },
-        manifestFileName: 'mock.manifest.json'
+        manifestFileName: 'mock.manifest.json',
+        debug: false,
+        logging: false
     };
     const request = {
         url: '/api/profile',
@@ -52,6 +54,21 @@ describe('handleScenarioRequest', () => {
         mocks.readExistingFile.mockResolvedValue(mockFile);
     });
 
+    it('leaves convention-only requests untouched when the manifest is missing', async () => {
+        const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        const debug = vi.spyOn(console, 'debug').mockImplementation(() => undefined);
+        mocks.readMockManifest.mockResolvedValue({ status: 'missing' });
+
+        await expect(
+            handleScenarioRequest(request, response, { ...options, debug: true, logging: true })
+        ).resolves.toBe(false);
+
+        expect(mocks.parseScenarioSelections).not.toHaveBeenCalled();
+        expect(mocks.send).not.toHaveBeenCalled();
+        expect(error).not.toHaveBeenCalled();
+        expect(debug).not.toHaveBeenCalled();
+    });
+
     it('applies a root delay while keeping naming-convention resolution', async () => {
         mocks.readMockManifest.mockResolvedValue({ status: 'valid', manifest: { delay: 400 } });
         mocks.findMockEndpoint.mockReturnValue(undefined);
@@ -64,7 +81,8 @@ describe('handleScenarioRequest', () => {
             response,
             200,
             { 'content-type': 'application/json', 'content-length': '2' },
-            mockFile.content
+            mockFile.content,
+            'GET'
         );
     });
 
@@ -87,7 +105,8 @@ describe('handleScenarioRequest', () => {
             response,
             202,
             { 'content-type': 'application/json', 'content-length': '2' },
-            mockFile.content
+            mockFile.content,
+            'GET'
         );
     });
 
@@ -101,6 +120,6 @@ describe('handleScenarioRequest', () => {
 
         expect(mocks.getCandidatePaths).not.toHaveBeenCalled();
         expect(mocks.readExistingFile).not.toHaveBeenCalled();
-        expect(mocks.send).toHaveBeenCalledWith(response, 204, {}, '');
+        expect(mocks.send).toHaveBeenCalledWith(response, 204, {}, '', 'GET');
     });
 });

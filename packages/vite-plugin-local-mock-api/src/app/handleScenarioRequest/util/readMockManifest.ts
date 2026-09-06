@@ -3,21 +3,26 @@ import { readFile } from 'node:fs/promises';
 import type { ManifestReadResult, MockManifest } from '../../../interface.js';
 import { toMockUrl } from '../../../util/toMockUrl.js';
 import { normalizeMockManifest } from './normalizeMockManifest.js';
+import { formatJsonError } from './formatJsonError.js';
+import { validateManifestStructure, validateMockManifest } from './validateMockManifest.js';
 
 export const readMockManifest = async (
     mockRoot: URL,
-    manifestFileName: string
+    manifestFileName: string,
+    debug = false
 ): Promise<ManifestReadResult> => {
     try {
         const content = await readFile(toMockUrl(manifestFileName, mockRoot), 'utf8');
-        const manifest = JSON.parse(content) as MockManifest;
-
-        if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
-            throw new TypeError(`${manifestFileName} must contain an object`);
+        let parsed: unknown;
+        try {
+            parsed = JSON.parse(content);
+        } catch (error) {
+            throw formatJsonError(manifestFileName, content, error);
         }
 
-        if (manifest.endpoints !== undefined && !Array.isArray(manifest.endpoints)) {
-            throw new TypeError(`${manifestFileName} endpoints must be an array when provided`);
+        const manifest: MockManifest = validateManifestStructure(parsed, manifestFileName);
+        if (debug) {
+            await validateMockManifest(manifest, manifestFileName, mockRoot);
         }
 
         return { status: 'valid', manifest: normalizeMockManifest(manifest) };

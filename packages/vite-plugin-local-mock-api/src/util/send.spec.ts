@@ -16,4 +16,21 @@ describe('send', () => {
         expect(setHeader).toHaveBeenNthCalledWith(2, 'content-length', '7');
         expect(end).toHaveBeenCalledWith('created');
     });
+
+    it.each([
+        [204, 'GET'],
+        [304, 'GET'],
+        [200, 'HEAD']
+    ])('does not write a body for status %s and method %s', (status, method) => {
+        const setHeader = vi.fn();
+        const end = vi.fn();
+        const response = { statusCode: 0, setHeader, end } as unknown as ServerResponse;
+
+        send(response, status, { 'content-type': 'application/json', 'content-length': '2' }, '{}', method);
+
+        expect(end).toHaveBeenCalledWith();
+        if (status === 204 || status === 304) {
+            expect(setHeader).not.toHaveBeenCalled();
+        }
+    });
 });

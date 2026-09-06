@@ -50,7 +50,9 @@ describe('handleMockRequest', () => {
         internalPrefix: '/_internal/',
         extensions: ['.json'],
         contentTypes: { '.json': 'application/json; charset=utf-8' },
-        manifestFileName: 'mock.manifest.json'
+        manifestFileName: 'mock.manifest.json',
+        debug: false,
+        logging: false
     };
 
     beforeEach(() => {
@@ -95,7 +97,8 @@ describe('handleMockRequest', () => {
                 'content-type': 'application/json; charset=utf-8',
                 'content-length': String(content.length)
             },
-            content
+            content,
+            'GET'
         );
         expect(mocks.sendJson).not.toHaveBeenCalled();
     });
@@ -109,8 +112,11 @@ describe('handleMockRequest', () => {
 
         expect(mocks.readExistingFile).toHaveBeenCalledTimes(2);
         expect(mocks.send).not.toHaveBeenCalled();
-        expect(mocks.sendJson).toHaveBeenCalledWith(response, 404, {
-            error: 'No local mock found for orders/42'
-        });
+        expect(mocks.sendJson).toHaveBeenCalledWith(
+            response,
+            404,
+            { error: 'No local mock found for orders/42' },
+            'GET'
+        );
     });
 });

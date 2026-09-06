@@ -1,7 +1,7 @@
-import { BYPASS_COOKIE_NAME, parseBypassCookie } from '@wesflo/local-mock-api-utils';
+import { BYPASS_ALL_VALUE, BYPASS_COOKIE_NAME, ENDPOINT_ID_PATTERN, parseBypassCookie } from '@wesflo/local-mock-api-utils';
 import type { BypassSelections } from '../interface.js';
 
-export const parseBypassSelections = (cookieHeader?: string): BypassSelections => {
+export const parseBypassSelections = (cookieHeader?: string, onError?: (message: string) => void): BypassSelections => {
     const endpointIds = new Set<string>();
 
     if (!cookieHeader) {
@@ -19,8 +19,16 @@ export const parseBypassSelections = (cookieHeader?: string): BypassSelections =
     }
 
     try {
-        return parseBypassCookie(decodeURIComponent(cookie.slice(cookiePrefix.length)));
+        const value = decodeURIComponent(cookie.slice(cookiePrefix.length));
+        if (
+            value !== BYPASS_ALL_VALUE &&
+            value.split('|').some((endpointId) => endpointId && !ENDPOINT_ID_PATTERN.test(endpointId))
+        ) {
+            onError?.('Ignoring malformed endpoint IDs in the bypass cookie.');
+        }
+        return parseBypassCookie(value);
     } catch {
+        onError?.('Ignoring a bypass cookie that cannot be decoded.');
         return { all: false, endpointIds };
     }
 

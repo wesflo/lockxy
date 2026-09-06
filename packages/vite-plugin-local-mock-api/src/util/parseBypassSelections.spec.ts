@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { parseBypassSelections } from './parseBypassSelections.js';
 
@@ -29,9 +29,11 @@ describe('parseBypassSelections', () => {
     });
 
     it('ignores a malformed encoded value', () => {
-        expect(parseBypassSelections('wesflo-mock-api-bypass=%E0%A4%A')).toEqual({
+        const onError = vi.fn();
+        expect(parseBypassSelections('wesflo-mock-api-bypass=%E0%A4%A', onError)).toEqual({
             all: false,
             endpointIds: new Set()
         });
+        expect(onError).toHaveBeenCalledWith('Ignoring a bypass cookie that cannot be decoded.');
     });
 });

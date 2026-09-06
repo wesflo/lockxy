@@ -22,8 +22,10 @@ vi.mock('./constant.js', () => ({
     CONTENT_TYPES: { '.json': 'application/json' },
     DEFAULT_MOCK_ROOT: mocks.defaultMockRoot,
     EXTENSIONS: ['.json'],
+    DEBUG: false,
     INTERNAL_PREFIX: '/api/',
-    MANIFEST_FILE_NAME: 'mock.manifest.json'
+    MANIFEST_FILE_NAME: 'mock.manifest.json',
+    LOGGING: true
 }));
 
 vi.mock('./util/normalizeMockRoot.js', () => ({
@@ -119,7 +121,9 @@ describe('mockApiPlugin', () => {
             internalPrefix: '/api/',
             extensions: ['.json'],
             contentTypes: { '.json': 'application/json' },
-            manifestFileName: 'mock.manifest.json'
+            manifestFileName: 'mock.manifest.json',
+            debug: false,
+            logging: true
         });
     });
 
@@ -132,7 +136,7 @@ describe('mockApiPlugin', () => {
         const configureServer = plugin.configureServer as (server: ViteDevServer) => void;
         configureServer({ middlewares: { use } } as unknown as ViteDevServer);
         const request = {} as IncomingMessage;
-        const response = {} as ServerResponse;
+        const response = { once: vi.fn() } as unknown as ServerResponse;
         const next = vi.fn();
         mocks.shouldBypassMockRequest.mockResolvedValue(true);
 

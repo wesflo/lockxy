@@ -7,10 +7,12 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./mock.manifest.schema.json": "./mock.manifest.schema.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "mock.manifest.schema.json"
   ],
   "scripts": {
     "build": "rm -rf ./dist && vite build && tsc -p tsconfig.build.json",

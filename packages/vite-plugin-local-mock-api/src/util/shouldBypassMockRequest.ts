@@ -4,6 +4,7 @@ import type { MockApiPluginOptions } from '../interface.js';
 import { findMockEndpoint } from '../app/handleScenarioRequest/util/findMockEndpoint.js';
 import { readMockManifest } from '../app/handleScenarioRequest/util/readMockManifest.js';
 import { getInternalRouteParts } from './getInternalRouteParts.js';
+import { logError } from './logger.js';
 import { parseBypassSelections } from './parseBypassSelections.js';
 
 export const shouldBypassMockRequest = async (
@@ -14,7 +15,7 @@ export const shouldBypassMockRequest = async (
         return false;
     }
 
-    const selections = parseBypassSelections(req.headers.cookie);
+    const selections = parseBypassSelections(req.headers.cookie, (message) => logError(options.logging, message));
 
     if (selections.all) {
         return true;
@@ -24,7 +25,12 @@ export const shouldBypassMockRequest = async (
         return false;
     }
 
-    const manifestResult = await readMockManifest(options.mockRoot, options.manifestFileName);
+    const manifestResult = await readMockManifest(options.mockRoot, options.manifestFileName, options.debug);
+
+    if (manifestResult.status === 'invalid') {
+        logError(options.logging, `Failed to read mock manifest: ${manifestResult.error.message}`);
+        return false;
+    }
 
     if (manifestResult.status !== 'valid') {
         return false;

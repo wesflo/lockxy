@@ -12,11 +12,15 @@ import {
     CONTENT_TYPES,
     DEFAULT_MOCK_ROOT,
     EXTENSIONS,
+    DEBUG,
     INTERNAL_PREFIX,
-    MANIFEST_FILE_NAME
+    MANIFEST_FILE_NAME,
+    LOGGING
 } from './constant.js';
 import type { MockApiPluginOptions } from './interface.js';
+import { logError, logRequest } from './util/logger.js';
 import { normalizeMockRoot } from './util/normalizeMockRoot.js';
+import { sendJson } from './util/sendJson.js';
 import { shouldBypassMockRequest } from './util/shouldBypassMockRequest.js';
 
 export const BYPASS_ALL_VALUE = BYPASS_ALL;
@@ -29,14 +33,18 @@ export const mockApiPlugin = ({
     internalPrefix = INTERNAL_PREFIX,
     extensions = [],
     contentTypes = {},
-    manifestFileName = MANIFEST_FILE_NAME
+    manifestFileName = MANIFEST_FILE_NAME,
+    debug = DEBUG,
+    logging = LOGGING
 }: MockApiPluginOptions = {}): Plugin => {
     const options: Required<MockApiPluginOptions> = {
         mockRoot: normalizeMockRoot(mockRoot),
         internalPrefix,
         extensions: [...EXTENSIONS, ...extensions],
         contentTypes: { ...CONTENT_TYPES, ...contentTypes },
-        manifestFileName
+        manifestFileName,
+        debug,
+        logging
     };
 
     return {
@@ -44,15 +52,40 @@ export const mockApiPlugin = ({
 
         configureServer: (server) => {
             server.middlewares.use(async (req, res, next) => {
-                if (await shouldBypassMockRequest(req, options)) {
-                    next();
-                    return;
-                }
+                try {
+                    if (await shouldBypassMockRequest(req, options)) {
+                        res.once('finish', () => {
+                            logRequest(options.logging, {
+                                method: req.method ?? 'GET',
+                                url: req.url ?? '',
+                                delay: 0,
+                                status: res.statusCode,
+                                source: 'passthrough'
+                            });
+                        });
+                        next();
+                        return;
+                    }
 
-                const handled = await handleScenarioRequest(req, res, options);
+                    const handled = await handleScenarioRequest(req, res, options);
 
-                if (!handled) {
-                    await handleMockRequest(req, res, next, options);
+                    if (!handled) {
+                        await handleMockRequest(req, res, next, options);
+                    }
+                } catch (error) {
+                    logError(options.logging, `Unexpected error while handling ${req.method ?? 'GET'} ${req.url ?? ''}.`, error);
+                    if (!res.headersSent) {
+                        sendJson(res, 500, { error: 'The local mock API failed to handle this request.' }, req.method);
+                    } else {
+                        res.end();
+                    }
+                    logRequest(options.logging, {
+                        method: req.method ?? 'GET',
+                        url: req.url ?? '',
+                        delay: 0,
+                        status: res.statusCode || 500,
+                        source: 'plugin error'
+                    });
                 }
             });
         }

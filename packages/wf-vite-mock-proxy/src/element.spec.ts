@@ -6,6 +6,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WfSwitch } from '@wesflo/local-mock-api-ui';
 
 import type { MockProxyEndpoints } from './component/Endpoints/element.js';
+import type { MockProxySettings } from './component/Settings/element.js';
+import {
+    ENDPOINT_SELECTIONS_STORAGE_KEY,
+    POSITION_STORAGE_KEY,
+    PROXY_ON_LOAD_STORAGE_KEY,
+    SAVE_SELECTIONS_STORAGE_KEY
+} from './constant.js';
 import './element.js';
 import type { WfViteMockProxy } from './element.js';
 
@@ -38,6 +45,14 @@ const createElement = async (): Promise<WfViteMockProxy> => {
 const getEndpoints = (element: WfViteMockProxy): MockProxyEndpoints =>
     element.shadowRoot?.querySelector<MockProxyEndpoints>('wf-vite-mock-proxy-endpoints') as MockProxyEndpoints;
 
+const getSettings = async (element: WfViteMockProxy): Promise<MockProxySettings> => {
+    element.shadowRoot?.querySelector<HTMLButtonElement>('#tab-settings')?.click();
+    await element.updateComplete;
+    const settings = element.shadowRoot?.querySelector<MockProxySettings>('wf-vite-mock-proxy-settings') as MockProxySettings;
+    await settings.updateComplete;
+    return settings;
+};
+
 const clickSwitch = async (element: WfSwitch): Promise<void> => {
     element.shadowRoot?.querySelector<HTMLInputElement>('input')?.click();
     await element.updateComplete;
@@ -51,7 +66,7 @@ describe('wf-vite-mock-proxy', () => {
         localStorage.clear();
         vi.stubGlobal(
             'fetch',
-            vi.fn().mockResolvedValue(
+            vi.fn().mockImplementation(async () =>
                 new Response(JSON.stringify(manifest), {
                     status: 200,
                     headers: { 'content-type': 'application/json' },
@@ -77,6 +92,16 @@ describe('wf-vite-mock-proxy', () => {
 
         expect(panel?.getAttribute('aria-hidden')).toBe('true');
         expect(element.shadowRoot?.activeElement).toBe(launcher);
+    });
+
+    it('starts with an active proxy and no persisted selections by default', async () => {
+        document.cookie = `${BYPASS_COOKIE_NAME}=${encodeURIComponent('*')}; Path=/`;
+        document.cookie = `${SCENARIO_COOKIE_NAME}=orders%3Aerror; Path=/`;
+
+        await createElement();
+
+        expect(getCookieValue(BYPASS_COOKIE_NAME)).toBe('');
+        expect(getCookieValue(SCENARIO_COOKIE_NAME)).toBe('');
     });
 
     it('writes global, endpoint and scenario choices to cookies', async () => {
@@ -108,8 +133,91 @@ describe('wf-vite-mock-proxy', () => {
         expect(element.shadowRoot?.querySelector('wf-vite-mock-proxy-endpoints')).toBeNull();
     });
 
+    it('persists the proxy-on-load setting and applies it on the next mount', async () => {
+        const element = await createElement();
+        const settings = await getSettings(element);
+        const proxyOnLoad = settings.shadowRoot?.querySelector<WfSwitch>('wf-switch');
+
+        await clickSwitch(proxyOnLoad!);
+
+        expect(localStorage.getItem(PROXY_ON_LOAD_STORAGE_KEY)).toBe('false');
+        expect(getCookieValue(BYPASS_COOKIE_NAME)).toBe('*');
+
+        element.remove();
+        const reloaded = await createElement();
+        const reloadedSettings = await getSettings(reloaded);
+
+        expect(reloadedSettings.proxyOnLoad).toBe(false);
+        expect(getCookieValue(BYPASS_COOKIE_NAME)).toBe('*');
+    });
+
+    it('stores selections by method and path and restores them for a changed endpoint ID', async () => {
+        const element = await createElement();
+        const settings = await getSettings(element);
+        const settingSwitches = settings.shadowRoot?.querySelectorAll<WfSwitch>('wf-switch');
+        await clickSwitch(settingSwitches![1]);
+
+        element.shadowRoot?.querySelector<HTMLButtonElement>('#tab-endpoints')?.click();
+        await element.updateComplete;
+        const endpoints = getEndpoints(element);
+        await endpoints.updateComplete;
+        const scenario = endpoints.shadowRoot?.querySelector<HTMLSelectElement>('.endpoint select');
+        scenario!.value = 'error';
+        scenario?.dispatchEvent(new Event('change'));
+        await element.updateComplete;
+        const endpointSwitch = endpoints.shadowRoot?.querySelectorAll<WfSwitch>('wf-switch')[1];
+        await clickSwitch(endpointSwitch!);
+
+        expect(localStorage.getItem(SAVE_SELECTIONS_STORAGE_KEY)).toBe('true');
+        expect(JSON.parse(localStorage.getItem(ENDPOINT_SELECTIONS_STORAGE_KEY) ?? '')).toEqual([
+            ['GET /api/orders', { active: false, scenarioId: 'error' }]
+        ]);
+
+        element.remove();
+        vi.mocked(fetch).mockImplementation(async () =>
+            new Response(JSON.stringify({
+                endpoints: [{ ...manifest.endpoints[0], id: 'orders-v2' }]
+            }), { status: 200, headers: { 'content-type': 'application/json' } })
+        );
+        await createElement();
+
+        expect(getCookieValue(BYPASS_COOKIE_NAME)).toBe('orders-v2');
+        expect(getCookieValue(SCENARIO_COOKIE_NAME)).toBe('orders-v2:error');
+    });
+
+    it('falls back to the first scenario when a stored scenario no longer exists', async () => {
+        localStorage.setItem(SAVE_SELECTIONS_STORAGE_KEY, 'true');
+        localStorage.setItem(
+            ENDPOINT_SELECTIONS_STORAGE_KEY,
+            JSON.stringify([['GET /api/orders', { scenarioId: 'removed' }]])
+        );
+
+        await createElement();
+
+        expect(getCookieValue(SCENARIO_COOKIE_NAME)).toBe('orders:success');
+    });
+
+    it('reset removes all panel storage and restores the defaults', async () => {
+        localStorage.setItem(PROXY_ON_LOAD_STORAGE_KEY, 'false');
+        localStorage.setItem(SAVE_SELECTIONS_STORAGE_KEY, 'true');
+        localStorage.setItem(ENDPOINT_SELECTIONS_STORAGE_KEY, '[]');
+        localStorage.setItem(POSITION_STORAGE_KEY, '{"x":20,"y":20}');
+        const element = await createElement();
+        const settings = await getSettings(element);
+
+        settings.shadowRoot?.querySelector<HTMLButtonElement>('.reset')?.click();
+        await element.updateComplete;
+
+        expect(localStorage.getItem(PROXY_ON_LOAD_STORAGE_KEY)).toBeNull();
+        expect(localStorage.getItem(SAVE_SELECTIONS_STORAGE_KEY)).toBeNull();
+        expect(localStorage.getItem(ENDPOINT_SELECTIONS_STORAGE_KEY)).toBeNull();
+        expect(localStorage.getItem(POSITION_STORAGE_KEY)).toBeNull();
+        expect(getCookieValue(BYPASS_COOKIE_NAME)).toBe('');
+        expect(getCookieValue(SCENARIO_COOKIE_NAME)).toBe('');
+    });
+
     it('moves with Ctrl or Cmd and permanently stores the new position', async () => {
-        localStorage.setItem('wesflo-mock-api-button-position', JSON.stringify({ x: 28, y: 200 }));
+        localStorage.setItem(POSITION_STORAGE_KEY, JSON.stringify({ x: 28, y: 200 }));
         const element = await createElement();
         const launcher = element.shadowRoot?.querySelector<HTMLButtonElement>('.launcher');
         launcher!.setPointerCapture = vi.fn();
@@ -135,6 +243,6 @@ describe('wf-vite-mock-proxy', () => {
         await element.updateComplete;
 
         expect(launcher?.getAttribute('style')).toBe('left: 178px;top: 120px');
-        expect(localStorage.getItem('wesflo-mock-api-button-position')).toBe('{"x":178,"y":120}');
+        expect(localStorage.getItem(POSITION_STORAGE_KEY)).toBe('{"x":178,"y":120}');
     });
 });

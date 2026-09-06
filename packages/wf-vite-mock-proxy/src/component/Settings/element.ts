@@ -50,7 +50,7 @@ export class MockProxySettings extends LitElement {
             ></wf-switch>
             <div>
                 <strong>Save selections in local storage</strong>
-                <p>Your settings are preserved.</p>
+                <p>Endpoint and scenario choices are preserved.</p>
             </div>
         </div>
         <div class="divider"></div>

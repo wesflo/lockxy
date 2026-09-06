@@ -25,7 +25,8 @@ describe('sendJson', () => {
             response,
             404,
             { 'content-type': 'application/json; charset=utf-8' },
-            '{"error":"missing"}'
+            '{"error":"missing"}',
+            undefined
         );
     });
 });

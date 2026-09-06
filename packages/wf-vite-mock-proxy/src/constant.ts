@@ -6,6 +6,12 @@ export const ENDPOINTS_TAB = 'endpoints';
 export const SETTINGS_TAB = 'settings';
 
 export const POSITION_STORAGE_KEY = 'wesflo-mock-api-button-position';
+
+export const PROXY_ON_LOAD_STORAGE_KEY = 'wesflo-mock-api-proxy-on-load';
+
+export const SAVE_SELECTIONS_STORAGE_KEY = 'wesflo-mock-api-save-selections';
+
+export const ENDPOINT_SELECTIONS_STORAGE_KEY = 'wesflo-mock-api-endpoint-selections';
 export const LAUNCHER_SIZE = 56;
 export const VIEWPORT_GAP = 12;
 export const RESIZE_DEBOUNCE = 200;

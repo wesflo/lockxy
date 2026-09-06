@@ -22,3 +22,7 @@ export const INTERNAL_PREFIX = '/api/';
 export const DEFAULT_MOCK_ROOT = new URL('../../../../../../mock/', import.meta.url);
 
 export const MANIFEST_FILE_NAME = 'mock.manifest.json';
+
+export const DEBUG = false;
+
+export const LOGGING = true;

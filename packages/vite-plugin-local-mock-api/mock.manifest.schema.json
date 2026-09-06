@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wesflo.github.io/vite-plugin-local-mock-api/schema/mock.manifest.schema.json",
+  "title": "Local Mock API manifest",
+  "description": "Optional behavior overrides for @wesflo/vite-plugin-local-mock-api.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "delay": { "$ref": "#/$defs/delay" },
+    "endpoints": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/endpoint" }
+    }
+  },
+  "$defs": {
+    "delay": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Artificial response delay in milliseconds."
+    },
+    "status": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 599
+    },
+    "file": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*\\\\).+$",
+      "description": "Response file relative to mockRoot."
+    },
+    "response": {
+      "type": "object",
+      "properties": {
+        "status": { "$ref": "#/$defs/status" },
+        "delay": { "$ref": "#/$defs/delay" },
+        "file": { "$ref": "#/$defs/file" }
+      }
+    },
+    "scenario": {
+      "allOf": [
+        { "$ref": "#/$defs/response" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" },
+            "label": { "type": "string", "minLength": 1 },
+            "status": { "$ref": "#/$defs/status" },
+            "delay": { "$ref": "#/$defs/delay" },
+            "file": { "$ref": "#/$defs/file" }
+          }
+        }
+      ]
+    },
+    "endpoint": {
+      "allOf": [
+        { "$ref": "#/$defs/response" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path"],
+          "properties": {
+            "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" },
+            "label": { "type": "string", "minLength": 1 },
+            "active": { "type": "boolean" },
+            "method": { "type": "string", "minLength": 1 },
+            "path": { "type": "string", "pattern": "^/" },
+            "status": { "$ref": "#/$defs/status" },
+            "delay": { "$ref": "#/$defs/delay" },
+            "file": { "$ref": "#/$defs/file" },
+            "scenarios": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/scenario" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

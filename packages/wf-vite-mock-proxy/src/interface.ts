@@ -55,6 +55,27 @@ export interface PositionStorage {
     setItem(key: string, value: string): void;
 }
 
+export interface SettingsStorage extends PositionStorage {
+    removeItem(key: string): void;
+}
+
+export interface StoredEndpointSelection {
+    active?: boolean;
+    scenarioId?: string;
+}
+
+export type StoredEndpointSelections = ReadonlyMap<string, StoredEndpointSelection>;
+
+export interface CookieSelectionValues {
+    bypass: string;
+    scenarios: string;
+}
+
+export interface PanelSettings {
+    proxyOnLoad: boolean;
+    saveSelections: boolean;
+}
+
 export interface MockProxyViewModel {
     activeTab: MockProxyTab;
     bypass: BypassSelection;

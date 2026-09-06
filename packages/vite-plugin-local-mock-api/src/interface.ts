@@ -6,6 +6,8 @@ export interface MockApiPluginOptions {
     extensions?: readonly string[];
     contentTypes?: Readonly<Record<string, string>>;
     manifestFileName?: string;
+    debug?: boolean;
+    logging?: boolean;
 }
 
 export interface MockFile {
@@ -20,6 +22,7 @@ export type ResponseBody = string | Buffer;
 export type ResponseHeaders = Record<string, string | number | readonly string[]>;
 
 export interface MockManifest {
+    $schema?: string;
     delay?: number;
     endpoints?: MockEndpoint[];
 }
@@ -68,4 +71,14 @@ export type ScenarioSelections = ReadonlyMap<string, string>;
 export interface BypassSelections {
     all: boolean;
     endpointIds: ReadonlySet<string>;
+}
+
+export type MockResponseSource = 'manifest' | 'naming convention' | 'passthrough' | 'plugin error';
+
+export interface RequestLogDetails {
+    method: string;
+    url: string;
+    delay: number;
+    status: number;
+    source: MockResponseSource;
 }

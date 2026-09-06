@@ -51,6 +51,26 @@ const scriptUsage = `<wf-vite-mock-proxy></wf-vite-mock-proxy>
             </p>
         </Callout>
 
+        <h2 id="settings-and-persistence">Settings and persistence</h2>
+        <p>
+            <strong>Enable proxy on load</strong> is enabled by default and stored in local storage. When disabled, mounting
+            the panel sets the global bypass cookie immediately, so requests continue to the next Vite middleware. Enabling
+            it again activates the proxy immediately and for future page loads.
+        </p>
+        <p>
+            <strong>Save selections in local storage</strong> is disabled by default. When enabled, individual endpoint
+            bypasses and scenario choices are stored by normalized HTTP method and manifest path, for example
+            <code>GET /api/orders</code>. The panel maps those values back to the current manifest endpoint IDs after loading.
+            If a selected scenario no longer exists, the first configured scenario is used as a fallback.
+        </p>
+        <Callout title="Shared-origin limitation">
+            <p>
+                Local storage is shared by applications on the same origin. Two micro frontends defining the same method and
+                path can therefore inherit the same saved selection. Use <strong>Reset all settings</strong> to remove all
+                panel-owned preferences, endpoint selections, cookies, and the saved launcher position.
+            </p>
+        </Callout>
+
         <h2 id="scenario-cookie">Scenario cookie</h2>
         <p>
             Scenario selections use <code>wesflo-mock-api-scenarios</code>. Entries are encoded as

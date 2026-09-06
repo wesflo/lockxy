@@ -13,13 +13,27 @@ import {
 import { resetStyles, wfElement } from '@wesflo/local-mock-api-ui';
 import { state } from 'lit/decorators.js';
 
-import { MOCK_PROXY_TAG_NAME, POSITION_STORAGE_KEY } from './constant.js';
+import {
+    ENDPOINT_SELECTIONS_STORAGE_KEY,
+    MOCK_PROXY_TAG_NAME,
+    PROXY_ON_LOAD_STORAGE_KEY,
+    SAVE_SELECTIONS_STORAGE_KEY
+} from './constant.js';
 import type { MockEndpoint, MockManifest } from './interface.js';
 import './component/Endpoints/element.js';
 import { MockProxyInteractionElement } from './component/MockProxyInteraction/element.js';
 import type { SettingChangeDetail } from './component/Settings/interface.js';
 import './component/Settings/element.js';
 import { mockProxyStyle } from './style.js';
+import { createCookieSelectionValues, mergeStoredEndpointSelections } from './util/selectionState.js';
+import {
+    persistBooleanSetting,
+    persistEndpointSelections,
+    removeStoredSetting,
+    resetPanelStorage,
+    restoreEndpointSelections,
+    restorePanelSettings
+} from './util/settingsStorage.js';
 import { renderMockProxy } from './view.js';
 
 @wfElement(MOCK_PROXY_TAG_NAME)
@@ -37,6 +51,11 @@ export class WfViteMockProxy extends MockProxyInteractionElement {
 
     connectedCallback(): void {
         super.connectedCallback();
+        const settings = restorePanelSettings(localStorage);
+        this.proxyOnLoad = settings.proxyOnLoad;
+        this.saveSelections = settings.saveSelections;
+        setCookieValue(SCENARIO_COOKIE_NAME, '');
+        setCookieValue(BYPASS_COOKIE_NAME, this.proxyOnLoad ? '' : BYPASS_ALL_VALUE);
         this.syncCookieState();
         void this.loadManifest();
     }
@@ -53,6 +72,9 @@ export class WfViteMockProxy extends MockProxyInteractionElement {
             }
 
             this.manifest = (await response.json()) as MockManifest;
+            if (this.saveSelections) {
+                this.applyStoredSelections();
+            }
         } catch (error) {
             this.manifest = undefined;
             this.error = `The manifest could not be loaded (${error instanceof Error ? error.message : String(error)}).`;
@@ -64,6 +86,24 @@ export class WfViteMockProxy extends MockProxyInteractionElement {
     private syncCookieState = (): void => {
         this.bypass = parseBypassCookie(getCookieValue(BYPASS_COOKIE_NAME));
         this.scenarios = parseScenarioCookie(getCookieValue(SCENARIO_COOKIE_NAME));
+    };
+
+    private applyStoredSelections = (): void => {
+        const stored = restoreEndpointSelections(localStorage, ENDPOINT_SELECTIONS_STORAGE_KEY);
+        const values = createCookieSelectionValues(this.manifest?.endpoints ?? [], stored, this.proxyOnLoad);
+        setCookieValue(BYPASS_COOKIE_NAME, values.bypass);
+        setCookieValue(SCENARIO_COOKIE_NAME, values.scenarios);
+        this.syncCookieState();
+    };
+
+    private persistSelections = (endpoints: readonly MockEndpoint[]): void => {
+        if (!this.saveSelections) {
+            return;
+        }
+
+        const current = restoreEndpointSelections(localStorage, ENDPOINT_SELECTIONS_STORAGE_KEY);
+        const selections = mergeStoredEndpointSelections(current, endpoints, this.bypass, this.scenarios);
+        persistEndpointSelections(localStorage, ENDPOINT_SELECTIONS_STORAGE_KEY, selections);
     };
 
     private setProxyActive = (active: boolean): void => {
@@ -81,6 +121,7 @@ export class WfViteMockProxy extends MockProxyInteractionElement {
             updateBypassCookie(getCookieValue(BYPASS_COOKIE_NAME), endpoint.id, !active)
         );
         this.syncCookieState();
+        this.persistSelections([endpoint]);
     };
 
     private setScenario = (endpoint: MockEndpoint, scenarioId: string): void => {
@@ -93,13 +134,25 @@ export class WfViteMockProxy extends MockProxyInteractionElement {
             updateScenarioCookie(getCookieValue(SCENARIO_COOKIE_NAME), endpoint.id, scenarioId || undefined)
         );
         this.syncCookieState();
+        this.persistSelections([endpoint]);
     };
 
     private setSetting = ({ name, checked }: SettingChangeDetail): void => {
         if (name === 'proxyOnLoad') {
             this.proxyOnLoad = checked;
+            persistBooleanSetting(localStorage, PROXY_ON_LOAD_STORAGE_KEY, checked);
+            this.setProxyActive(checked);
+            if (checked && this.saveSelections) {
+                this.applyStoredSelections();
+            }
         } else {
             this.saveSelections = checked;
+            persistBooleanSetting(localStorage, SAVE_SELECTIONS_STORAGE_KEY, checked);
+            if (checked) {
+                this.persistSelections(this.manifest?.endpoints ?? []);
+            } else {
+                removeStoredSetting(localStorage, ENDPOINT_SELECTIONS_STORAGE_KEY);
+            }
         }
     };
 
@@ -110,11 +163,7 @@ export class WfViteMockProxy extends MockProxyInteractionElement {
         this.saveSelections = false;
         this.position = this.defaultPosition();
 
-        try {
-            localStorage.removeItem(POSITION_STORAGE_KEY);
-        } catch {
-            // Storage can be unavailable in privacy-restricted browsing contexts.
-        }
+        resetPanelStorage(localStorage);
 
         this.syncCookieState();
     };
