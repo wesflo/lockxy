@@ -23,9 +23,6 @@ importers:
       '@wesflo/vite-plugin-local-mock-api':
         specifier: workspace:*
         version: link:../../packages/vite-plugin-local-mock-api
-      '@wesflo/wf-vite-mock-proxy':
-        specifier: workspace:*
-        version: link:../../packages/wf-vite-mock-proxy
     devDependencies:
       '@eslint/js':
         specifier: ^9.23.0

@@ -218,7 +218,7 @@ export const renderDemo = (model: DemoViewModel, actions: DemoViewActions) => {
         `;
     };
 
-    render = () => html`
+    return html`
         <header class="topbar">
             <a class="brand" href="#top" aria-label="wesflo Local Mock API">
                 <span class="brand__mark"><wf-icon name="bolt" size="l"></wf-icon></span>
