@@ -11,7 +11,7 @@ export const CONTENT_TYPES: Readonly<Record<string, string>> = {
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
     '.png': 'image/png',
-    '.webp': 'image/webp'
+    '.webp': 'image/webp',
 };
 
 /**

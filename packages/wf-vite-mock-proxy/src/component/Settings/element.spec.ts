@@ -40,7 +40,7 @@ describe('wf-vite-mock-proxy-settings', () => {
 
         expect(listener.mock.calls.map(([event]) => event.detail)).toEqual([
             { name: 'proxyOnLoad', checked: false },
-            { name: 'saveSelections', checked: true }
+            { name: 'saveSelections', checked: true },
         ]);
     });
 

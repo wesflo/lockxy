@@ -49,7 +49,7 @@ export const handleScenarioRequest = async (
             url: req.url,
             delay: 0,
             status: result.status === 'invalid' ? 500 : 200,
-            source: 'manifest'
+            source: 'manifest',
         });
 
         return true;
@@ -96,19 +96,20 @@ export const handleScenarioRequest = async (
             url: req.url,
             delay,
             status,
-            source: 'manifest'
+            source: 'manifest',
         });
         return true;
     }
 
     if (file && !isSafeScenarioFile(file)) {
-        logError(options.logging, `Ignoring unsafe manifest file path "${file}" for ${req.method ?? 'GET'} ${req.url}.`);
+        logError(
+            options.logging,
+            `Ignoring unsafe manifest file path "${file}" for ${req.method ?? 'GET'} ${req.url}.`
+        );
         return false;
     }
 
-    const candidatePaths = file
-        ? [file]
-        : getCandidatePaths(internalRouteParts, req.method, options.extensions);
+    const candidatePaths = file ? [file] : getCandidatePaths(internalRouteParts, req.method, options.extensions);
 
     for (const path of candidatePaths) {
         const file = await readExistingFile(path, options.mockRoot);
@@ -123,7 +124,7 @@ export const handleScenarioRequest = async (
                 status,
                 {
                     'content-type': getContentType(file.extension, options.contentTypes),
-                    'content-length': String(file.content.length)
+                    'content-length': String(file.content.length),
                 },
                 file.content,
                 req.method
@@ -133,7 +134,7 @@ export const handleScenarioRequest = async (
                 url: req.url,
                 delay,
                 status,
-                source: 'manifest'
+                source: 'manifest',
             });
 
             return true;
@@ -146,15 +147,20 @@ export const handleScenarioRequest = async (
             ? `Manifest response file "${file}" not found for ${req.method ?? 'GET'} ${req.url}.`
             : `No local mock file found for ${req.method ?? 'GET'} ${req.url}. Tried: ${candidatePaths.join(', ')}.`
     );
-    sendJson(res, 404, {
-        error: `No local mock found for ${internalRouteParts.join('/')}`
-    }, req.method);
+    sendJson(
+        res,
+        404,
+        {
+            error: `No local mock found for ${internalRouteParts.join('/')}`,
+        },
+        req.method
+    );
     logRequest(options.logging, {
         method: req.method ?? 'GET',
         url: req.url,
         delay: 0,
         status: 404,
-        source: 'manifest'
+        source: 'manifest',
     });
 
     return true;

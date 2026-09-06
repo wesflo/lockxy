@@ -19,7 +19,7 @@ const model: MockProxyViewModel = {
     proxyOnLoad: true,
     query: '',
     saveSelections: false,
-    scenarios: new Map()
+    scenarios: new Map(),
 };
 
 const createActions = (): MockProxyViewActions => ({
@@ -36,7 +36,7 @@ const createActions = (): MockProxyViewActions => ({
     resetSettings: vi.fn(),
     retryManifest: vi.fn(),
     selectTab: vi.fn(),
-    togglePanel: vi.fn()
+    togglePanel: vi.fn(),
 });
 
 describe('renderMockProxy', () => {
@@ -77,7 +77,7 @@ describe('renderMockProxy', () => {
 
         settings?.dispatchEvent(
             new CustomEvent('onSettingChange', {
-                detail: { name: 'saveSelections', checked: true }
+                detail: { name: 'saveSelections', checked: true },
             })
         );
         settings?.dispatchEvent(new CustomEvent('onResetSettings'));

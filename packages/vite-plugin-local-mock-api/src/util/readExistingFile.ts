@@ -14,7 +14,7 @@ export const readExistingFile = async (path: string, mockRoot: URL): Promise<Moc
     try {
         return {
             content: await readFile(url),
-            extension: getExtension(path)
+            extension: getExtension(path),
         };
     } catch {
         return null;

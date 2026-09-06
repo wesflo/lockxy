@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+.turbo/
+.astro/
+.DS_Store
+pnpm-lock.yaml
+**/*.astro
+apps/demo/mock-invalid/mock.manifest.json

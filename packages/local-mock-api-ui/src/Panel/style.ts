@@ -16,6 +16,10 @@ export const panelStyle = css`
         justify-content: space-between;
         border-bottom: 1px solid var(--wf-line-soft);
     }
-    .body { padding: var(--wf-gap-l); }
-    ::slotted([slot='heading']) { margin: 0; }
+    .body {
+        padding: var(--wf-gap-l);
+    }
+    ::slotted([slot='heading']) {
+        margin: 0;
+    }
 `;

@@ -1,9 +1,6 @@
 import type { SettingsStorage, StoredEndpointSelection, StoredEndpointSelections } from '../interface.js';
 
-export const restoreEndpointSelections = (
-    storage: SettingsStorage,
-    key: string
-): StoredEndpointSelections => {
+export const restoreEndpointSelections = (storage: SettingsStorage, key: string): StoredEndpointSelections => {
     try {
         const value = storage.getItem(key);
         if (!value) {

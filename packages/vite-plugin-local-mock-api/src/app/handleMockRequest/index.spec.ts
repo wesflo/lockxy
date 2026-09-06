@@ -9,31 +9,31 @@ const mocks = vi.hoisted(() => ({
     getInternalRouteParts: vi.fn(),
     readExistingFile: vi.fn(),
     send: vi.fn(),
-    sendJson: vi.fn()
+    sendJson: vi.fn(),
 }));
 
 vi.mock('../../util/getCandidatePaths.js', () => ({
-    getCandidatePaths: mocks.getCandidatePaths
+    getCandidatePaths: mocks.getCandidatePaths,
 }));
 
 vi.mock('../../util/getContentType.js', () => ({
-    getContentType: mocks.getContentType
+    getContentType: mocks.getContentType,
 }));
 
 vi.mock('../../util/getInternalRouteParts.js', () => ({
-    getInternalRouteParts: mocks.getInternalRouteParts
+    getInternalRouteParts: mocks.getInternalRouteParts,
 }));
 
 vi.mock('../../util/readExistingFile.js', () => ({
-    readExistingFile: mocks.readExistingFile
+    readExistingFile: mocks.readExistingFile,
 }));
 
 vi.mock('../../util/send.js', () => ({
-    send: mocks.send
+    send: mocks.send,
 }));
 
 vi.mock('../../util/sendJson.js', () => ({
-    sendJson: mocks.sendJson
+    sendJson: mocks.sendJson,
 }));
 
 import { handleMockRequest } from './index.js';
@@ -41,7 +41,7 @@ import { handleMockRequest } from './index.js';
 describe('handleMockRequest', () => {
     const request = {
         url: '/_internal/orders',
-        method: 'GET'
+        method: 'GET',
     } as IncomingMessage;
     const response = {} as ServerResponse;
     const mockRoot = new URL('file:///tmp/mocks/');
@@ -52,7 +52,7 @@ describe('handleMockRequest', () => {
         contentTypes: { '.json': 'application/json; charset=utf-8' },
         manifestFileName: 'mock.manifest.json',
         debug: false,
-        logging: false
+        logging: false,
     };
 
     beforeEach(() => {
@@ -67,10 +67,7 @@ describe('handleMockRequest', () => {
 
         await handleMockRequest(request, response, next, options);
 
-        expect(mocks.getInternalRouteParts).toHaveBeenCalledWith(
-            request.url,
-            options.internalPrefix
-        );
+        expect(mocks.getInternalRouteParts).toHaveBeenCalledWith(request.url, options.internalPrefix);
         expect(next).toHaveBeenCalledOnce();
         expect(mocks.getCandidatePaths).not.toHaveBeenCalled();
     });
@@ -79,9 +76,7 @@ describe('handleMockRequest', () => {
         const content = Buffer.from('{"source":"fallback"}');
         mocks.getInternalRouteParts.mockReturnValue(['orders']);
         mocks.getCandidatePaths.mockReturnValue(['GET_orders.json', 'orders.json', 'orders.pdf']);
-        mocks.readExistingFile
-            .mockResolvedValueOnce(null)
-            .mockResolvedValueOnce({ content, extension: '.json' });
+        mocks.readExistingFile.mockResolvedValueOnce(null).mockResolvedValueOnce({ content, extension: '.json' });
 
         await handleMockRequest(request, response, vi.fn(), options);
 
@@ -95,7 +90,7 @@ describe('handleMockRequest', () => {
             200,
             {
                 'content-type': 'application/json; charset=utf-8',
-                'content-length': String(content.length)
+                'content-length': String(content.length),
             },
             content,
             'GET'

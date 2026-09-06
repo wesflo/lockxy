@@ -37,7 +37,12 @@ describe('wf-button', () => {
         const listener = vi.fn();
         const container = document.createElement('div');
         document.body.append(container);
-        render(html`<wf-button @onClick=${listener}>Run</wf-button>`, container);
+        render(
+            html`
+                <wf-button @onClick=${listener}>Run</wf-button>
+            `,
+            container
+        );
         const element = container.querySelector('wf-button') as WfButton;
         await element.updateComplete;
 

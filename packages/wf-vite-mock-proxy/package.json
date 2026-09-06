@@ -2,6 +2,16 @@
     "name": "@wesflo/wf-vite-mock-proxy",
     "version": "0.0.0",
     "description": "Embeddable UI for configuring @wesflo/vite-plugin-local-mock-api in the browser.",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wesflo/vite-plugin-local-mock-api.git",
+        "directory": "packages/wf-vite-mock-proxy"
+    },
+    "homepage": "https://wesflo.github.io/vite-plugin-local-mock-api/proxy-panel/",
+    "bugs": {
+        "url": "https://github.com/wesflo/vite-plugin-local-mock-api/issues"
+    },
     "type": "module",
     "types": "./dist/index.d.ts",
     "module": "./dist/wf-vite-mock-proxy.js",
@@ -16,7 +26,9 @@
         }
     },
     "files": [
-        "dist"
+        "dist",
+        "README.md",
+        "LICENSE"
     ],
     "scripts": {
         "build": "vite build && tsc -p tsconfig.build.json",
@@ -35,6 +47,7 @@
         "vitest": "^4.1.11"
     },
     "publishConfig": {
-        "registry": "https://npm.pkg.github.com"
+        "access": "public",
+        "registry": "https://registry.npmjs.org"
     }
 }

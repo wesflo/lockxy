@@ -12,7 +12,10 @@ describe('validateManifestStructure', () => {
         [{ endpoints: [{ path: 'api/users' }] }, 'mock.json.endpoints[0].path: must be a string beginning with /'],
         [{ endpoints: [{ path: '/api/users', method: 42 }] }, 'mock.json.endpoints[0].method: must be a string'],
         [{ endpoints: [{ path: '/api/users', scenarios: {} }] }, 'mock.json.endpoints[0].scenarios: must be an array'],
-        [{ endpoints: [{ path: '/api/users', scenarios: [null] }] }, 'mock.json.endpoints[0].scenarios[0]: must be an object']
+        [
+            { endpoints: [{ path: '/api/users', scenarios: [null] }] },
+            'mock.json.endpoints[0].scenarios[0]: must be an object',
+        ],
     ])('rejects an unsafe runtime shape %#', (manifest, message) => {
         expect(() => validateManifestStructure(manifest, 'mock.json')).toThrow(message);
     });

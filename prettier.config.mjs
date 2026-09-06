@@ -13,7 +13,7 @@ const prettierDefaultConfig = {
     trailingComma: 'es5',
     useTabs: false,
     htmlWhitespaceSensitivity: 'ignore',
-    embeddedLanguageFormatting: 'auto'
+    embeddedLanguageFormatting: 'auto',
 };
 
 export default prettierDefaultConfig;

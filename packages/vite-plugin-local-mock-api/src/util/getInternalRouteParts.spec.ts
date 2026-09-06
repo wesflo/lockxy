@@ -2,15 +2,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
     decodePart: vi.fn(),
-    isSafePart: vi.fn()
+    isSafePart: vi.fn(),
 }));
 
 vi.mock('./decodePart.js', () => ({
-    decodePart: mocks.decodePart
+    decodePart: mocks.decodePart,
 }));
 
 vi.mock('./isSafePart.js', () => ({
-    isSafePart: mocks.isSafePart
+    isSafePart: mocks.isSafePart,
 }));
 
 import { getInternalRouteParts } from './getInternalRouteParts.js';
@@ -35,9 +35,10 @@ describe('getInternalRouteParts', () => {
     });
 
     it('decodes and validates each non-empty internal route part', () => {
-        expect(
-            getInternalRouteParts('/_internal/orders/hello%20world/?draft=true', internalPrefix)
-        ).toEqual(['orders', 'hello world']);
+        expect(getInternalRouteParts('/_internal/orders/hello%20world/?draft=true', internalPrefix)).toEqual([
+            'orders',
+            'hello world',
+        ]);
         expect(mocks.decodePart.mock.calls[0]?.[0]).toBe('orders');
         expect(mocks.decodePart.mock.calls[1]?.[0]).toBe('hello%20world');
         expect(mocks.isSafePart).toHaveBeenNthCalledWith(1, 'orders');

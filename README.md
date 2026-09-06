@@ -2,6 +2,8 @@
 
 Local mock responses for API requests handled by the Vite development server.
 
+This project is intended exclusively for local development. Do not deploy the mock server or proxy panel as production services, and only use synthetic data in mock files.
+
 ## Mock Proxy panel
 
 In a Vite-powered micro frontend, register the Web Component and place it directly in the HTML:
@@ -57,4 +59,14 @@ The Astro documentation application lives in `apps/docs`:
 pnpm dev:docs
 ```
 
-It is configured for `https://wesflo.github.io/vite-plugin-local-mock-api/` and deployed through the GitHub Pages workflow on pushes to `main` that change the documentation.
+It is configured for `https://wesflo.github.io/vite-plugin-local-mock-api/` and deployed manually from `main` through the production release workflow.
+
+## Security
+
+Please report vulnerabilities through [GitHub private vulnerability reporting](https://github.com/wesflo/vite-plugin-local-mock-api/security/advisories/new), not through public issues. See the [security policy](./.github/SECURITY.md) for details.
+
+Maintainer release setup is documented in the [release guide](./.github/RELEASING.md).
+
+## License
+
+[MIT](./LICENSE)

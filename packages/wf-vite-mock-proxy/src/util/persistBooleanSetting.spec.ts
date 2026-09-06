@@ -8,7 +8,9 @@ describe('persistBooleanSetting', () => {
         persistBooleanSetting(storage, 'key', false);
         expect(storage.setItem).toHaveBeenCalledWith('key', 'false');
 
-        storage.setItem.mockImplementation(() => { throw new Error('blocked'); });
+        storage.setItem.mockImplementation(() => {
+            throw new Error('blocked');
+        });
         expect(() => persistBooleanSetting(storage, 'key', true)).not.toThrow();
     });
 });

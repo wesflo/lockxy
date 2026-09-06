@@ -87,10 +87,12 @@ export const renderMockProxy = (model: MockProxyViewModel, actions: MockProxyVie
         </header>
 
         <nav class="tabs" role="tablist" aria-label="Mock Proxy sections" @keydown=${actions.handleTabKeyDown}>
-            ${([
-                { id: ENDPOINTS_TAB, icon: 'sliders', label: 'Endpoints' },
-                { id: SETTINGS_TAB, icon: 'settings', label: 'Settings' }
-            ] as const).map(
+            ${(
+                [
+                    { id: ENDPOINTS_TAB, icon: 'sliders', label: 'Endpoints' },
+                    { id: SETTINGS_TAB, icon: 'settings', label: 'Settings' },
+                ] as const
+            ).map(
                 ({ id, icon, label }) => html`
                     <button
                         class="tab"

@@ -21,7 +21,7 @@ describe('send', () => {
     it.each([
         [204, 'GET'],
         [304, 'GET'],
-        [200, 'HEAD']
+        [200, 'HEAD'],
     ])('does not write a body for status %s and method %s', (status, method) => {
         const setHeader = vi.fn();
         const end = vi.fn();

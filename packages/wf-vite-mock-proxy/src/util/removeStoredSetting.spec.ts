@@ -8,7 +8,9 @@ describe('removeStoredSetting', () => {
         removeStoredSetting(storage, 'key');
         expect(storage.removeItem).toHaveBeenCalledWith('key');
 
-        storage.removeItem.mockImplementation(() => { throw new Error('blocked'); });
+        storage.removeItem.mockImplementation(() => {
+            throw new Error('blocked');
+        });
         expect(() => removeStoredSetting(storage, 'key')).not.toThrow();
     });
 });

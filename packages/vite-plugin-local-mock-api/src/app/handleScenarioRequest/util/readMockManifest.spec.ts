@@ -25,7 +25,7 @@ describe('readMockManifest', () => {
 
         await expect(readMockManifest(mockRoot, 'mock.manifest.json')).resolves.toEqual({
             status: 'valid',
-            manifest: { delay: 400 }
+            manifest: { delay: 400 },
         });
     });
 
@@ -58,12 +58,14 @@ describe('readMockManifest', () => {
     });
 
     it('runs semantic and file validation only in debug mode', async () => {
-        const mockRoot = await writeManifest(JSON.stringify({
-            endpoints: [
-                { id: 'same', method: 'GET', path: '/api/users/:id', status: 700, file: 'missing.json' },
-                { id: 'same', method: 'GET', path: '/api/users/:name' }
-            ]
-        }));
+        const mockRoot = await writeManifest(
+            JSON.stringify({
+                endpoints: [
+                    { id: 'same', method: 'GET', path: '/api/users/:id', status: 700, file: 'missing.json' },
+                    { id: 'same', method: 'GET', path: '/api/users/:name' },
+                ],
+            })
+        );
 
         await expect(readMockManifest(mockRoot, 'mock.manifest.json')).resolves.toMatchObject({ status: 'valid' });
 
@@ -73,7 +75,9 @@ describe('readMockManifest', () => {
             expect(result.error.message).toContain('endpoints[0].status');
             expect(result.error.message).toContain('referenced file "missing.json" does not exist');
             expect(result.error.message).toContain('endpoints[1].id: duplicate endpoint ID "same"');
-            expect(result.error.message).toContain('endpoints[1]: route conflicts with mock.manifest.json.endpoints[0]');
+            expect(result.error.message).toContain(
+                'endpoints[1]: route conflicts with mock.manifest.json.endpoints[0]'
+            );
         }
     });
 });

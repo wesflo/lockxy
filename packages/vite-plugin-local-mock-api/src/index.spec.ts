@@ -7,15 +7,15 @@ const mocks = vi.hoisted(() => ({
     handleScenarioRequest: vi.fn(),
     normalizeMockRoot: vi.fn(),
     shouldBypassMockRequest: vi.fn(),
-    defaultMockRoot: new URL('file:///default/mocks/')
+    defaultMockRoot: new URL('file:///default/mocks/'),
 }));
 
 vi.mock('./app/handleMockRequest/index.js', () => ({
-    handleMockRequest: mocks.handleMockRequest
+    handleMockRequest: mocks.handleMockRequest,
 }));
 
 vi.mock('./app/handleScenarioRequest/index.js', () => ({
-    handleScenarioRequest: mocks.handleScenarioRequest
+    handleScenarioRequest: mocks.handleScenarioRequest,
 }));
 
 vi.mock('./constant.js', () => ({
@@ -25,24 +25,20 @@ vi.mock('./constant.js', () => ({
     DEBUG: false,
     INTERNAL_PREFIX: '/api/',
     MANIFEST_FILE_NAME: 'mock.manifest.json',
-    LOGGING: true
+    LOGGING: true,
 }));
 
 vi.mock('./util/normalizeMockRoot.js', () => ({
-    normalizeMockRoot: mocks.normalizeMockRoot
+    normalizeMockRoot: mocks.normalizeMockRoot,
 }));
 
 vi.mock('./util/shouldBypassMockRequest.js', () => ({
-    shouldBypassMockRequest: mocks.shouldBypassMockRequest
+    shouldBypassMockRequest: mocks.shouldBypassMockRequest,
 }));
 
 import { mockApiPlugin } from './index.js';
 
-type Middleware = (
-    request: IncomingMessage,
-    response: ServerResponse,
-    next: () => void
-) => Promise<void>;
+type Middleware = (request: IncomingMessage, response: ServerResponse, next: () => void) => Promise<void>;
 
 describe('mockApiPlugin', () => {
     const normalizedMockRoot = new URL('file:///normalized/mocks/');
@@ -79,7 +75,7 @@ describe('mockApiPlugin', () => {
             internalPrefix: '/custom-api/',
             extensions: ['.xml'],
             contentTypes: { '.xml': 'application/xml' },
-            manifestFileName: 'custom.manifest.json'
+            manifestFileName: 'custom.manifest.json',
         });
         const configureServer = plugin.configureServer as (server: ViteDevServer) => void;
         configureServer({ middlewares: { use } } as unknown as ViteDevServer);
@@ -94,9 +90,9 @@ describe('mockApiPlugin', () => {
                 extensions: ['.json', '.xml'],
                 contentTypes: {
                     '.json': 'application/json',
-                    '.xml': 'application/xml'
+                    '.xml': 'application/xml',
                 },
-                manifestFileName: 'custom.manifest.json'
+                manifestFileName: 'custom.manifest.json',
             })
         );
     });
@@ -123,7 +119,7 @@ describe('mockApiPlugin', () => {
             contentTypes: { '.json': 'application/json' },
             manifestFileName: 'mock.manifest.json',
             debug: false,
-            logging: true
+            logging: true,
         });
     });
 
@@ -149,7 +145,7 @@ describe('mockApiPlugin', () => {
 
     it.each([
         ['build', 'production'],
-        ['serve', 'production']
+        ['serve', 'production'],
     ])('warns and refuses middleware for command %s in mode %s', (command, mode) => {
         const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
         const use = vi.fn();

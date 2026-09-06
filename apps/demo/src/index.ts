@@ -109,14 +109,13 @@ export class MockApiDemo extends LitElement {
                 results: this.results,
                 running: this.running,
                 selectedCase: this.selectedCase,
-                selections: this.selections
+                selections: this.selections,
             },
             {
                 downloadSelected: this.downloadSelected,
                 reset: this.reset,
                 runSelectedCase: this.runSelectedCase,
-                selectCase: this.selectCase
+                selectCase: this.selectCase,
             }
         );
-
 }

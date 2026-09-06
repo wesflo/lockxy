@@ -10,8 +10,8 @@ export const heroStyle = css`
         gap: var(--wf-gap-xl);
         align-items: center;
         overflow: hidden;
-        background: radial-gradient(circle at 82% 60%, var(--wf-primary-shadow), transparent 28%),
-            var(--wf-surface-translucent);
+        background:
+            radial-gradient(circle at 82% 60%, var(--wf-primary-shadow), transparent 28%), var(--wf-surface-translucent);
     }
 
     .hero__icon {

@@ -7,10 +7,7 @@ describe('parseScenarioSelections', () => {
         const onError = vi.fn();
 
         expect(
-            parseScenarioSelections(
-                'wesflo-mock-api-scenarios=users%3Asuccess%7Cinvalid%3Avalue%3Aextra',
-                onError
-            )
+            parseScenarioSelections('wesflo-mock-api-scenarios=users%3Asuccess%7Cinvalid%3Avalue%3Aextra', onError)
         ).toEqual(new Map([['users', 'success']]));
         expect(onError).toHaveBeenCalledWith('Ignoring a malformed scenario selection cookie entry.');
 

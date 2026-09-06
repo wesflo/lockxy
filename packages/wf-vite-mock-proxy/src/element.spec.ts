@@ -1,11 +1,6 @@
 // @vitest-environment happy-dom
 
-import {
-    BYPASS_COOKIE_NAME,
-    getCookieValue,
-    MANIFEST_ROUTE,
-    SCENARIO_COOKIE_NAME
-} from '@wesflo/local-mock-api-utils';
+import { BYPASS_COOKIE_NAME, getCookieValue, MANIFEST_ROUTE, SCENARIO_COOKIE_NAME } from '@wesflo/local-mock-api-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { WfSwitch } from '@wesflo/local-mock-api-ui';
@@ -16,7 +11,7 @@ import {
     ENDPOINT_SELECTIONS_STORAGE_KEY,
     POSITION_STORAGE_KEY,
     PROXY_ON_LOAD_STORAGE_KEY,
-    SAVE_SELECTIONS_STORAGE_KEY
+    SAVE_SELECTIONS_STORAGE_KEY,
 } from './constant.js';
 import './element.js';
 import type { WfViteMockProxy } from './element.js';
@@ -53,7 +48,9 @@ const getEndpoints = (element: WfViteMockProxy): MockProxyEndpoints =>
 const getSettings = async (element: WfViteMockProxy): Promise<MockProxySettings> => {
     element.shadowRoot?.querySelector<HTMLButtonElement>('#tab-settings')?.click();
     await element.updateComplete;
-    const settings = element.shadowRoot?.querySelector<MockProxySettings>('wf-vite-mock-proxy-settings') as MockProxySettings;
+    const settings = element.shadowRoot?.querySelector<MockProxySettings>(
+        'wf-vite-mock-proxy-settings'
+    ) as MockProxySettings;
     await settings.updateComplete;
     return settings;
 };
@@ -72,11 +69,12 @@ describe('wf-vite-mock-proxy', () => {
         localStorage.clear();
         vi.stubGlobal(
             'fetch',
-            vi.fn().mockImplementation(async () =>
-                new Response(JSON.stringify(manifest), {
-                    status: 200,
-                    headers: { 'content-type': 'application/json' },
-                })
+            vi.fn().mockImplementation(
+                async () =>
+                    new Response(JSON.stringify(manifest), {
+                        status: 200,
+                        headers: { 'content-type': 'application/json' },
+                    })
             )
         );
     });
@@ -187,17 +185,21 @@ describe('wf-vite-mock-proxy', () => {
 
         expect(localStorage.getItem(SAVE_SELECTIONS_STORAGE_KEY)).toBe('true');
         expect(JSON.parse(localStorage.getItem(ENDPOINT_SELECTIONS_STORAGE_KEY) ?? '')).toEqual([
-            ['GET /api/orders', { active: false, scenarioId: 'error' }]
+            ['GET /api/orders', { active: false, scenarioId: 'error' }],
         ]);
 
         element.remove();
-        vi.mocked(fetch).mockImplementation(async () =>
-            new Response(JSON.stringify({
-                endpoints: [{ ...manifest.endpoints[0], id: 'orders-v2' }]
-            }), {
-                status: 200,
-                headers: { 'content-type': 'application/json' }
-            })
+        vi.mocked(fetch).mockImplementation(
+            async () =>
+                new Response(
+                    JSON.stringify({
+                        endpoints: [{ ...manifest.endpoints[0], id: 'orders-v2' }],
+                    }),
+                    {
+                        status: 200,
+                        headers: { 'content-type': 'application/json' },
+                    }
+                )
         );
         await createElement();
 

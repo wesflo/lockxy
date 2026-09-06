@@ -1,7 +1,7 @@
 packages:
-  - 'apps/*'
-  - 'packages/*'
+    - 'apps/*'
+    - 'packages/*'
 allowBuilds:
-  esbuild: true
+    esbuild: true
 minimumReleaseAgeExclude:
-  - happy-dom@20.13.1
+    - happy-dom@20.13.1

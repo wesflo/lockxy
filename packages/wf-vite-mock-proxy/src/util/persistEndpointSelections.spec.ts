@@ -12,7 +12,9 @@ describe('persistEndpointSelections', () => {
             '[["GET /api/users",{"active":false,"scenarioId":"error"}]]'
         );
 
-        storage.setItem.mockImplementation(() => { throw new Error('blocked'); });
+        storage.setItem.mockImplementation(() => {
+            throw new Error('blocked');
+        });
         expect(() => persistEndpointSelections(storage, 'key', selections)).not.toThrow();
     });
 });

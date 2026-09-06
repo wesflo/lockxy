@@ -34,7 +34,7 @@ export const handleMockRequest = async (
                 200,
                 {
                     'content-type': getContentType(file.extension, options.contentTypes),
-                    'content-length': String(file.content.length)
+                    'content-length': String(file.content.length),
                 },
                 file.content,
                 req.method
@@ -44,7 +44,7 @@ export const handleMockRequest = async (
                 url: req.url ?? '',
                 delay: 0,
                 status: 200,
-                source: 'naming convention'
+                source: 'naming convention',
             });
 
             return;
@@ -55,14 +55,19 @@ export const handleMockRequest = async (
         options.logging,
         `No local mock file found for ${req.method ?? 'GET'} ${req.url ?? ''}. Tried: ${candidatePaths.join(', ')}.`
     );
-    sendJson(res, 404, {
-        error: `No local mock found for ${internalRouteParts.join('/')}`
-    }, req.method);
+    sendJson(
+        res,
+        404,
+        {
+            error: `No local mock found for ${internalRouteParts.join('/')}`,
+        },
+        req.method
+    );
     logRequest(options.logging, {
         method: req.method ?? 'GET',
         url: req.url ?? '',
         delay: 0,
         status: 404,
-        source: 'naming convention'
+        source: 'naming convention',
     });
 };

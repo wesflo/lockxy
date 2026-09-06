@@ -19,7 +19,7 @@ describe('validateMockManifest', () => {
         temporaryDirectories.push(directory);
         return {
             directory,
-            mockRoot: new URL('./', pathToFileURL(join(directory, 'placeholder')))
+            mockRoot: new URL('./', pathToFileURL(join(directory, 'placeholder'))),
         };
     };
 
@@ -34,17 +34,14 @@ describe('validateMockManifest', () => {
         await expect(validate({ delay: [200, 600] })).resolves.toBeUndefined();
     });
 
-    it.each([
-        [[600, 200]],
-        [[200]],
-        [[200, 600, 800]],
-        [[-1, 200]],
-        [[200.5, 600]]
-    ])('rejects the invalid delay range %j', async (delay) => {
-        await expect(validate({ delay: delay as [number, number] })).rejects.toThrow(
-            /delay: must be a non-negative integer or an ascending \[minimum, maximum\] range/
-        );
-    });
+    it.each([[[600, 200]], [[200]], [[200, 600, 800]], [[-1, 200]], [[200.5, 600]]])(
+        'rejects the invalid delay range %j',
+        async (delay) => {
+            await expect(validate({ delay: delay as [number, number] })).rejects.toThrow(
+                /delay: must be a non-negative integer or an ascending \[minimum, maximum\] range/
+            );
+        }
+    );
 
     it('accepts existing endpoint and scenario files', async () => {
         const { directory, mockRoot } = await createMockRoot();
@@ -55,11 +52,13 @@ describe('validateMockManifest', () => {
         await expect(
             validateMockManifest(
                 {
-                    endpoints: [{
-                        path: '/api/users',
-                        file: 'endpoint.json',
-                        scenarios: [{ file: 'scenarios/success.json' }]
-                    }]
+                    endpoints: [
+                        {
+                            path: '/api/users',
+                            file: 'endpoint.json',
+                            scenarios: [{ file: 'scenarios/success.json' }],
+                        },
+                    ],
                 },
                 'mock.manifest.json',
                 mockRoot
@@ -70,17 +69,17 @@ describe('validateMockManifest', () => {
     it('reports every invalid status and delay with its field path', async () => {
         const manifest = {
             delay: -1,
-            endpoints: [{
-                path: '/api/users',
-                status: 600,
-                delay: 1.5,
-                scenarios: [{ status: 99, delay: -20 }]
-            }]
+            endpoints: [
+                {
+                    path: '/api/users',
+                    status: 600,
+                    delay: 1.5,
+                    scenarios: [{ status: 99, delay: -20 }],
+                },
+            ],
         } as MockManifest;
 
-        await expect(validate(manifest)).rejects.toThrow(
-            /mock\.manifest\.json\.delay: must be a non-negative integer/
-        );
+        await expect(validate(manifest)).rejects.toThrow(/mock\.manifest\.json\.delay: must be a non-negative integer/);
         await expect(validate(manifest)).rejects.toThrow(
             /mock\.manifest\.json\.endpoints\[0\]\.status: must be an integer from 100 through 599/
         );
@@ -97,64 +96,81 @@ describe('validateMockManifest', () => {
         const { directory, mockRoot } = await createMockRoot();
         await mkdir(join(directory, 'directory.json'));
         const manifest = {
-            endpoints: [{
-                path: '/api/files',
-                file: '../outside.json',
-                scenarios: [
-                    { id: 'missing', file: 'missing.json' },
-                    { id: 'directory', file: 'directory.json' }
-                ]
-            }]
+            endpoints: [
+                {
+                    path: '/api/files',
+                    file: '../outside.json',
+                    scenarios: [
+                        { id: 'missing', file: 'missing.json' },
+                        { id: 'directory', file: 'directory.json' },
+                    ],
+                },
+            ],
         };
 
-        await expect(
-            validateMockManifest(manifest, 'mock.manifest.json', mockRoot)
-        ).rejects.toThrow(/endpoints\[0\]\.file: must be a safe path relative to mockRoot/);
-        await expect(
-            validateMockManifest(manifest, 'mock.manifest.json', mockRoot)
-        ).rejects.toThrow(/scenarios\[0\]\.file: referenced file "missing\.json" does not exist or is not a file/);
-        await expect(
-            validateMockManifest(manifest, 'mock.manifest.json', mockRoot)
-        ).rejects.toThrow(/scenarios\[1\]\.file: referenced file "directory\.json" does not exist or is not a file/);
+        await expect(validateMockManifest(manifest, 'mock.manifest.json', mockRoot)).rejects.toThrow(
+            /endpoints\[0\]\.file: must be a safe path relative to mockRoot/
+        );
+        await expect(validateMockManifest(manifest, 'mock.manifest.json', mockRoot)).rejects.toThrow(
+            /scenarios\[0\]\.file: referenced file "missing\.json" does not exist or is not a file/
+        );
+        await expect(validateMockManifest(manifest, 'mock.manifest.json', mockRoot)).rejects.toThrow(
+            /scenarios\[1\]\.file: referenced file "directory\.json" does not exist or is not a file/
+        );
     });
 
     it('detects duplicate explicit and generated endpoint IDs', async () => {
-        await expect(validate({ endpoints: [
-            { id: 'users', path: '/api/users' },
-            { id: 'users', method: 'POST', path: '/api/users' }
-        ] })).rejects.toThrow(/endpoints\[1\]\.id: duplicate endpoint ID "users"/);
+        await expect(
+            validate({
+                endpoints: [
+                    { id: 'users', path: '/api/users' },
+                    { id: 'users', method: 'POST', path: '/api/users' },
+                ],
+            })
+        ).rejects.toThrow(/endpoints\[1\]\.id: duplicate endpoint ID "users"/);
 
-        await expect(validate({ endpoints: [
-            { method: 'GET', path: '/api/users' },
-            { method: 'GET', path: '/api/users' }
-        ] })).rejects.toThrow(/endpoints\[1\]\.id: duplicate endpoint ID "get_api_users"/);
+        await expect(
+            validate({
+                endpoints: [
+                    { method: 'GET', path: '/api/users' },
+                    { method: 'GET', path: '/api/users' },
+                ],
+            })
+        ).rejects.toThrow(/endpoints\[1\]\.id: duplicate endpoint ID "get_api_users"/);
     });
 
     it('detects duplicate scenario IDs only within their endpoint', async () => {
-        await expect(validate({ endpoints: [{
-            path: '/api/users',
-            scenarios: [{ id: 'success' }, { id: 'success' }]
-        }] })).rejects.toThrow(/scenarios\[1\]\.id: duplicate scenario ID "success"/);
+        await expect(
+            validate({
+                endpoints: [
+                    {
+                        path: '/api/users',
+                        scenarios: [{ id: 'success' }, { id: 'success' }],
+                    },
+                ],
+            })
+        ).rejects.toThrow(/scenarios\[1\]\.id: duplicate scenario ID "success"/);
 
-        await expect(validate({ endpoints: [
-            { path: '/api/users', scenarios: [{ id: 'success' }] },
-            { path: '/api/orders', scenarios: [{ id: 'success' }] }
-        ] })).resolves.toBeUndefined();
+        await expect(
+            validate({
+                endpoints: [
+                    { path: '/api/users', scenarios: [{ id: 'success' }] },
+                    { path: '/api/orders', scenarios: [{ id: 'success' }] },
+                ],
+            })
+        ).resolves.toBeUndefined();
     });
 
     it.each([
         [
             { method: 'GET', path: '/api/users/:id' },
-            { method: 'GET', path: '/api/users/:name' }
+            { method: 'GET', path: '/api/users/:name' },
         ],
         [
             { method: 'GET', path: '/api/users/:id' },
-            { method: 'GET', path: '/api/users/current' }
+            { method: 'GET', path: '/api/users/current' },
         ],
-        [
-            { path: '/api/users' },
-            { method: 'POST', path: '/api/users' }
-        ]
+        [{ path: '/api/users' }, { method: 'POST', path: '/api/users' }],
     ])('detects routes that can handle the same request %#', async (first, second) => {
         await expect(validate({ endpoints: [first, second] })).rejects.toThrow(
             /endpoints\[1\]: route conflicts with mock\.manifest\.json\.endpoints\[0\]/
@@ -162,25 +178,31 @@ describe('validateMockManifest', () => {
     });
 
     it('allows routes separated by method, segment count, or inactive state', async () => {
-        await expect(validate({ endpoints: [
-            { method: 'GET', path: '/api/users' },
-            { method: 'POST', path: '/api/users' },
-            { method: 'GET', path: '/api/users/:id' },
-            { id: 'inactive-users', method: 'GET', path: '/api/users', active: false }
-        ] })).resolves.toBeUndefined();
+        await expect(
+            validate({
+                endpoints: [
+                    { method: 'GET', path: '/api/users' },
+                    { method: 'POST', path: '/api/users' },
+                    { method: 'GET', path: '/api/users/:id' },
+                    { id: 'inactive-users', method: 'GET', path: '/api/users', active: false },
+                ],
+            })
+        ).resolves.toBeUndefined();
     });
 
     it('reports invalid metadata fields without throwing an implementation error', async () => {
         const manifest = {
             $schema: '',
-            endpoints: [{
-                id: '',
-                label: 42,
-                active: 'yes',
-                method: '',
-                path: '/api/users',
-                scenarios: [{ id: '', label: 42 }]
-            }]
+            endpoints: [
+                {
+                    id: '',
+                    label: 42,
+                    active: 'yes',
+                    method: '',
+                    path: '/api/users',
+                    scenarios: [{ id: '', label: 42 }],
+                },
+            ],
         } as unknown as MockManifest;
 
         await expect(validate(manifest)).rejects.toThrow(/mock\.manifest\.json\.\$schema: must be a non-empty string/);
@@ -189,19 +211,27 @@ describe('validateMockManifest', () => {
     });
 
     it('rejects IDs that cannot safely be stored in selection cookies', async () => {
-        await expect(validate({ endpoints: [{
-            id: 'users:admin',
-            path: '/api/users',
-            scenarios: [{ id: 'slow response' }]
-        }] })).rejects.toThrow(
-            /endpoints\[0\]\.id: may contain only letters, numbers, underscores, and hyphens/
-        );
-        await expect(validate({ endpoints: [{
-            id: 'users:admin',
-            path: '/api/users',
-            scenarios: [{ id: 'slow response' }]
-        }] })).rejects.toThrow(
-            /scenarios\[0\]\.id: may contain only letters, numbers, underscores, and hyphens/
-        );
+        await expect(
+            validate({
+                endpoints: [
+                    {
+                        id: 'users:admin',
+                        path: '/api/users',
+                        scenarios: [{ id: 'slow response' }],
+                    },
+                ],
+            })
+        ).rejects.toThrow(/endpoints\[0\]\.id: may contain only letters, numbers, underscores, and hyphens/);
+        await expect(
+            validate({
+                endpoints: [
+                    {
+                        id: 'users:admin',
+                        path: '/api/users',
+                        scenarios: [{ id: 'slow response' }],
+                    },
+                ],
+            })
+        ).rejects.toThrow(/scenarios\[0\]\.id: may contain only letters, numbers, underscores, and hyphens/);
     });
 });

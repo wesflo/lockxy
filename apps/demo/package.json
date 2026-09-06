@@ -18,8 +18,8 @@
         "lint": "eslint .",
         "lint:fix": "eslint --ext .js,.ts  --fix",
         "check-types": "tsc --noEmit -p tsconfig.json",
-        "prettier": "prettier -c --config ./prettier.config.mjs ./src",
-        "prettier:w": "prettier -w --config ./prettier.config.mjs ./src"
+        "prettier": "prettier -c --config ../../prettier.config.mjs ./src",
+        "prettier:w": "prettier -w --config ../../prettier.config.mjs ./src"
     },
     "dependencies": {
         "@wesflo/local-mock-api-ui": "workspace:*",

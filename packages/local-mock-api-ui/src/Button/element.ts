@@ -38,7 +38,11 @@ export class WfButton extends LitElement {
             ?disabled=${this.disabled || this.loading}
             type="button"
         >
-            ${this.loading ? html`<span class="spinner" aria-hidden="true"></span>` : null}
+            ${this.loading
+                ? html`
+                      <span class="spinner" aria-hidden="true"></span>
+                  `
+                : null}
             <slot></slot>
         </button>
     `;

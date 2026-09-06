@@ -4,8 +4,15 @@ import type { DemoCase, MockManifest } from '../interface';
 import { findEndpoint } from './findEndpoint';
 
 const testCase: DemoCase = {
-    id: 'profile', title: 'Profile', description: 'Profile', group: 'Success', method: 'GET',
-    path: '/api/users/profile', responseKind: 'json', endpointId: 'profile', expectedStatus: 200
+    id: 'profile',
+    title: 'Profile',
+    description: 'Profile',
+    group: 'Success',
+    method: 'GET',
+    path: '/api/users/profile',
+    responseKind: 'json',
+    endpointId: 'profile',
+    expectedStatus: 200,
 };
 
 describe('findEndpoint', () => {

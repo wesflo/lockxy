@@ -2,7 +2,7 @@ import type {
     MockManifest,
     NormalizedMockEndpoint,
     NormalizedMockManifest,
-    NormalizedMockScenario
+    NormalizedMockScenario,
 } from '../../../interface.js';
 import { createEndpointId } from './createEndpointId.js';
 import { createScenarioId } from './createScenarioId.js';
@@ -26,10 +26,10 @@ export const normalizeMockManifest = (manifest: MockManifest): NormalizedMockMan
                     return {
                         ...scenario,
                         id,
-                        label: scenario.label ?? scenario.id ?? id
+                        label: scenario.label ?? scenario.id ?? id,
                     };
-                })
+                }),
             })
-        )
+        ),
     };
 };

@@ -2,11 +2,11 @@ import type { ServerResponse } from 'node:http';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
-    send: vi.fn()
+    send: vi.fn(),
 }));
 
 vi.mock('./send.js', () => ({
-    send: mocks.send
+    send: mocks.send,
 }));
 
 import { sendJson } from './sendJson.js';

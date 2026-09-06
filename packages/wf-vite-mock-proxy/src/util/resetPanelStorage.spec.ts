@@ -10,7 +10,7 @@ describe('resetPanelStorage', () => {
             'wesflo-mock-api-button-position',
             'wesflo-mock-api-proxy-on-load',
             'wesflo-mock-api-save-selections',
-            'wesflo-mock-api-endpoint-selections'
+            'wesflo-mock-api-endpoint-selections',
         ]);
     });
 });

@@ -34,7 +34,7 @@ export const readMockManifest = async (
 
         return {
             status: 'invalid',
-            error: error instanceof Error ? error : new Error(String(error))
+            error: error instanceof Error ? error : new Error(String(error)),
         };
     }
 };

@@ -6,11 +6,11 @@ export default defineConfig({
         lib: {
             entry: resolve(import.meta.dirname, 'src/index.ts'),
             formats: ['es'],
-            fileName: () => 'index.js'
+            fileName: () => 'index.js',
         },
         rollupOptions: {
-            external: [/^node:/]
+            external: [/^node:/],
         },
-        sourcemap: true
-    }
+        sourcemap: true,
+    },
 });

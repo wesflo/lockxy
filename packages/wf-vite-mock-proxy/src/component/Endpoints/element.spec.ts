@@ -17,11 +17,11 @@ describe('mock proxy endpoints', () => {
     it('renders a single scenario as text', async () => {
         const element = await createElement();
         element.endpoints = [
-            { id: 'orders', method: 'GET', path: '/api/orders', scenarios: [{ id: 'success', label: 'Success' }] }
+            { id: 'orders', method: 'GET', path: '/api/orders', scenarios: [{ id: 'success', label: 'Success' }] },
         ];
         await element.updateComplete;
 
-        expect(element.shadowRoot?.querySelector('.scenario-value')?.textContent).toBe('Success');
+        expect(element.shadowRoot?.querySelector('.scenario-value')?.textContent?.trim()).toBe('Success');
         expect(element.shadowRoot?.querySelector('select')).toBeNull();
     });
 

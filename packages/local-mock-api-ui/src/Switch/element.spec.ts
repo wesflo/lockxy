@@ -20,7 +20,7 @@ describe('wf-switch', () => {
         expect(listener.mock.calls[0]?.[0]).toMatchObject({
             bubbles: false,
             composed: false,
-            detail: { checked: true }
+            detail: { checked: true },
         });
     });
 });

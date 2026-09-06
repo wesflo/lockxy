@@ -68,14 +68,10 @@ const validateReferencedFile = async (
     }
 };
 
-export const validateMockManifest = async (
-    manifest: MockManifest,
-    fileName: string,
-    mockRoot: URL
-): Promise<void> => {
+export const validateMockManifest = async (manifest: MockManifest, fileName: string, mockRoot: URL): Promise<void> => {
     const issues: string[] = [];
     const endpointIds = new Set<string>();
-    const routes: Array<{ method?: string; parts: string[]; path: string }> = [];
+    const routes: { method?: string; parts: string[]; path: string }[] = [];
 
     validateResponse(manifest, fileName, issues);
     validateOptionalText(manifest.$schema, `${fileName}.$schema`, issues);

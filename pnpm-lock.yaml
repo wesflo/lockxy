@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      prettier:
+        specifier: 3.8.1
+        version: 3.8.1
       turbo:
         specifier: 2.10.11
         version: 2.10.11
@@ -146,6 +149,9 @@ importers:
       eslint-plugin-vitest-globals:
         specifier: ^1.5.0
         version: 1.6.1
+      globals:
+        specifier: ^16.0.0
+        version: 16.5.0
       happy-dom:
         specifier: ^20.13.1
         version: 20.13.2

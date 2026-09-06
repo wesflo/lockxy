@@ -31,10 +31,7 @@ on:
                     - major
 
 permissions:
-    contents: write
-    packages: write
-    pages: write
-    id-token: write
+    contents: read
 
 concurrency:
     group: production-release
@@ -63,6 +60,9 @@ jobs:
     vite_plugin:
         needs: validate
         if: inputs.vite_plugin == true
+        permissions:
+            contents: write
+            id-token: write
         uses: ./.github/workflows/release-package.yml
         with:
             package_path: packages/vite-plugin-local-mock-api
@@ -71,12 +71,17 @@ jobs:
             prerelease: false
             version_bump: ${{ inputs.version_bump }}
             branch: main
-        secrets: inherit
+            environment_name: npm-production
 
     panel:
         needs: [validate, vite_plugin]
         if: >-
             ${{ always() && needs.validate.result == 'success' && inputs.panel == true }}
+
+
+        permissions:
+            contents: write
+            id-token: write
         uses: ./.github/workflows/release-package.yml
         with:
             package_path: packages/wf-vite-mock-proxy
@@ -85,10 +90,13 @@ jobs:
             prerelease: false
             version_bump: ${{ inputs.version_bump }}
             branch: main
-        secrets: inherit
+            environment_name: npm-production
 
     documentation:
         needs: validate
         if: inputs.documentation == true
+        permissions:
+            contents: read
+            pages: write
+            id-token: write
         uses: ./.github/workflows/deploy-docs.yml
-        secrets: inherit

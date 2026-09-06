@@ -1,23 +1,23 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./apps/demo"
-    },
-    {
-      "path": "./apps/playground"
-    },
-    {
-      "path": "./packages/vite-plugin-local-mock-api"
-    },
-    {
-      "path": "./packages/local-mock-api-ui"
-    },
-    {
-      "path": "./packages/local-mock-api-utils"
-    },
-    {
-      "path": "./packages/wf-vite-mock-proxy"
-    }
-  ]
+    "files": [],
+    "references": [
+        {
+            "path": "./apps/demo"
+        },
+        {
+            "path": "./apps/playground"
+        },
+        {
+            "path": "./packages/vite-plugin-local-mock-api"
+        },
+        {
+            "path": "./packages/local-mock-api-ui"
+        },
+        {
+            "path": "./packages/local-mock-api-utils"
+        },
+        {
+            "path": "./packages/wf-vite-mock-proxy"
+        }
+    ]
 }

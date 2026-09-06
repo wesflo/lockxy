@@ -12,8 +12,23 @@ describe('resolveDelay', () => {
     });
 
     it('selects an inclusive integer inside a delay range', () => {
-        expect(resolveDelay([200, 600], vi.fn(() => 0))).toBe(200);
-        expect(resolveDelay([200, 600], vi.fn(() => 0.5))).toBe(400);
-        expect(resolveDelay([200, 600], vi.fn(() => 0.999999))).toBe(600);
+        expect(
+            resolveDelay(
+                [200, 600],
+                vi.fn(() => 0)
+            )
+        ).toBe(200);
+        expect(
+            resolveDelay(
+                [200, 600],
+                vi.fn(() => 0.5)
+            )
+        ).toBe(400);
+        expect(
+            resolveDelay(
+                [200, 600],
+                vi.fn(() => 0.999999)
+            )
+        ).toBe(600);
     });
 });

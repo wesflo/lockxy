@@ -5,7 +5,7 @@ import { getContentType } from './getContentType.js';
 describe('getContentType', () => {
     const contentTypes = {
         '.json': 'application/json; charset=utf-8',
-        '.xml': 'application/xml'
+        '.xml': 'application/xml',
     };
 
     it('returns the configured content type for a known extension', () => {

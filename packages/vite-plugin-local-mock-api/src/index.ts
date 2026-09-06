@@ -3,7 +3,7 @@ import {
     BYPASS_ALL_VALUE as BYPASS_ALL,
     BYPASS_COOKIE_NAME as BYPASS_COOKIE,
     MANIFEST_ROUTE as MANIFEST_PATH,
-    SCENARIO_COOKIE_NAME as SCENARIO_COOKIE
+    SCENARIO_COOKIE_NAME as SCENARIO_COOKIE,
 } from '@wesflo/local-mock-api-utils';
 
 import { handleMockRequest } from './app/handleMockRequest/index.js';
@@ -15,7 +15,7 @@ import {
     DEBUG,
     INTERNAL_PREFIX,
     MANIFEST_FILE_NAME,
-    LOGGING
+    LOGGING,
 } from './constant.js';
 import type { MockApiPluginOptions } from './interface.js';
 import { logError } from './util/logError.js';
@@ -36,7 +36,7 @@ export const mockApiPlugin = ({
     contentTypes = {},
     manifestFileName = MANIFEST_FILE_NAME,
     debug = DEBUG,
-    logging = LOGGING
+    logging = LOGGING,
 }: MockApiPluginOptions = {}): Plugin => {
     let developmentServer = true;
     const options: Required<MockApiPluginOptions> = {
@@ -46,7 +46,7 @@ export const mockApiPlugin = ({
         contentTypes: { ...CONTENT_TYPES, ...contentTypes },
         manifestFileName,
         debug,
-        logging
+        logging,
     };
 
     return {
@@ -76,7 +76,7 @@ export const mockApiPlugin = ({
                                 url: req.url ?? '',
                                 delay: 0,
                                 status: res.statusCode,
-                                source: 'passthrough'
+                                source: 'passthrough',
                             });
                         });
                         next();
@@ -89,7 +89,11 @@ export const mockApiPlugin = ({
                         await handleMockRequest(req, res, next, options);
                     }
                 } catch (error) {
-                    logError(options.logging, `Unexpected error while handling ${req.method ?? 'GET'} ${req.url ?? ''}.`, error);
+                    logError(
+                        options.logging,
+                        `Unexpected error while handling ${req.method ?? 'GET'} ${req.url ?? ''}.`,
+                        error
+                    );
                     if (!res.headersSent) {
                         sendJson(res, 500, { error: 'The local mock API failed to handle this request.' }, req.method);
                     } else {
@@ -100,10 +104,10 @@ export const mockApiPlugin = ({
                         url: req.url ?? '',
                         delay: 0,
                         status: res.statusCode || 500,
-                        source: 'plugin error'
+                        source: 'plugin error',
                     });
                 }
             });
-        }
+        },
     };
 };

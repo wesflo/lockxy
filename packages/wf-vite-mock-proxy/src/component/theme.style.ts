@@ -21,5 +21,5 @@ export const theme = [
             white-space: nowrap;
             border: 0;
         }
-    `
+    `,
 ];

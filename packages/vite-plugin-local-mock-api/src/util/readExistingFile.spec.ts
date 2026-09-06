@@ -3,19 +3,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
     readFile: vi.fn(),
     getExtension: vi.fn(),
-    toMockUrl: vi.fn()
+    toMockUrl: vi.fn(),
 }));
 
 vi.mock('node:fs/promises', () => ({
-    readFile: mocks.readFile
+    readFile: mocks.readFile,
 }));
 
 vi.mock('./getExtension.js', () => ({
-    getExtension: mocks.getExtension
+    getExtension: mocks.getExtension,
 }));
 
 vi.mock('./toMockUrl.js', () => ({
-    toMockUrl: mocks.toMockUrl
+    toMockUrl: mocks.toMockUrl,
 }));
 
 import { readExistingFile } from './readExistingFile.js';
@@ -43,7 +43,7 @@ describe('readExistingFile', () => {
 
         await expect(readExistingFile('orders.json', mockRoot)).resolves.toEqual({
             content,
-            extension: '.json'
+            extension: '.json',
         });
         expect(mocks.readFile).toHaveBeenCalledWith(new URL('file:///tmp/mocks/orders.json'));
         expect(mocks.getExtension).toHaveBeenCalledWith('orders.json');

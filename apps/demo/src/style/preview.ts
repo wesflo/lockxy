@@ -1,6 +1,7 @@
 import { css } from 'lit';
 
-export const previewStyle = css`    .preview {
+export const previewStyle = css`
+    .preview {
         margin-bottom: var(--wf-gap-m);
     }
 
@@ -125,6 +126,4 @@ export const previewStyle = css`    .preview {
         font-size: var(--wf-font-size-xs);
         line-height: 1.5;
     }
-
 `;
-

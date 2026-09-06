@@ -1,9 +1,4 @@
-import type {
-    BypassSelection,
-    MockEndpoint,
-    StoredEndpointSelection,
-    StoredEndpointSelections
-} from '../interface.js';
+import type { BypassSelection, MockEndpoint, StoredEndpointSelection, StoredEndpointSelections } from '../interface.js';
 import { getEndpointSelectionKey } from './getEndpointSelectionKey.js';
 
 export const mergeStoredEndpointSelections = (
@@ -21,7 +16,7 @@ export const mergeStoredEndpointSelections = (
 
         const selection: StoredEndpointSelection = {
             active: bypass.endpointIds.has(endpoint.id) ? false : undefined,
-            scenarioId: scenarios.get(endpoint.id)
+            scenarioId: scenarios.get(endpoint.id),
         };
         const key = getEndpointSelectionKey(endpoint);
 

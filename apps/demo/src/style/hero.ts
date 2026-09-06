@@ -1,6 +1,7 @@
 import { css } from 'lit';
 
-export const heroStyle = css`    .hero {
+export const heroStyle = css`
+    .hero {
         display: grid;
         min-height: 178px;
         margin-bottom: var(--wf-gap-l);
@@ -9,7 +10,8 @@ export const heroStyle = css`    .hero {
         gap: var(--wf-gap-xl);
         align-items: center;
         overflow: hidden;
-        background: radial-gradient(circle at 82% 60%, var(--wf-primary-shadow), transparent 27%), var(--wf-surface-translucent);
+        background:
+            radial-gradient(circle at 82% 60%, var(--wf-primary-shadow), transparent 27%), var(--wf-surface-translucent);
     }
 
     .hero__icon {
@@ -121,5 +123,4 @@ export const heroStyle = css`    .hero {
         background: linear-gradient(145deg, var(--wf-primary), var(--wf-primary-dark));
         box-shadow: 0 10px 18px var(--wf-primary-shadow);
     }
-
 `;

@@ -7,23 +7,23 @@ const mocks = vi.hoisted(() => ({
     findMockEndpoint: vi.fn(),
     getInternalRouteParts: vi.fn(),
     parseBypassSelections: vi.fn(),
-    readMockManifest: vi.fn()
+    readMockManifest: vi.fn(),
 }));
 
 vi.mock('../app/handleScenarioRequest/util/findMockEndpoint.js', () => ({
-    findMockEndpoint: mocks.findMockEndpoint
+    findMockEndpoint: mocks.findMockEndpoint,
 }));
 
 vi.mock('../app/handleScenarioRequest/util/readMockManifest.js', () => ({
-    readMockManifest: mocks.readMockManifest
+    readMockManifest: mocks.readMockManifest,
 }));
 
 vi.mock('./getInternalRouteParts.js', () => ({
-    getInternalRouteParts: mocks.getInternalRouteParts
+    getInternalRouteParts: mocks.getInternalRouteParts,
 }));
 
 vi.mock('./parseBypassSelections.js', () => ({
-    parseBypassSelections: mocks.parseBypassSelections
+    parseBypassSelections: mocks.parseBypassSelections,
 }));
 
 import { shouldBypassMockRequest } from './shouldBypassMockRequest.js';
@@ -36,7 +36,7 @@ describe('shouldBypassMockRequest', () => {
         contentTypes: { '.json': 'application/json' },
         manifestFileName: 'mock.manifest.json',
         debug: false,
-        logging: false
+        logging: false,
     };
 
     beforeEach(() => {
@@ -72,11 +72,11 @@ describe('shouldBypassMockRequest', () => {
         const endpoint = { id: 'orders' };
         mocks.parseBypassSelections.mockReturnValue({
             all: false,
-            endpointIds: new Set(['orders'])
+            endpointIds: new Set(['orders']),
         });
         mocks.readMockManifest.mockResolvedValue({
             status: 'valid',
-            manifest: { endpoints: [] }
+            manifest: { endpoints: [] },
         });
         mocks.findMockEndpoint.mockReturnValue(endpoint);
 
@@ -85,7 +85,7 @@ describe('shouldBypassMockRequest', () => {
                 {
                     url: '/api/orders?limit=10',
                     method: 'GET',
-                    headers: { cookie: 'bypass' }
+                    headers: { cookie: 'bypass' },
                 } as IncomingMessage,
                 options
             )
@@ -97,28 +97,22 @@ describe('shouldBypassMockRequest', () => {
     it('keeps mocking unselected and unknown endpoints', async () => {
         mocks.parseBypassSelections.mockReturnValue({
             all: false,
-            endpointIds: new Set(['users'])
+            endpointIds: new Set(['users']),
         });
         mocks.readMockManifest.mockResolvedValue({
             status: 'valid',
-            manifest: { endpoints: [] }
+            manifest: { endpoints: [] },
         });
         mocks.findMockEndpoint.mockReturnValue({ id: 'orders' });
 
         await expect(
-            shouldBypassMockRequest(
-                { url: '/api/orders', method: 'GET', headers: {} } as IncomingMessage,
-                options
-            )
+            shouldBypassMockRequest({ url: '/api/orders', method: 'GET', headers: {} } as IncomingMessage, options)
         ).resolves.toBe(false);
 
         mocks.readMockManifest.mockResolvedValue({ status: 'missing' });
 
         await expect(
-            shouldBypassMockRequest(
-                { url: '/api/users', method: 'GET', headers: {} } as IncomingMessage,
-                options
-            )
+            shouldBypassMockRequest({ url: '/api/users', method: 'GET', headers: {} } as IncomingMessage, options)
         ).resolves.toBe(false);
     });
 });

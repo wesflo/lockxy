@@ -72,16 +72,17 @@ describe('MockProxyInteractionElement', () => {
         const element = await createElement();
         const pointerTarget = document.createElement('button');
         pointerTarget.setPointerCapture = vi.fn();
-        const event = (values: Partial<PointerEvent>) => ({
-            clientX: 40,
-            clientY: 210,
-            ctrlKey: false,
-            metaKey: false,
-            pointerId: 1,
-            currentTarget: pointerTarget,
-            preventDefault: vi.fn(),
-            ...values
-        }) as unknown as PointerEvent;
+        const event = (values: Partial<PointerEvent>) =>
+            ({
+                clientX: 40,
+                clientY: 210,
+                ctrlKey: false,
+                metaKey: false,
+                pointerId: 1,
+                currentTarget: pointerTarget,
+                preventDefault: vi.fn(),
+                ...values,
+            }) as unknown as PointerEvent;
 
         element.pointerDown(event({}));
         element.pointerMove(event({ clientX: 200, clientY: 100 }));

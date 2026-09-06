@@ -1,4 +1,9 @@
-import { BYPASS_ALL_VALUE, BYPASS_COOKIE_NAME, ENDPOINT_ID_PATTERN, parseBypassCookie } from '@wesflo/local-mock-api-utils';
+import {
+    BYPASS_ALL_VALUE,
+    BYPASS_COOKIE_NAME,
+    ENDPOINT_ID_PATTERN,
+    parseBypassCookie,
+} from '@wesflo/local-mock-api-utils';
 import type { BypassSelections } from '../interface.js';
 
 export const parseBypassSelections = (cookieHeader?: string, onError?: (message: string) => void): BypassSelections => {

@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => ({
     readExistingFile: vi.fn(),
     readMockManifest: vi.fn(),
     send: vi.fn(),
-    wait: vi.fn()
+    wait: vi.fn(),
 }));
 
 vi.mock('../../util/getCandidatePaths.js', () => ({ getCandidatePaths: mocks.getCandidatePaths }));
@@ -36,12 +36,12 @@ describe('handleScenarioRequest', () => {
         contentTypes: { '.json': 'application/json' },
         manifestFileName: 'mock.manifest.json',
         debug: false,
-        logging: false
+        logging: false,
     };
     const request = {
         url: '/api/profile',
         method: 'GET',
-        headers: {}
+        headers: {},
     } as IncomingMessage;
     const response = {} as ServerResponse;
     const mockFile = { content: Buffer.from('{}'), extension: '.json' };
@@ -91,7 +91,7 @@ describe('handleScenarioRequest', () => {
             path: '/api/profile',
             file: 'scenarios/explicit.json',
             status: 202,
-            delay: 150
+            delay: 150,
         };
         mocks.readMockManifest.mockResolvedValue({ status: 'valid', manifest: { delay: 400, endpoints: [endpoint] } });
         mocks.findMockEndpoint.mockReturnValue(endpoint);

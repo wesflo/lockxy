@@ -1,6 +1,7 @@
 import { css } from 'lit';
 
-export const libraryStyle = css`    .workspace {
+export const libraryStyle = css`
+    .workspace {
         display: grid;
         grid-template-columns: minmax(500px, 0.98fr) minmax(560px, 1.02fr);
         gap: var(--wf-gap-l);
@@ -165,5 +166,4 @@ export const libraryStyle = css`    .workspace {
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-
 `;

@@ -22,8 +22,7 @@ export const createCookieSelectionValues = (
         }
         if (selection?.scenarioId) {
             const selectedScenario =
-                endpoint.scenarios?.find((scenario) => scenario.id === selection.scenarioId) ??
-                endpoint.scenarios?.[0];
+                endpoint.scenarios?.find((scenario) => scenario.id === selection.scenarioId) ?? endpoint.scenarios?.[0];
             if (selectedScenario?.id) {
                 scenarios = updateScenarioCookie(scenarios, endpoint.id, selectedScenario.id);
             }

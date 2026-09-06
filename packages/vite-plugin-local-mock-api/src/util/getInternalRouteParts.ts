@@ -1,10 +1,7 @@
 import { decodePart } from './decodePart.js';
 import { isSafePart } from './isSafePart.js';
 
-export const getInternalRouteParts = (
-    requestUrl: string | undefined,
-    internalPrefix: string
-): string[] | null => {
+export const getInternalRouteParts = (requestUrl: string | undefined, internalPrefix: string): string[] | null => {
     if (!requestUrl) {
         return null;
     }

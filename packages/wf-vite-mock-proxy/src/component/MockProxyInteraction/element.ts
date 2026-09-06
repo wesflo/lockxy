@@ -53,7 +53,7 @@ export abstract class MockProxyInteractionElement extends LitElement {
         this.suppressLauncherClick = true;
         this.dragState = {
             offsetX: event.clientX - this.position.x,
-            offsetY: event.clientY - this.position.y
+            offsetY: event.clientY - this.position.y,
         };
         (event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId);
     };

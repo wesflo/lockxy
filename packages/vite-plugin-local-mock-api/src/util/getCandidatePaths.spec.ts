@@ -2,15 +2,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
     getExtension: vi.fn(),
-    prefixFileName: vi.fn()
+    prefixFileName: vi.fn(),
 }));
 
 vi.mock('./getExtension.js', () => ({
-    getExtension: mocks.getExtension
+    getExtension: mocks.getExtension,
 }));
 
 vi.mock('./prefixFileName.js', () => ({
-    prefixFileName: mocks.prefixFileName
+    prefixFileName: mocks.prefixFileName,
 }));
 
 import { getCandidatePaths } from './getCandidatePaths.js';
@@ -21,9 +21,7 @@ describe('getCandidatePaths', () => {
     beforeEach(() => {
         vi.resetAllMocks();
         mocks.getExtension.mockReturnValue('');
-        mocks.prefixFileName.mockImplementation(
-            (path: string, prefix: string) => `${prefix}:${path}`
-        );
+        mocks.prefixFileName.mockImplementation((path: string, prefix: string) => `${prefix}:${path}`);
     });
 
     it('creates specific and parent fallback candidates in the original order', () => {
@@ -33,15 +31,12 @@ describe('getCandidatePaths', () => {
             '1101.json',
             'inbox/templates.json',
             'templates.json',
-            'inbox.json'
+            'inbox.json',
         ]);
     });
 
     it('places an uppercased method-prefixed candidate before every fallback', () => {
-        expect(getCandidatePaths(['orders'], 'post', extensions)).toEqual([
-            'POST:orders.json',
-            'orders.json'
-        ]);
+        expect(getCandidatePaths(['orders'], 'post', extensions)).toEqual(['POST:orders.json', 'orders.json']);
         expect(mocks.prefixFileName).toHaveBeenCalledWith('orders.json', 'POST');
     });
 
@@ -52,9 +47,6 @@ describe('getCandidatePaths', () => {
     });
 
     it('uses configured extensions', () => {
-        expect(getCandidatePaths(['orders'], undefined, ['.json', '.xml'])).toEqual([
-            'orders.json',
-            'orders.xml'
-        ]);
+        expect(getCandidatePaths(['orders'], undefined, ['.json', '.xml'])).toEqual(['orders.json', 'orders.xml']);
     });
 });

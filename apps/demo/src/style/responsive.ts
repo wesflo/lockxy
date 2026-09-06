@@ -1,6 +1,7 @@
 import { css } from 'lit';
 
-export const responsiveStyle = css`    @media (max-width: 1120px) {
+export const responsiveStyle = css`
+    @media (max-width: 1120px) {
         .workspace {
             grid-template-columns: 1fr;
         }
@@ -81,4 +82,3 @@ export const responsiveStyle = css`    @media (max-width: 1120px) {
         }
     }
 `;
-

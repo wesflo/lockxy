@@ -13,5 +13,7 @@ export class WfBadge extends LitElement {
 
     @property({ type: String, reflect: true }) tone: WfBadgeTone = 'neutral';
 
-    render = () => html`<span class=${this.tone}><slot></slot></span>`;
+    render = () => html`
+        <span class=${this.tone}><slot></slot></span>
+    `;
 }

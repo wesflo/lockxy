@@ -12,12 +12,7 @@ import {
     ON_RETRY_MANIFEST_EVENT,
     ON_SCENARIO_CHANGE_EVENT,
 } from './constant.js';
-import type {
-    EndpointChangeDetail,
-    ProxyChangeDetail,
-    QueryChangeDetail,
-    ScenarioChangeDetail,
-} from './interface.js';
+import type { EndpointChangeDetail, ProxyChangeDetail, QueryChangeDetail, ScenarioChangeDetail } from './interface.js';
 import { endpointsStyle } from './style.js';
 
 @wfElement(MOCK_PROXY_ENDPOINTS_TAG_NAME)
@@ -57,9 +52,7 @@ export class MockProxyEndpoints extends LitElement {
     };
 
     private isEndpointActive = (endpoint: MockEndpoint): boolean =>
-        endpoint.active !== false &&
-        !this.bypass.all &&
-        (!endpoint.id || !this.bypass.endpointIds.has(endpoint.id));
+        endpoint.active !== false && !this.bypass.all && (!endpoint.id || !this.bypass.endpointIds.has(endpoint.id));
 
     private displayPath = (path: string): string => path.replace(/^\/api(?=\/|$)/, '') || '/';
 
@@ -78,9 +71,11 @@ export class MockProxyEndpoints extends LitElement {
                 </div>
                 <div class="endpoint-control">
                     ${scenarios.length === 1
-                        ? html`<span class="scenario-value">${scenarios[0]?.label ??
-                            scenarios[0]?.id ??
-                            'Default file resolution'}</span>`
+                        ? html`
+                              <span class="scenario-value">
+                                  ${scenarios[0]?.label ?? scenarios[0]?.id ?? 'Default file resolution'}
+                              </span>
+                          `
                         : html`
                               <label>
                                   <span class="sr-only">Scenario for ${method} ${endpoint.path}</span>
@@ -97,9 +92,11 @@ export class MockProxyEndpoints extends LitElement {
                                           ${scenarios.length ? 'Default file resolution' : 'Endpoint configuration'}
                                       </option>
                                       ${scenarios.map(
-                                          (scenario) => html`<option value=${scenario.id ?? ''}>
-                                              ${scenario.label ?? scenario.id ?? 'Unnamed scenario'}
-                                          </option>`
+                                          (scenario) => html`
+                                              <option value=${scenario.id ?? ''}>
+                                                  ${scenario.label ?? scenario.id ?? 'Unnamed scenario'}
+                                              </option>
+                                          `
                                       )}
                                   </select>
                               </label>
@@ -148,17 +145,24 @@ export class MockProxyEndpoints extends LitElement {
             ${this.error
                 ? html`
                       <div class="status error" role="alert">
-                          ${this.error}<br />
+                          ${this.error}
+                          <br />
                           <button class="retry" type="button" @click=${() => this.emit(ON_RETRY_MANIFEST_EVENT)}>
                               Try again
                           </button>
                       </div>
                   `
                 : this.loading
-                  ? html`<div class="status" role="status">Loading manifest…</div>`
+                  ? html`
+                        <div class="status" role="status">Loading manifest…</div>
+                    `
                   : endpoints.length
-                    ? html`<div class="endpoint-list">${endpoints.map(this.renderEndpoint)}</div>`
-                    : html`<div class="empty">No matching endpoints found.</div>`}
+                    ? html`
+                          <div class="endpoint-list">${endpoints.map(this.renderEndpoint)}</div>
+                      `
+                    : html`
+                          <div class="empty">No matching endpoints found.</div>
+                      `}
         `;
     };
 }

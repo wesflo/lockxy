@@ -8,7 +8,9 @@ describe('persistPosition', () => {
         persistPosition(storage, 'position', { x: 100, y: 120 });
         expect(storage.setItem).toHaveBeenCalledWith('position', '{"x":100,"y":120}');
 
-        storage.setItem.mockImplementation(() => { throw new Error('blocked'); });
+        storage.setItem.mockImplementation(() => {
+            throw new Error('blocked');
+        });
         expect(() => persistPosition(storage, 'position', { x: 0, y: 0 })).not.toThrow();
     });
 });

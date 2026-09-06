@@ -8,7 +8,7 @@ const esLintDefaultConfig = tseslint.config({
     rules: {
         '@typescript-eslint/array-type': 2,
         '@typescript-eslint/consistent-type-imports': 2,
-        '@typescript-eslint/no-unused-expressions': 1
+        '@typescript-eslint/no-unused-expressions': 1,
     },
     languageOptions: {
         ecmaVersion: 2022,
@@ -18,11 +18,11 @@ const esLintDefaultConfig = tseslint.config({
             ...globals.es2021,
             ...globals.jest,
             ...vitest.environments.env.globals,
-            vi: true
-        }
+            vi: true,
+        },
     },
     files: ['src/**/*.ts'],
-    ignores: ['src/**/*.spec.ts', 'src/**/*.d.ts', 'coverage/**', 'dist/**', 'node_modules/**']
+    ignores: ['src/**/*.spec.ts', 'src/**/*.d.ts', 'coverage/**', 'dist/**', 'node_modules/**'],
 });
 
 export default esLintDefaultConfig;

@@ -4,5 +4,5 @@ import { restoreBooleanSetting } from './restoreBooleanSetting.js';
 
 export const restorePanelSettings = (storage: SettingsStorage): PanelSettings => ({
     proxyOnLoad: restoreBooleanSetting(storage, PROXY_ON_LOAD_STORAGE_KEY, true),
-    saveSelections: restoreBooleanSetting(storage, SAVE_SELECTIONS_STORAGE_KEY, false)
+    saveSelections: restoreBooleanSetting(storage, SAVE_SELECTIONS_STORAGE_KEY, false),
 });

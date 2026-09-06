@@ -54,7 +54,10 @@ export const renderPlayground = (model: PlaygroundViewModel, actions: Playground
                     <p>Select a request, change its behavior in the floating proxy panel, and run it again.</p>
                 </div>
                 <aside class="hero__hint">
-                    <strong><wf-icon name="settings"></wf-icon> Try the proxy panel</strong>
+                    <strong>
+                        <wf-icon name="settings"></wf-icon>
+                        Try the proxy panel
+                    </strong>
                     Disable all mocks, bypass one endpoint, or select a manifest scenario before sending a request.
                 </aside>
             </section>
@@ -103,18 +106,26 @@ export const renderPlayground = (model: PlaygroundViewModel, actions: Playground
                         <p class="description">${model.selectedRequest?.description}</p>
                         <div class="result-meta">
                             <strong class=${statusError ? 'status-error' : ''}>
-                                ${model.result ? `${model.result.status || '–'} ${model.result.statusText}` : 'Response'}
+                                ${model.result
+                                    ? `${model.result.status || '–'} ${model.result.statusText}`
+                                    : 'Response'}
                             </strong>
                             <span>${model.result?.contentType ?? 'Not requested yet'}</span>
                             <span>${model.result ? `${Math.round(model.result.duration)} ms` : ''}</span>
                         </div>
-                        <pre aria-live="polite"><code>${model.result?.body ?? '// Run the selected request to inspect its response.'}</code></pre>
+                        <pre aria-live="polite"><code>${model.result?.body ??
+                        '// Run the selected request to inspect its response.'}</code></pre>
                         <div class="environment">
                             <p>
                                 <strong>Development API:</strong>
-                                Set <code>PLAYGROUND_API_TARGET=https://your-dev-api</code> before starting pnpm dev.
+                                Set
+                                <code>PLAYGROUND_API_TARGET=https://your-dev-api</code>
+                                before starting pnpm dev.
                             </p>
-                            <p><strong>Current cookies:</strong> ${document.cookie || '(none)'}</p>
+                            <p>
+                                <strong>Current cookies:</strong>
+                                ${document.cookie || '(none)'}
+                            </p>
                         </div>
                     </div>
                 </section>

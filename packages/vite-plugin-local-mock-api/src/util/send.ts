@@ -20,5 +20,9 @@ export const send = (
         }
     });
     res.setHeader(MOCK_RESPONSE_HEADER_NAME, MOCK_RESPONSE_HEADER_VALUE);
-    bodyAllowed ? res.end(body) : res.end();
+    if (bodyAllowed) {
+        res.end(body);
+        return;
+    }
+    res.end();
 };

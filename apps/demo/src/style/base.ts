@@ -109,6 +109,4 @@ export const baseStyle = css`
         background: var(--wf-surface-translucent);
         box-shadow: 0 8px 26px var(--wf-shadow-m);
     }
-
 `;
-

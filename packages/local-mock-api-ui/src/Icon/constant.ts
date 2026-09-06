@@ -10,7 +10,7 @@ export const ICON_SIZES: Record<WfIconSize, number> = {
     m: 20,
     l: 24,
     xl: 32,
-    xxl: 40
+    xxl: 40,
 };
 
 export const ICON_PATHS: Record<WfIconName, ReturnType<typeof svg>> = {

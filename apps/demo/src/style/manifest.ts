@@ -1,6 +1,7 @@
 import { css } from 'lit';
 
-export const manifestStyle = css`    .manifest {
+export const manifestStyle = css`
+    .manifest {
         margin-bottom: var(--wf-gap-m);
     }
 
@@ -34,6 +35,4 @@ export const manifestStyle = css`    .manifest {
         background: var(--wf-danger-soft);
         font-size: var(--wf-font-size-s);
     }
-
 `;
-

@@ -10,9 +10,9 @@ describe('normalizeMockManifest', () => {
                     {
                         method: 'GET',
                         path: '/api/users/:id',
-                        scenarios: [{ status: 200 }, { id: 'failure', status: 500 }]
-                    }
-                ]
+                        scenarios: [{ status: 200 }, { id: 'failure', status: 500 }],
+                    },
+                ],
             })
         ).toEqual({
             endpoints: [
@@ -22,10 +22,10 @@ describe('normalizeMockManifest', () => {
                     path: '/api/users/:id',
                     scenarios: [
                         { id: 'api_users_id_1', label: 'api_users_id_1', status: 200 },
-                        { id: 'failure', label: 'failure', status: 500 }
-                    ]
-                }
-            ]
+                        { id: 'failure', label: 'failure', status: 500 },
+                    ],
+                },
+            ],
         });
     });
 
