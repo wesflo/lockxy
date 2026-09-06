@@ -1,10 +1,11 @@
 import { resetStyles, wfElement } from '@wesflo/local-mock-api-ui';
-import { html, LitElement, nothing } from 'lit';
+import { LitElement } from 'lit';
 import { state } from 'lit/decorators.js';
 
 import { PLAYGROUND_REQUESTS, PLAYGROUND_TAG_NAME } from './constant.js';
 import type { PlaygroundRequest, PlaygroundResult } from './interface.js';
 import { playgroundStyle } from './style.js';
+import { renderPlayground } from './view.js';
 
 @wfElement(PLAYGROUND_TAG_NAME)
 export class WfMockProxyPlayground extends LitElement {
@@ -12,8 +13,18 @@ export class WfMockProxyPlayground extends LitElement {
 
     @state() private activeRequestId?: string;
     @state() private result?: PlaygroundResult;
+    @state() private selectedRequestId = PLAYGROUND_REQUESTS[0]?.id;
 
-    private execute = async (request: PlaygroundRequest): Promise<void> => {
+    private get selectedRequest(): PlaygroundRequest | undefined {
+        return PLAYGROUND_REQUESTS.find(({ id }) => id === this.selectedRequestId);
+    }
+
+    private execute = async (): Promise<void> => {
+        const request = this.selectedRequest;
+        if (!request) {
+            return;
+        }
+
         this.activeRequestId = request.id;
         const startedAt = performance.now();
 
@@ -23,10 +34,14 @@ export class WfMockProxyPlayground extends LitElement {
                 headers: request.body ? { 'content-type': 'application/json' } : undefined,
                 body: request.body ? JSON.stringify(request.body) : undefined,
             });
-            const body = await response.text();
+            const contentType = response.headers.get('content-type') ?? 'unknown';
+            const body = contentType.includes('application/pdf')
+                ? `[Binary response: ${contentType}, ${(await response.arrayBuffer()).byteLength} bytes]`
+                : this.formatBody(await response.text());
 
             this.result = {
-                body: this.formatBody(body),
+                body,
+                contentType,
                 duration: performance.now() - startedAt,
                 status: response.status,
                 statusText: response.statusText,
@@ -34,6 +49,7 @@ export class WfMockProxyPlayground extends LitElement {
         } catch (error) {
             this.result = {
                 body: error instanceof Error ? error.message : String(error),
+                contentType: 'unknown',
                 duration: performance.now() - startedAt,
                 status: 0,
                 statusText: 'Network Error',
@@ -51,61 +67,23 @@ export class WfMockProxyPlayground extends LitElement {
         }
     };
 
-    private renderRequest = (request: PlaygroundRequest) => html`
-        <article class="request">
-            <div>
-                <h2>${request.label}</h2>
-                <p>${request.description}</p>
-                <span class="route"><strong>${request.method}</strong> ${request.path}</span>
-            </div>
-            <button
-                type="button"
-                ?disabled=${this.activeRequestId !== undefined}
-                @click=${() => void this.execute(request)}
-            >
-                ${this.activeRequestId === request.id ? 'Running…' : 'Send request'}
-            </button>
-        </article>
-    `;
+    private selectRequest = (request: PlaygroundRequest): void => {
+        this.selectedRequestId = request.id;
+        this.result = undefined;
+    };
 
-    render = () => html`
-        <main>
-            <header>
-                <p class="eyebrow">Micro Frontend</p>
-                <h1>Mock Proxy Playground</h1>
-                <p class="intro">
-                    Open the floating Mock Proxy, change scenarios or disable individual endpoints, then send the same
-                    request again.
-                </p>
-            </header>
-
-            <aside class="hint">
-                <strong>Test a development API:</strong> Start with
-                <code>PLAYGROUND_API_TARGET=https://your-dev-api pnpm dev</code>. Disabled mocks are then forwarded to
-                this target by the Vite proxy.
-            </aside>
-
-            <section class="requests" aria-label="Test requests">
-                ${PLAYGROUND_REQUESTS.map(this.renderRequest)}
-            </section>
-
-            ${this.result
-                ? html`
-                      <section class="result" aria-live="polite">
-                          <div class="result-header">
-                              <strong class=${this.result.status >= 400 || this.result.status === 0 ? 'status-error' : ''}>
-                                  ${this.result.status || '–'} ${this.result.statusText}
-                              </strong>
-                              <span>${Math.round(this.result.duration)} ms</span>
-                          </div>
-                          <pre><code>${this.result.body}</code></pre>
-                      </section>
-                  `
-                : nothing}
-
-            <p class="cookies"><strong>Current cookies:</strong> ${document.cookie || '(none)'}</p>
-        </main>
-    `;
+    render = () =>
+        renderPlayground(
+            {
+                activeRequestId: this.activeRequestId,
+                result: this.result,
+                selectedRequest: this.selectedRequest,
+            },
+            {
+                execute: this.execute,
+                selectRequest: this.selectRequest,
+            }
+        );
 }
 
 declare global {

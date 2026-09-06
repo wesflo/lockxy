@@ -21,7 +21,7 @@
     "prettier": "turbo run prettier",
     "prettier:w": "turbo run prettier:w",
     "check-types": "turbo run check-types",
-    "dev": "turbo run dev --filter=@wesflo/local-mock-api-demo",
+    "dev": "turbo run dev --filter=@wesflo/local-mock-api-demo --filter=@wesflo/wf-vite-mock-proxy-playground",
     "dev:playground": "turbo run dev --filter=@wesflo/wf-vite-mock-proxy-playground",
     "dev:docs": "turbo run dev --filter=@wesflo/local-mock-api-docs",
     "dev:package": "turbo run dev --filter=@wesflo/vite-plugin-local-mock-api",
