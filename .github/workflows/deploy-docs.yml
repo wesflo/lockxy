@@ -1,12 +1,7 @@
 name: Deploy documentation to GitHub Pages
 
 on:
-    push:
-        branches: [main]
-        paths:
-            - 'apps/docs/**'
-            - 'pnpm-lock.yaml'
-            - '.github/workflows/deploy-docs.yml'
+    workflow_call:
     workflow_dispatch:
 
 permissions:
@@ -19,7 +14,18 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+    validate-main:
+        name: Validate main branch
+        runs-on: ubuntu-latest
+        steps:
+            - name: Require main branch
+              if: github.ref != 'refs/heads/main'
+              run: |
+                  echo "Documentation can only be deployed from main."
+                  exit 1
+
     build:
+        needs: validate-main
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository

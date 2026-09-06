@@ -1,0 +1,136 @@
+name: Release npm package
+
+on:
+    workflow_call:
+        inputs:
+            package_path:
+                description: Workspace-relative path to the package
+                required: true
+                type: string
+            package_name:
+                description: npm package name
+                required: true
+                type: string
+            tag_prefix:
+                description: Package-specific Git tag prefix
+                required: true
+                type: string
+            prerelease:
+                description: Publish an alpha prerelease
+                required: true
+                type: boolean
+            version_bump:
+                description: Semantic version update
+                required: true
+                type: string
+            branch:
+                description: Branch that receives the version commit
+                required: true
+                type: string
+
+permissions:
+    contents: write
+    packages: write
+
+jobs:
+    release:
+        name: Release ${{ inputs.package_name }}
+        runs-on: ubuntu-latest
+        env:
+            PACKAGE_NAME: ${{ inputs.package_name }}
+            PACKAGE_PATH: ${{ inputs.package_path }}
+            RELEASE_BRANCH: ${{ inputs.branch }}
+            TAG_PREFIX: ${{ inputs.tag_prefix }}
+            VERSION_BUMP: ${{ inputs.version_bump }}
+        steps:
+            - name: Checkout release branch
+              uses: actions/checkout@v7
+              with:
+                  ref: ${{ inputs.branch }}
+                  fetch-depth: 0
+
+            - name: Update release branch
+              run: git pull --ff-only origin "$RELEASE_BRANCH"
+
+            - name: Set up pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 11.24.0
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: pnpm
+                  registry-url: https://npm.pkg.github.com
+                  scope: '@wesflo'
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build internal dependencies
+              run: pnpm --filter "$PACKAGE_NAME^..." build
+
+            - name: Test package
+              run: pnpm --dir "$PACKAGE_PATH" test
+
+            - name: Create release version
+              id: version
+              env:
+                  IS_PRERELEASE: ${{ inputs.prerelease }}
+              working-directory: ${{ inputs.package_path }}
+              run: |
+                  current_version="$(node --print "require('./package.json').version")"
+
+                  if [[ "$IS_PRERELEASE" == "true" ]]; then
+                      if [[ "$current_version" == *-alpha.* ]]; then
+                          bump="prerelease"
+                      else
+                          bump="pre$VERSION_BUMP"
+                      fi
+                      pnpm version "$bump" --preid alpha --no-git-tag-version
+                  else
+                      pnpm version "$VERSION_BUMP" --no-git-tag-version
+                  fi
+
+                  version="$(node --print "require('./package.json').version")"
+                  echo "version=$version" >> "$GITHUB_OUTPUT"
+
+            - name: Build package
+              run: pnpm --dir "$PACKAGE_PATH" build
+
+            - name: Check Git tag
+              env:
+                  VERSION: ${{ steps.version.outputs.version }}
+              run: |
+                  tag="$TAG_PREFIX-v$VERSION"
+                  git fetch --tags --force
+                  if git rev-parse --verify --quiet "refs/tags/$tag"; then
+                      echo "Git tag $tag already exists."
+                      exit 1
+                  fi
+
+            - name: Publish production package
+              if: inputs.prerelease == false
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: pnpm --dir "$PACKAGE_PATH" publish --no-git-checks
+
+            - name: Publish alpha package
+              if: inputs.prerelease == true
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: pnpm --dir "$PACKAGE_PATH" publish --no-git-checks --tag alpha
+
+            - name: Commit and tag released version
+              env:
+                  VERSION: ${{ steps.version.outputs.version }}
+              run: |
+                  tag="$TAG_PREFIX-v$VERSION"
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  git add "$PACKAGE_PATH/package.json" pnpm-lock.yaml
+                  git commit -m "release($TAG_PREFIX): v$VERSION"
+                  git push origin "HEAD:$RELEASE_BRANCH"
+                  git tag --annotate "$tag" --message "$PACKAGE_NAME v$VERSION"
+                  git push origin "$tag"

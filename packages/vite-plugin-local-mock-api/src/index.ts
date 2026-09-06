@@ -1,4 +1,10 @@
 import type { Plugin } from 'vite';
+import {
+    BYPASS_ALL_VALUE as BYPASS_ALL,
+    BYPASS_COOKIE_NAME as BYPASS_COOKIE,
+    MANIFEST_ROUTE as MANIFEST_PATH,
+    SCENARIO_COOKIE_NAME as SCENARIO_COOKIE
+} from '@wesflo/local-mock-api-utils';
 
 import { handleMockRequest } from './app/handleMockRequest/index.js';
 import { handleScenarioRequest } from './app/handleScenarioRequest/index.js';
@@ -13,7 +19,10 @@ import type { MockApiPluginOptions } from './interface.js';
 import { normalizeMockRoot } from './util/normalizeMockRoot.js';
 import { shouldBypassMockRequest } from './util/shouldBypassMockRequest.js';
 
-export { BYPASS_ALL_VALUE, BYPASS_COOKIE_NAME, MANIFEST_ROUTE, SCENARIO_COOKIE_NAME } from '@wesflo/local-mock-api-utils';
+export const BYPASS_ALL_VALUE = BYPASS_ALL;
+export const BYPASS_COOKIE_NAME = BYPASS_COOKIE;
+export const MANIFEST_ROUTE = MANIFEST_PATH;
+export const SCENARIO_COOKIE_NAME = SCENARIO_COOKIE;
 
 export const mockApiPlugin = ({
     mockRoot = DEFAULT_MOCK_ROOT,

@@ -10,17 +10,11 @@
     }
   },
   "files": [
-    "src",
     "dist"
   ],
-  "dependencies": {
-    "@wesflo/local-mock-api-utils": "workspace:*"
-  },
   "scripts": {
-    "build": "rm -rf ./dist && tsc",
-    "bundle": "npm run build && npm publish",
-    "bundle:prerelease": "npm version prerelease --no-git-tag-version && npm run build && npm publish --tag=beta",
-    "bundle:local": "npm run build && npm pack",
+    "build": "rm -rf ./dist && vite build && tsc -p tsconfig.build.json",
+    "bundle:local": "pnpm run build && pnpm pack",
     "dev": "vitest src --watch",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -32,6 +26,7 @@
     "check-types": "tsc --noEmit -p tsconfig.json"
   },
   "devDependencies": {
+    "@wesflo/local-mock-api-utils": "workspace:*",
     "@eslint/js": "^9.23.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.13",

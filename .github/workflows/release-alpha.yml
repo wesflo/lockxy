@@ -1,0 +1,80 @@
+name: Alpha release
+
+run-name: Alpha release from ${{ github.ref_name }}
+
+on:
+    workflow_dispatch:
+        inputs:
+            vite_plugin:
+                description: Release Vite Plugin alpha package
+                required: true
+                default: false
+                type: boolean
+            panel:
+                description: Release Panel alpha package
+                required: true
+                default: false
+                type: boolean
+            version_bump:
+                description: Version update for selected npm packages
+                required: true
+                default: minor
+                type: choice
+                options:
+                    - patch
+                    - minor
+                    - major
+
+permissions:
+    contents: write
+    packages: write
+
+concurrency:
+    group: alpha-release-${{ github.ref_name }}
+    cancel-in-progress: false
+
+jobs:
+    validate:
+        name: Validate alpha release
+        runs-on: ubuntu-latest
+        steps:
+            - name: Require feature branch and a selection
+              env:
+                  PANEL: ${{ inputs.panel }}
+                  VITE_PLUGIN: ${{ inputs.vite_plugin }}
+              run: |
+                  if [[ "$GITHUB_REF_TYPE" != "branch" || "$GITHUB_REF_NAME" == "main" ]]; then
+                      echo "Alpha releases require a feature branch."
+                      exit 1
+                  fi
+                  if [[ "$VITE_PLUGIN" != "true" && "$PANEL" != "true" ]]; then
+                      echo "Select at least one release target."
+                      exit 1
+                  fi
+
+    vite_plugin:
+        needs: validate
+        if: inputs.vite_plugin == true
+        uses: ./.github/workflows/release-package.yml
+        with:
+            package_path: packages/vite-plugin-local-mock-api
+            package_name: '@wesflo/vite-plugin-local-mock-api'
+            tag_prefix: plugin
+            prerelease: true
+            version_bump: ${{ inputs.version_bump }}
+            branch: ${{ github.ref_name }}
+        secrets: inherit
+
+    panel:
+        needs: [validate, vite_plugin]
+        if: >-
+            ${{ always() && needs.validate.result == 'success' && inputs.panel == true }}
+        uses: ./.github/workflows/release-package.yml
+        with:
+            package_path: packages/wf-vite-mock-proxy
+            package_name: '@wesflo/wf-vite-mock-proxy'
+            tag_prefix: panel
+            prerelease: true
+            version_bump: ${{ inputs.version_bump }}
+            branch: ${{ github.ref_name }}
+        secrets: inherit

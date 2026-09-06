@@ -24,10 +24,10 @@
         "check-types": "tsc --noEmit -p tsconfig.json"
     },
     "dependencies": {
-        "@wesflo/local-mock-api-ui": "workspace:*",
         "lit": "^3.3.1"
     },
     "devDependencies": {
+        "@wesflo/local-mock-api-ui": "workspace:*",
         "@wesflo/local-mock-api-utils": "workspace:*",
         "happy-dom": "^20.13.1",
         "typescript": "^5.8.2",

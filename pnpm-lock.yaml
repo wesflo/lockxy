@@ -118,10 +118,6 @@ importers:
         version: 4.1.11(@types/node@22.20.1)(@vitest/coverage-v8@4.1.11)(happy-dom@20.13.2)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(yaml@2.5.1))
 
   packages/vite-plugin-local-mock-api:
-    dependencies:
-      '@wesflo/local-mock-api-utils':
-        specifier: workspace:*
-        version: link:../local-mock-api-utils
     devDependencies:
       '@eslint/js':
         specifier: ^9.23.0
@@ -141,6 +137,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.1.11
         version: 4.1.11(vitest@4.1.11)
+      '@wesflo/local-mock-api-utils':
+        specifier: workspace:*
+        version: link:../local-mock-api-utils
       eslint:
         specifier: 9.39.4
         version: 9.39.4(supports-color@7.2.0)
@@ -183,13 +182,13 @@ importers:
 
   packages/wf-vite-mock-proxy:
     dependencies:
-      '@wesflo/local-mock-api-ui':
-        specifier: workspace:*
-        version: link:../local-mock-api-ui
       lit:
         specifier: ^3.3.1
         version: 3.3.3
     devDependencies:
+      '@wesflo/local-mock-api-ui':
+        specifier: workspace:*
+        version: link:../local-mock-api-ui
       '@wesflo/local-mock-api-utils':
         specifier: workspace:*
         version: link:../local-mock-api-utils
