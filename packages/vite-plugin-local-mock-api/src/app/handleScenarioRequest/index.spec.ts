@@ -1,10 +1,5 @@
 import { Buffer } from 'node:buffer';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import {
-    DEVELOPMENT_HEADER_NAME,
-    DEVELOPMENT_HEADER_VALUE,
-    MANIFEST_ROUTE
-} from '@wesflo/local-mock-api-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { MockApiPluginOptions } from '../../interface.js';
@@ -72,19 +67,6 @@ describe('handleScenarioRequest', () => {
         expect(mocks.send).not.toHaveBeenCalled();
         expect(error).not.toHaveBeenCalled();
         expect(debug).not.toHaveBeenCalled();
-    });
-
-    it('marks the manifest response as development-only', async () => {
-        const setHeader = vi.fn();
-        mocks.readMockManifest.mockResolvedValue({ status: 'valid', manifest: {} });
-
-        await expect(handleScenarioRequest(
-            { url: MANIFEST_ROUTE, method: 'GET', headers: {} } as IncomingMessage,
-            { setHeader } as unknown as ServerResponse,
-            options
-        )).resolves.toBe(true);
-
-        expect(setHeader).toHaveBeenCalledWith(DEVELOPMENT_HEADER_NAME, DEVELOPMENT_HEADER_VALUE);
     });
 
     it('applies a root delay while keeping naming-convention resolution', async () => {

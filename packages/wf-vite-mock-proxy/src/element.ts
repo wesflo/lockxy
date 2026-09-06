@@ -10,8 +10,8 @@ import {
     updateBypassCookie,
     updateScenarioCookie,
 } from '@wesflo/local-mock-api-utils';
-import { resetStyles, wfElement } from '@wesflo/local-mock-api-ui';
-import { state } from 'lit/decorators.js';
+import {resetStyles, wfElement} from '@wesflo/local-mock-api-ui';
+import {state} from 'lit/decorators.js';
 
 import {
     ENDPOINT_SELECTIONS_STORAGE_KEY,
@@ -19,21 +19,21 @@ import {
     PROXY_ON_LOAD_STORAGE_KEY,
     SAVE_SELECTIONS_STORAGE_KEY
 } from './constant.js';
-import type { MockEndpoint, MockManifest } from './interface.js';
+import type {MockEndpoint, MockManifest} from './interface.js';
 import './component/Endpoints/element.js';
-import { MockProxyInteractionElement } from './component/MockProxyInteraction/element.js';
-import type { SettingChangeDetail } from './component/Settings/interface.js';
+import {MockProxyInteractionElement} from './component/MockProxyInteraction/element.js';
+import type {SettingChangeDetail} from './component/Settings/interface.js';
 import './component/Settings/element.js';
-import { mockProxyStyle } from './style.js';
-import { createCookieSelectionValues } from './util/createCookieSelectionValues.js';
-import { mergeStoredEndpointSelections } from './util/mergeStoredEndpointSelections.js';
-import { persistBooleanSetting } from './util/persistBooleanSetting.js';
-import { persistEndpointSelections } from './util/persistEndpointSelections.js';
-import { removeStoredSetting } from './util/removeStoredSetting.js';
-import { resetPanelStorage } from './util/resetPanelStorage.js';
-import { restoreEndpointSelections } from './util/restoreEndpointSelections.js';
-import { restorePanelSettings } from './util/restorePanelSettings.js';
-import { renderMockProxy } from './view.js';
+import {mockProxyStyle} from './style.js';
+import {createCookieSelectionValues} from './util/createCookieSelectionValues.js';
+import {mergeStoredEndpointSelections} from './util/mergeStoredEndpointSelections.js';
+import {persistBooleanSetting} from './util/persistBooleanSetting.js';
+import {persistEndpointSelections} from './util/persistEndpointSelections.js';
+import {removeStoredSetting} from './util/removeStoredSetting.js';
+import {resetPanelStorage} from './util/resetPanelStorage.js';
+import {restoreEndpointSelections} from './util/restoreEndpointSelections.js';
+import {restorePanelSettings} from './util/restorePanelSettings.js';
+import {renderMockProxy} from './view.js';
 import {nothing} from "lit";
 
 @wfElement(MOCK_PROXY_TAG_NAME)
@@ -65,13 +65,14 @@ export class WfViteMockProxy extends MockProxyInteractionElement {
         this.loading = true;
 
         try {
-            const response = await fetch(MANIFEST_ROUTE, { headers: { accept: 'application/json' } });
+            const response = await fetch(MANIFEST_ROUTE, {headers: {accept: 'application/json'}});
 
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}`);
             }
 
-            this.manifest = (await response.json()) as MockManifest;
+            const manifest = (await response.json()) as MockManifest;
+            this.manifest = manifest.endpoints?.length ? manifest : undefined;
             if (this.saveSelections) {
                 this.applyStoredSelections();
             }
@@ -137,7 +138,7 @@ export class WfViteMockProxy extends MockProxyInteractionElement {
         this.persistSelections([endpoint]);
     };
 
-    private setSetting = ({ name, checked }: SettingChangeDetail): void => {
+    private setSetting = ({name, checked}: SettingChangeDetail): void => {
         if (name === 'proxyOnLoad') {
             this.proxyOnLoad = checked;
             persistBooleanSetting(localStorage, PROXY_ON_LOAD_STORAGE_KEY, checked);
@@ -170,36 +171,36 @@ export class WfViteMockProxy extends MockProxyInteractionElement {
 
     render = () =>
         this.manifest ?
-        renderMockProxy(
-            {
-                activeTab: this.activeTab,
-                bypass: this.bypass,
-                dragging: Boolean(this.dragState),
-                endpoints: this.manifest?.endpoints ?? [],
-                error: this.error,
-                loading: this.loading,
-                open: this.open,
-                position: this.position,
-                proxyOnLoad: this.proxyOnLoad,
-                query: this.query,
-                saveSelections: this.saveSelections,
-                scenarios: this.scenarios
-            },
-            {
-                closePanel: this.closePanel,
-                handleEndpointChange: this.setEndpointActive,
-                handleLauncherPointerDown: this.handleLauncherPointerDown,
-                handleLauncherPointerMove: this.handleLauncherPointerMove,
-                handleLauncherPointerUp: this.handleLauncherPointerUp,
-                handleProxyChange: this.setProxyActive,
-                handleQueryChange: (query) => (this.query = query),
-                handleScenarioChange: this.setScenario,
-                handleSettingChange: this.setSetting,
-                handleTabKeyDown: this.handleTabKeyDown,
-                resetSettings: this.resetSettings,
-                retryManifest: () => void this.loadManifest(),
-                selectTab: this.selectTab,
-                togglePanel: this.togglePanel
-            }
-        ) : nothing;
+            renderMockProxy(
+                {
+                    activeTab: this.activeTab,
+                    bypass: this.bypass,
+                    dragging: Boolean(this.dragState),
+                    endpoints: this.manifest?.endpoints ?? [],
+                    error: this.error,
+                    loading: this.loading,
+                    open: this.open,
+                    position: this.position,
+                    proxyOnLoad: this.proxyOnLoad,
+                    query: this.query,
+                    saveSelections: this.saveSelections,
+                    scenarios: this.scenarios
+                },
+                {
+                    closePanel: this.closePanel,
+                    handleEndpointChange: this.setEndpointActive,
+                    handleLauncherPointerDown: this.handleLauncherPointerDown,
+                    handleLauncherPointerMove: this.handleLauncherPointerMove,
+                    handleLauncherPointerUp: this.handleLauncherPointerUp,
+                    handleProxyChange: this.setProxyActive,
+                    handleQueryChange: (query) => (this.query = query),
+                    handleScenarioChange: this.setScenario,
+                    handleSettingChange: this.setSetting,
+                    handleTabKeyDown: this.handleTabKeyDown,
+                    resetSettings: this.resetSettings,
+                    retryManifest: () => void this.loadManifest(),
+                    selectTab: this.selectTab,
+                    togglePanel: this.togglePanel
+                }
+            ) : nothing;
 }

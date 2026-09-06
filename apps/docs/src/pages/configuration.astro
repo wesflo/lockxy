@@ -168,6 +168,10 @@ const diagnosticsConfig = `mockApiPlugin({
             unsafe paths, missing files, and invalid manifests use the same <code>[local-mock-api]</code> prefix. Set
             <code>logging: false</code> for a quiet development server.
         </p>
+        <p>
+            Every response produced by the mock server includes <code>X-Local-Mock-Api: true</code>, including empty and
+            error responses. This makes mocked traffic immediately recognizable in the browser network inspector.
+        </p>
 
         <h3 id="root-fields">Root fields</h3>
         <p>

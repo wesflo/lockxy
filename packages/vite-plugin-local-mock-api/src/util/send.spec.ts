@@ -14,6 +14,7 @@ describe('send', () => {
         expect(response.statusCode).toBe(201);
         expect(setHeader).toHaveBeenNthCalledWith(1, 'content-type', 'text/plain');
         expect(setHeader).toHaveBeenNthCalledWith(2, 'content-length', '7');
+        expect(setHeader).toHaveBeenNthCalledWith(3, 'x-local-mock-api', 'true');
         expect(end).toHaveBeenCalledWith('created');
     });
 
@@ -30,7 +31,8 @@ describe('send', () => {
 
         expect(end).toHaveBeenCalledWith();
         if (status === 204 || status === 304) {
-            expect(setHeader).not.toHaveBeenCalled();
+            expect(setHeader).toHaveBeenCalledOnce();
+            expect(setHeader).toHaveBeenCalledWith('x-local-mock-api', 'true');
         }
     });
 });

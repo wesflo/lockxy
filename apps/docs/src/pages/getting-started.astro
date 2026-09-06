@@ -77,11 +77,11 @@ const entry = `import '@wesflo/wf-vite-mock-proxy';`;
             endpoint passthrough. The panel reads the optional manifest from the fixed
             <code>/_local-mock-api/manifest</code> route.
         </p>
-        <Callout title="Runtime safety check">
+        <Callout title="Panel stays optional">
             <p>
-                The panel renders only after the development mock server confirms itself through a dedicated response
-                header. If the panel is accidentally bundled or mounted in production, it stays disabled and prints a
-                browser-console warning.
+                The panel renders only after it loads a manifest containing configurable endpoints. Without a manifest—or
+                with a convention-only or delay-only manifest—it adds no visible UI. A production deployment normally gets
+                a 404 for the development-only manifest route and therefore renders nothing.
             </p>
         </Callout>
     </article>

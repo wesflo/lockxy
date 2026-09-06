@@ -1,4 +1,5 @@
 import type { ServerResponse } from 'node:http';
+import { MOCK_RESPONSE_HEADER_NAME, MOCK_RESPONSE_HEADER_VALUE } from '@wesflo/local-mock-api-utils';
 
 import type { ResponseBody, ResponseHeaders } from '../interface.js';
 
@@ -18,5 +19,6 @@ export const send = (
             res.setHeader(key, value);
         }
     });
+    res.setHeader(MOCK_RESPONSE_HEADER_NAME, MOCK_RESPONSE_HEADER_VALUE);
     bodyAllowed ? res.end(body) : res.end();
 };

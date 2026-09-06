@@ -2,8 +2,6 @@
 
 import {
     BYPASS_COOKIE_NAME,
-    DEVELOPMENT_HEADER_NAME,
-    DEVELOPMENT_HEADER_VALUE,
     getCookieValue,
     MANIFEST_ROUTE,
     SCENARIO_COOKIE_NAME
@@ -61,6 +59,7 @@ const getSettings = async (element: WfViteMockProxy): Promise<MockProxySettings>
 };
 
 const clickSwitch = async (element: WfSwitch): Promise<void> => {
+    await element.updateComplete;
     element.shadowRoot?.querySelector<HTMLInputElement>('input')?.click();
     await element.updateComplete;
 };
@@ -76,10 +75,7 @@ describe('wf-vite-mock-proxy', () => {
             vi.fn().mockImplementation(async () =>
                 new Response(JSON.stringify(manifest), {
                     status: 200,
-                    headers: {
-                        'content-type': 'application/json',
-                        [DEVELOPMENT_HEADER_NAME]: DEVELOPMENT_HEADER_VALUE
-                    },
+                    headers: { 'content-type': 'application/json' },
                 })
             )
         );
@@ -114,7 +110,7 @@ describe('wf-vite-mock-proxy', () => {
         expect(getCookieValue(SCENARIO_COOKIE_NAME)).toBe('');
     });
 
-    it('stays disabled and warns without the development server marker', async () => {
+    it('does not render when the manifest has no configurable endpoints', async () => {
         vi.mocked(fetch).mockResolvedValue(new Response('{}', { status: 200 }));
         const element = document.createElement('wf-vite-mock-proxy') as WfViteMockProxy;
 
@@ -200,10 +196,7 @@ describe('wf-vite-mock-proxy', () => {
                 endpoints: [{ ...manifest.endpoints[0], id: 'orders-v2' }]
             }), {
                 status: 200,
-                headers: {
-                    'content-type': 'application/json',
-                    [DEVELOPMENT_HEADER_NAME]: DEVELOPMENT_HEADER_VALUE
-                }
+                headers: { 'content-type': 'application/json' }
             })
         );
         await createElement();

@@ -8,6 +8,6 @@ export const BYPASS_ALL_VALUE = '*';
 
 export const ENDPOINT_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 
-export const DEVELOPMENT_HEADER_NAME = 'x-local-mock-api-development';
+export const MOCK_RESPONSE_HEADER_NAME = 'x-local-mock-api';
 
-export const DEVELOPMENT_HEADER_VALUE = 'true';
+export const MOCK_RESPONSE_HEADER_VALUE = 'true';
