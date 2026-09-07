@@ -22,6 +22,7 @@ const links = [
     { href: '/getting-started/', label: 'Getting started', icon: '→' },
     { href: '/configuration/', label: 'Configuration', icon: '◇' },
     { href: '/proxy-panel/', label: 'Proxy panel', icon: '≋' },
+    { href: '/local-verification/', label: 'Local verification', icon: '✓' },
 ];
 const pageSections: Record<string, Array<{ href: string; label: string }>> = {
     '/': [
@@ -52,6 +53,15 @@ const pageSections: Record<string, Array<{ href: string; label: string }>> = {
         { href: '#controls', label: 'Controls' },
         { href: '#bypass-cookie', label: 'Bypass cookie' },
         { href: '#scenario-cookie', label: 'Scenario cookie' },
+    ],
+    '/local-verification/': [
+        { href: '#checkout-and-start', label: 'Checkout and start' },
+        { href: '#plugin-demo', label: 'Plugin demo' },
+        { href: '#demo-modes', label: 'Demo modes' },
+        { href: '#proxy-playground', label: 'Proxy playground' },
+        { href: '#what-to-run', label: 'What to run' },
+        { href: '#repository-map', label: 'Repository map' },
+        { href: '#automated-checks', label: 'Automated checks' },
     ],
 };
 const activeLabel = links.find(({ href }) => href === activePath)?.label ?? title;
