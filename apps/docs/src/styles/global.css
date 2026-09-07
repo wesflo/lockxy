@@ -133,14 +133,14 @@ a:focus-visible {
 
 .avatar {
     display: grid;
-    width: 108px;
-    height: 108px;
+    width: 88px;
+    height: 136px;
     margin-bottom: var(--wf-gap-l);
     place-items: center;
 }
 
 .avatar img {
-    width: 100%;
+    width: auto;
     height: 100%;
 }
 
@@ -479,6 +479,52 @@ td code {
     margin: var(--wf-gap-xl) 0;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--wf-gap-l);
+}
+
+.value-section {
+    margin: var(--wf-gap-xl) 0;
+}
+
+.value-section > h2 {
+    margin-top: 0;
+}
+
+.value-list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    gap: var(--wf-gap-l);
+    list-style: none;
+}
+
+.value-list li {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: var(--wf-gap-m);
+    align-items: start;
+}
+
+.value-icon {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border-radius: 8px;
+    background: var(--wf-docs-primary-soft);
+    font-size: var(--wf-font-size-l);
+    line-height: 1;
+}
+
+.value-list strong {
+    display: block;
+    margin-bottom: var(--wf-gap-xs);
+    font-size: var(--wf-font-size-m);
+}
+
+.value-list p {
+    margin: 0;
+    font-size: var(--wf-font-size-s);
+    line-height: 1.6;
 }
 .card {
     padding: var(--wf-gap-l);

@@ -7,6 +7,21 @@
 
 Plug-and-play local mock responses for API requests handled by the Vite development server.
 
+## Why Lockxy
+
+- ⚡ **Plug and play**<br>
+  Add the Vite plugin, put response files in `mock/`, and keep using your application's real API calls. Naming conventions handle the routing; a manifest and the proxy panel are optional extensions.
+- ✈️ **Work fully offline**<br>
+  Develop on a plane, on a train, or anywhere else without a backend, VPN, internet connection, or expensive hotspot.
+- 🔀 **Mocks live with the code**<br>
+  Mock responses are versioned and reviewed in the repository, so frontend and backend developers can inspect shared API assumptions and quickly diagnose parallel or newly introduced endpoints.
+- 🔒 **Mock data stays local**<br>
+  Lockxy handles mock files on the developer's machine and does not upload requests or responses to an external mock service.
+- 🪙 **No service costs**<br>
+  There is no hosted mock API, usage plan, or metered traffic to pay for.
+- 🛠️ **No hosting overhead**<br>
+  Teams do not need to provision, secure, monitor, or maintain another server just to provide development mocks.
+
 This project is intended exclusively for local development. Do not deploy the mock server or proxy panel as production services, and only use synthetic data in mock files.
 
 ## Mock Proxy panel

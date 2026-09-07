@@ -3,10 +3,10 @@ import '../styles/global.css';
 import favicon16 from '../../../../assets/brand/favicon-16x16.ico?url';
 import favicon32 from '../../../../assets/brand/favicon-32x32.ico?url';
 import favicon96 from '../../../../assets/brand/favicon-96x96.ico?url';
-import lockxyMarkDark from '../../../../assets/brand/lockxy-mark-on-dark.svg';
-import lockxyMarkLight from '../../../../assets/brand/lockxy-mark-on-light.svg';
 import lockxyLockupDark from '../../../../assets/brand/lockxy-lockup-on-dark.svg';
 import lockxyLockupLight from '../../../../assets/brand/lockxy-lockup-on-light.svg';
+import wesfloHeadDark from '../../../../assets/brand/wesflo-head-on-dark.svg';
+import wesfloHeadLight from '../../../../assets/brand/wesflo-head-on-light.svg';
 
 interface Props {
     title: string;
@@ -25,6 +25,7 @@ const links = [
 ];
 const pageSections: Record<string, Array<{ href: string; label: string }>> = {
     '/': [
+        { href: '#why-lockxy', label: 'Why Lockxy' },
         { href: '#plugin-first', label: 'Plugin first' },
         { href: '#optional-extensions', label: 'Optional extensions' },
         { href: '#how-a-request-is-resolved', label: 'Request resolution' },
@@ -87,8 +88,8 @@ const sections = pageSections[activePath] ?? [];
             <header class="profile">
                 <a href={url('/')} aria-label="Lockxy documentation home">
                     <span class="avatar" aria-hidden="true">
-                        <img class="logo-on-light" src={lockxyMarkLight.src} alt="" />
-                        <img class="logo-on-dark" src={lockxyMarkDark.src} alt="" />
+                        <img class="logo-on-light" src={wesfloHeadLight.src} alt="" />
+                        <img class="logo-on-dark" src={wesfloHeadDark.src} alt="" />
                     </span>
                     <span class="profile-lockup">
                         <img class="logo-on-light" src={lockxyLockupLight.src} alt="Lockxy Local Mock Proxy" />
