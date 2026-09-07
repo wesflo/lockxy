@@ -68,6 +68,12 @@ export const mockProxyStyle = [
             transform: scale(1.03);
         }
 
+        .launcher img {
+            display: block;
+            width: 40px;
+            height: 40px;
+        }
+
         .panel {
             position: fixed;
             z-index: 3;
@@ -104,18 +110,13 @@ export const mockProxyStyle = [
 
         .brand {
             display: inline-flex;
-            gap: var(--wf-gap-m);
             align-items: center;
-            font-size: var(--wf-font-size-l);
-            letter-spacing: -0.02em;
         }
 
-        .brand-mark {
-            display: grid;
-            width: 32px;
-            height: 32px;
-            place-items: center;
-            color: var(--wf-primary);
+        .brand img {
+            display: block;
+            width: 116px;
+            height: auto;
         }
 
         .icon-button {

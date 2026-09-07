@@ -1,6 +1,11 @@
-# vite-plugin-local-mock-api
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/brand/lockxy-lockup-on-dark.svg">
+    <img src="./assets/brand/lockxy-lockup-on-light.svg" alt="Lockxy — Local Mock Proxy" width="420">
+</picture>
 
-Local mock responses for API requests handled by the Vite development server.
+# Lockxy
+
+Plug-and-play local mock responses for API requests handled by the Vite development server.
 
 This project is intended exclusively for local development. Do not deploy the mock server or proxy panel as production services, and only use synthetic data in mock files.
 

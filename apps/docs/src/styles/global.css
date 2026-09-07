@@ -137,21 +137,34 @@ a:focus-visible {
     height: 108px;
     margin-bottom: var(--wf-gap-l);
     place-items: center;
-    border: 4px solid var(--wf-docs-surface);
-    border-radius: 50%;
-    background: linear-gradient(140deg, var(--wf-docs-avatar-from), var(--wf-docs-avatar-to));
-    box-shadow: 0 8px 24px var(--wf-docs-avatar-shadow);
 }
 
-.avatar span {
-    color: var(--wf-white);
-    font-size: var(--wf-font-size-xxl);
-    font-weight: 800;
-    transform: translateY(-2px);
+.avatar img {
+    width: 100%;
+    height: 100%;
 }
-.profile strong {
-    font-size: var(--wf-font-size-l);
-    letter-spacing: 0.02em;
+
+.profile-lockup {
+    display: block;
+    width: 172px;
+}
+
+.profile-lockup img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.logo-on-dark {
+    display: none !important;
+}
+
+html[data-theme='chirpy-dark'] .logo-on-light {
+    display: none !important;
+}
+
+html[data-theme='chirpy-dark'] .logo-on-dark {
+    display: block !important;
 }
 .profile p {
     max-width: 206px;

@@ -1,5 +1,7 @@
 import { html } from 'lit';
 
+import lockxyLockup from '../../../assets/brand/lockxy-lockup-on-light.svg?url';
+import lockxyMark from '../../../assets/brand/lockxy-mark-on-light.svg?url';
 import { PLAYGROUND_REQUESTS } from './constant.js';
 import type { PlaygroundRequest, PlaygroundViewActions, PlaygroundViewModel } from './interface.js';
 
@@ -29,9 +31,8 @@ export const renderPlayground = (model: PlaygroundViewModel, actions: Playground
 
     return html`
         <header class="topbar">
-            <a class="brand" href="#top" aria-label="wesflo Mock Proxy Playground">
-                <span class="brand__mark"><wf-icon name="bolt" size="l"></wf-icon></span>
-                <strong>wesflo</strong>
+            <a class="brand" href="#top" aria-label="Lockxy Proxy Playground">
+                <img class="brand__logo" src=${lockxyLockup} alt="Lockxy Local Mock Proxy" />
                 <wf-badge tone="info">Proxy Playground</wf-badge>
             </a>
             <nav aria-label="Playground navigation">
@@ -48,7 +49,7 @@ export const renderPlayground = (model: PlaygroundViewModel, actions: Playground
 
         <main id="top">
             <section class="hero card">
-                <div class="hero__icon"><wf-icon name="rocket" size="xxl"></wf-icon></div>
+                <div class="hero__icon"><img src=${lockxyMark} alt="" /></div>
                 <div class="hero__copy">
                     <h1>Test the plugin and panel together</h1>
                     <p>Select a request, change its behavior in the floating proxy panel, and run it again.</p>

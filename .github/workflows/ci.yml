@@ -13,8 +13,18 @@ concurrency:
 
 jobs:
     validate:
-        name: Format, test, lint and build
+        name: ${{ matrix.check }}
         runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                check:
+                    - Format
+                    - Test
+                    - Lint
+                    - Build
+        env:
+            TURBO_TELEMETRY_DISABLED: 1
         steps:
             - name: Checkout repository
               uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -36,16 +46,21 @@ jobs:
               run: pnpm install --frozen-lockfile
 
             - name: Format sources
+              if: matrix.check == 'Format'
               run: pnpm prettier:w
 
             - name: Require committed formatting
+              if: matrix.check == 'Format'
               run: git diff --exit-code
 
             - name: Test
+              if: matrix.check == 'Test'
               run: pnpm test
 
             - name: Lint
+              if: matrix.check == 'Lint'
               run: pnpm lint
 
             - name: Build packages
+              if: matrix.check == 'Build'
               run: pnpm --filter "./packages/**" build

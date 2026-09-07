@@ -1,6 +1,8 @@
 import { copyText, getCookieValue, SCENARIO_COOKIE_NAME } from '@wesflo/local-mock-api-utils';
 import { html, nothing } from 'lit';
 
+import lockxyLockup from '../../../assets/brand/lockxy-lockup-on-light.svg?url';
+import lockxyMark from '../../../assets/brand/lockxy-mark-on-light.svg?url';
 import { DEMO_CASES } from './constant';
 import type { DemoCase, DemoResult, DemoViewActions, DemoViewModel } from './interface';
 import { findEndpoint } from './util/findEndpoint';
@@ -223,9 +225,8 @@ export const renderDemo = (model: DemoViewModel, actions: DemoViewActions) => {
 
     return html`
         <header class="topbar">
-            <a class="brand" href="#top" aria-label="wesflo Local Mock API">
-                <span class="brand__mark"><wf-icon name="bolt" size="l"></wf-icon></span>
-                <strong>wesflo</strong>
+            <a class="brand" href="#top" aria-label="Lockxy Local Mock Proxy">
+                <img class="brand__logo" src=${lockxyLockup} alt="Lockxy Local Mock Proxy" />
                 <wf-badge tone="info">Local Mock API</wf-badge>
             </a>
             <nav aria-label="Demo navigation">
@@ -233,16 +234,12 @@ export const renderDemo = (model: DemoViewModel, actions: DemoViewActions) => {
                     <wf-icon name="book"></wf-icon>
                     Docs
                 </a>
-                <a href="#session">
-                    <wf-icon name="settings"></wf-icon>
-                    Settings
-                </a>
             </nav>
         </header>
 
         <main id="top">
             <section class="hero card">
-                <div class="hero__icon"><wf-icon name="bolt" size="xxl"></wf-icon></div>
+                <div class="hero__icon"><img src=${lockxyMark} alt="" /></div>
                 <div class="hero__copy">
                     <h1>Build and test mock scenarios</h1>
                     <p>Simulate real-world API behaviors, preview responses, and iterate quickly.</p>
@@ -270,7 +267,7 @@ export const renderDemo = (model: DemoViewModel, actions: DemoViewActions) => {
                         <span></span>
                     </div>
                     <div class="hero__bolt">
-                        <wf-icon name="bolt" size="xl"></wf-icon>
+                        <img src=${lockxyMark} alt="" />
                     </div>
                 </div>
             </section>

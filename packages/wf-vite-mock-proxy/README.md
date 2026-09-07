@@ -1,6 +1,11 @@
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wesflo/vite-plugin-local-mock-api/main/assets/brand/lockxy-lockup-on-dark.svg">
+    <img src="https://raw.githubusercontent.com/wesflo/vite-plugin-local-mock-api/main/assets/brand/lockxy-lockup-on-light.svg" alt="Lockxy — Local Mock Proxy" width="360">
+</picture>
+
 # @wesflo/wf-vite-mock-proxy
 
-An optional browser panel for configuring manifest scenarios provided by `@wesflo/vite-plugin-local-mock-api` during local development.
+The optional Lockxy browser panel for configuring manifest scenarios provided by `@wesflo/vite-plugin-local-mock-api` during local development.
 
 ## Installation
 

@@ -1,5 +1,7 @@
 import { html } from 'lit';
 
+import lockxyMarkInverse from '../../../assets/brand/lockxy-mark-inverse.svg?url';
+import lockxyWordmark from '../../../assets/brand/lockxy-wordmark-on-light.svg?url';
 import { ENDPOINTS_TAB, SETTINGS_TAB } from './constant.js';
 import type { MockEndpoint, MockProxyViewActions, MockProxyViewModel } from './interface.js';
 import type { SettingChangeDetail } from './component/Settings/interface.js';
@@ -46,7 +48,7 @@ export const renderMockProxy = (model: MockProxyViewModel, actions: MockProxyVie
         class=${`backdrop ${model.open ? 'open' : ''}`}
         type="button"
         tabindex="-1"
-        aria-label="Close Mock Proxy"
+        aria-label="Close Lockxy"
         aria-hidden=${model.open ? 'false' : 'true'}
         @click=${actions.closePanel}
     ></button>
@@ -55,7 +57,7 @@ export const renderMockProxy = (model: MockProxyViewModel, actions: MockProxyVie
         class=${`launcher ${model.dragging ? 'dragging' : ''}`}
         style=${`left: ${model.position.x}px;top: ${model.position.y}px`}
         type="button"
-        aria-label=${model.open ? 'Close Mock Proxy' : 'Open Mock Proxy'}
+        aria-label=${model.open ? 'Close Lockxy' : 'Open Lockxy'}
         aria-controls="mock-proxy-panel"
         aria-expanded=${model.open ? 'true' : 'false'}
         title="Click to open. Hold Ctrl or Cmd while dragging to move."
@@ -65,7 +67,7 @@ export const renderMockProxy = (model: MockProxyViewModel, actions: MockProxyVie
         @pointerup=${actions.handleLauncherPointerUp}
         @pointercancel=${actions.handleLauncherPointerUp}
     >
-        <wf-icon name="rocket" size="xl"></wf-icon>
+        <img src=${lockxyMarkInverse} alt="" />
     </button>
 
     <aside
@@ -73,20 +75,19 @@ export const renderMockProxy = (model: MockProxyViewModel, actions: MockProxyVie
         id="mock-proxy-panel"
         role="dialog"
         aria-modal="false"
-        aria-label="Mock Proxy"
+        aria-label="Lockxy Local Mock Proxy"
         aria-hidden=${model.open ? 'false' : 'true'}
     >
         <header class="panel-header">
             <div class="brand">
-                <span class="brand-mark"><wf-icon name="rocket" size="xl"></wf-icon></span>
-                <strong>Mock Proxy</strong>
+                <img src=${lockxyWordmark} alt="Lockxy Local Mock Proxy" />
             </div>
-            <button class="icon-button close" type="button" aria-label="Close Mock Proxy" @click=${actions.closePanel}>
+            <button class="icon-button close" type="button" aria-label="Close Lockxy" @click=${actions.closePanel}>
                 <wf-icon name="close" size="l"></wf-icon>
             </button>
         </header>
 
-        <nav class="tabs" role="tablist" aria-label="Mock Proxy sections" @keydown=${actions.handleTabKeyDown}>
+        <nav class="tabs" role="tablist" aria-label="Lockxy sections" @keydown=${actions.handleTabKeyDown}>
             ${(
                 [
                     { id: ENDPOINTS_TAB, icon: 'sliders', label: 'Endpoints' },

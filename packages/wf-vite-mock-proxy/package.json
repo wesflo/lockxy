@@ -1,7 +1,7 @@
 {
     "name": "@wesflo/wf-vite-mock-proxy",
     "version": "0.0.0",
-    "description": "Embeddable UI for configuring @wesflo/vite-plugin-local-mock-api in the browser.",
+    "description": "The embeddable Lockxy UI for configuring @wesflo/vite-plugin-local-mock-api in the browser.",
     "license": "MIT",
     "repository": {
         "type": "git",

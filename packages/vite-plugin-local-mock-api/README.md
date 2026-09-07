@@ -1,3 +1,8 @@
+<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wesflo/vite-plugin-local-mock-api/main/assets/brand/lockxy-lockup-on-dark.svg">
+    <img src="https://raw.githubusercontent.com/wesflo/vite-plugin-local-mock-api/main/assets/brand/lockxy-lockup-on-light.svg" alt="Lockxy — Local Mock Proxy" width="360">
+</picture>
+
 # @wesflo/vite-plugin-local-mock-api
 
 A plug-and-play Vite plugin for serving local API mocks through file naming conventions. A manifest is optional and adds scenarios, status codes, delays, and other per-route behavior when needed.

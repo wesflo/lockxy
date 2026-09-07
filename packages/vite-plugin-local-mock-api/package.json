@@ -1,7 +1,7 @@
 {
     "name": "@wesflo/vite-plugin-local-mock-api",
     "version": "0.0.0",
-    "description": "Vite plugin for serving a local mock API.",
+    "description": "The Lockxy Vite plugin for serving a local mock API.",
     "license": "MIT",
     "repository": {
         "type": "git",

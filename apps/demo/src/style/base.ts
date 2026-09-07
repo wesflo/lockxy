@@ -67,20 +67,10 @@ export const baseStyle = css`
         text-decoration: none;
     }
 
-    .brand strong {
-        font-size: var(--wf-font-size-xl);
-        letter-spacing: -0.04em;
-    }
-
-    .brand__mark {
-        display: grid;
-        width: 32px;
-        height: 32px;
-        place-items: center;
-        color: var(--wf-white);
-        border-radius: 10px 4px 10px 4px;
-        background: linear-gradient(145deg, var(--wf-primary), var(--wf-primary-dark));
-        transform: rotate(-9deg);
+    .brand__logo {
+        display: block;
+        width: 132px;
+        height: auto;
     }
 
     nav {

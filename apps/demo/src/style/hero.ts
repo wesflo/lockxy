@@ -24,6 +24,11 @@ export const heroStyle = css`
         background: var(--wf-primary-soft);
     }
 
+    .hero__icon img {
+        width: 58px;
+        height: 58px;
+    }
+
     .hero h1 {
         margin-bottom: var(--wf-gap-m);
         font-size: var(--wf-font-size-xl);
@@ -118,9 +123,13 @@ export const heroStyle = css`
         width: 64px;
         height: 64px;
         place-items: center;
-        color: var(--wf-white);
         border-radius: 50%;
-        background: linear-gradient(145deg, var(--wf-primary), var(--wf-primary-dark));
+        background: var(--wf-white);
         box-shadow: 0 10px 18px var(--wf-primary-shadow);
+    }
+
+    .hero__bolt img {
+        width: 48px;
+        height: 48px;
     }
 `;

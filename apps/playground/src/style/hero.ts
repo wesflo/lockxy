@@ -24,6 +24,11 @@ export const heroStyle = css`
         background: var(--wf-primary-soft);
     }
 
+    .hero__icon img {
+        width: 58px;
+        height: 58px;
+    }
+
     .hero h1 {
         margin-bottom: var(--wf-gap-m);
         font-size: var(--wf-font-size-xl);
