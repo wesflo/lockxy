@@ -10,7 +10,7 @@ export default defineConfig(({ command }) => ({
   plugins: command === 'serve' ? [
     mockApiPlugin({
       mockRoot: new URL('./mock/', import.meta.url),
-      internalPrefix: '/api/',
+      requestPrefixes: '/api/',
     }),
   ] : [],
 }));`;

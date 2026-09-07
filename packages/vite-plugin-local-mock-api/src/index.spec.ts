@@ -23,7 +23,7 @@ vi.mock('./constant.js', () => ({
     DEFAULT_MOCK_ROOT: mocks.defaultMockRoot,
     EXTENSIONS: ['.json'],
     DEBUG: false,
-    INTERNAL_PREFIX: '/api/',
+    REQUEST_PREFIXES: ['/api/'],
     MANIFEST_FILE_NAME: 'mock.manifest.json',
     LOGGING: true,
 }));
@@ -72,7 +72,7 @@ describe('mockApiPlugin', () => {
             middleware = registeredMiddleware;
         });
         const plugin = mockApiPlugin({
-            internalPrefix: '/custom-api/',
+            requestPrefixes: '/custom-api/',
             extensions: ['.xml'],
             contentTypes: { '.xml': 'application/xml' },
             manifestFileName: 'custom.manifest.json',
@@ -86,7 +86,7 @@ describe('mockApiPlugin', () => {
             expect.anything(),
             expect.anything(),
             expect.objectContaining({
-                internalPrefix: '/custom-api/',
+                requestPrefixes: ['/custom-api/'],
                 extensions: ['.json', '.xml'],
                 contentTypes: {
                     '.json': 'application/json',
@@ -114,7 +114,7 @@ describe('mockApiPlugin', () => {
         expect(use).toHaveBeenCalledOnce();
         expect(mocks.handleMockRequest).toHaveBeenCalledWith(request, response, next, {
             mockRoot: normalizedMockRoot,
-            internalPrefix: '/api/',
+            requestPrefixes: ['/api/'],
             extensions: ['.json'],
             contentTypes: { '.json': 'application/json' },
             manifestFileName: 'mock.manifest.json',

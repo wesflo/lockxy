@@ -13,14 +13,15 @@ import {
     DEFAULT_MOCK_ROOT,
     EXTENSIONS,
     DEBUG,
-    INTERNAL_PREFIX,
+    REQUEST_PREFIXES,
     MANIFEST_FILE_NAME,
     LOGGING,
 } from './constant.js';
-import type { MockApiPluginOptions } from './interface.js';
+import type { MockApiPluginOptions, ResolvedMockApiPluginOptions } from './interface.js';
 import { logError } from './util/logError.js';
 import { logRequest } from './util/logRequest.js';
 import { normalizeMockRoot } from './util/normalizeMockRoot.js';
+import { normalizeRequestPrefixes } from './util/normalizeRequestPrefixes.js';
 import { sendJson } from './util/sendJson.js';
 import { shouldBypassMockRequest } from './util/shouldBypassMockRequest.js';
 
@@ -31,7 +32,7 @@ export const SCENARIO_COOKIE_NAME = SCENARIO_COOKIE;
 
 export const mockApiPlugin = ({
     mockRoot = DEFAULT_MOCK_ROOT,
-    internalPrefix = INTERNAL_PREFIX,
+    requestPrefixes = REQUEST_PREFIXES,
     extensions = [],
     contentTypes = {},
     manifestFileName = MANIFEST_FILE_NAME,
@@ -39,9 +40,9 @@ export const mockApiPlugin = ({
     logging = LOGGING,
 }: MockApiPluginOptions = {}): Plugin => {
     let developmentServer = true;
-    const options: Required<MockApiPluginOptions> = {
+    const options: ResolvedMockApiPluginOptions = {
         mockRoot: normalizeMockRoot(mockRoot),
-        internalPrefix,
+        requestPrefixes: normalizeRequestPrefixes(requestPrefixes),
         extensions: [...EXTENSIONS, ...extensions],
         contentTypes: { ...CONTENT_TYPES, ...contentTypes },
         manifestFileName,

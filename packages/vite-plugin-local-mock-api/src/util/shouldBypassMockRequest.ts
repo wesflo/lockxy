@@ -1,17 +1,17 @@
 import type { IncomingMessage } from 'node:http';
 
-import type { MockApiPluginOptions } from '../interface.js';
+import type { ResolvedMockApiPluginOptions } from '../interface.js';
 import { findMockEndpoint } from '../app/handleScenarioRequest/util/findMockEndpoint.js';
 import { readMockManifest } from '../app/handleScenarioRequest/util/readMockManifest.js';
-import { getInternalRouteParts } from './getInternalRouteParts.js';
+import { getRequestRouteParts } from './getRequestRouteParts.js';
 import { logError } from './logError.js';
 import { parseBypassSelections } from './parseBypassSelections.js';
 
 export const shouldBypassMockRequest = async (
     req: IncomingMessage,
-    options: Required<MockApiPluginOptions>
+    options: ResolvedMockApiPluginOptions
 ): Promise<boolean> => {
-    if (!req.url || !getInternalRouteParts(req.url, options.internalPrefix)) {
+    if (!req.url || !getRequestRouteParts(req.url, options.requestPrefixes)) {
         return false;
     }
 

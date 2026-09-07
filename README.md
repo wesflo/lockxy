@@ -39,11 +39,25 @@ For a direct browser integration without a module loader, use the self-contained
 
 The panel loads the manifest from the fixed `/_local-mock-api/manifest` route. A click on the floating button opens or closes the panel; `Escape` closes it as well. Hold Ctrl or Cmd while dragging the button to move it. Its position is saved in local storage and restored on the next visit.
 
+## Multiple request prefixes and development APIs
+
+Configure every local URL namespace Lockxy should handle through `requestPrefixes`:
+
+```ts
+mockApiPlugin({
+    requestPrefixes: ['/api/', '/development-api/'],
+});
+```
+
+A single prefix can be passed directly as `requestPrefixes: '/api/'`.
+
+The application can use a local path such as `/development-api/users`, while Vite's `server.proxy` maps that prefix to any development API domain. Lockxy returns a matching local mock before the proxy runs. An endpoint or global bypass continues to the Vite proxy instead. Missing mock files remain visible as `404` responses and do not silently fall through.
+
 ## Temporarily bypassing mocks
 
 The plugin can pass requests through unchanged to the next Vite middleware, for example a configured development API proxy. This does not require removing the plugin from the Vite configuration.
 
-Set the `wesflo-mock-api-bypass` cookie to `*` to bypass all requests below the configured `internalPrefix`:
+Set the `wesflo-mock-api-bypass` cookie to `*` to bypass all requests matching the configured `requestPrefixes`:
 
 ```js
 document.cookie = 'wesflo-mock-api-bypass=*; Path=/; SameSite=Lax';

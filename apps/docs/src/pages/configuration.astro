@@ -78,6 +78,26 @@ const diagnosticsConfig = `mockApiPlugin({
   debug: true,
   logging: true
 })`;
+
+const multiplePrefixesConfig = `import { defineConfig } from 'vite';
+import { mockApiPlugin } from '@wesflo/vite-plugin-local-mock-api';
+
+export default defineConfig(({ command }) => ({
+  plugins: command === 'serve' ? [
+    mockApiPlugin({
+      requestPrefixes: ['/api/', '/development-api/'],
+    }),
+  ] : [],
+  server: {
+    proxy: {
+      '/development-api': {
+        target: 'https://api.v1.supertoll.domain.de',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\\/development-api/, ''),
+      },
+    },
+  },
+}));`;
 ---
 
 <DocsLayout title="Configuration" description="Plugin options, manifests, and file resolution." activePath="/configuration/">
@@ -120,7 +140,7 @@ const diagnosticsConfig = `mockApiPlugin({
             <thead><tr><th>Option</th><th>Type</th><th>Description</th></tr></thead>
             <tbody>
                 <tr><td><code>mockRoot</code></td><td><code>URL</code></td><td>Directory containing mock files and the manifest.</td></tr>
-                <tr><td><code>internalPrefix</code></td><td><code>string</code></td><td>Request prefix handled by the plugin. Defaults to <code>/api/</code>.</td></tr>
+                <tr><td><code>requestPrefixes</code></td><td><code>string | readonly string[]</code></td><td>One or more local request prefixes handled by the plugin. Defaults to <code>['/api/']</code>.</td></tr>
                 <tr><td><code>extensions</code></td><td><code>string[]</code></td><td>Additional file extensions appended to the built-in candidates.</td></tr>
                 <tr><td><code>contentTypes</code></td><td><code>Record&lt;string, string&gt;</code></td><td>Additional or overridden extension-to-content-type mappings.</td></tr>
                 <tr><td><code>manifestFileName</code></td><td><code>string</code></td><td>Manifest filename inside <code>mockRoot</code>. Defaults to <code>mock.manifest.json</code>.</td></tr>
@@ -130,6 +150,28 @@ const diagnosticsConfig = `mockApiPlugin({
         </table>
         <Callout title="Fixed route">
             <p><code>MANIFEST_ROUTE</code> is intentionally fixed and cannot be overridden by plugin options.</p>
+        </Callout>
+
+        <h3 id="multiple-request-prefixes">Multiple request prefixes and development APIs</h3>
+        <p>
+            Pass a string for one local URL namespace or an array for several. If prefixes overlap, the longest matching
+            value wins regardless of their order. For example, both <code>/api/users</code> and
+            <code>/development-api/users</code> resolve against <code>mock/users.*</code> with the configuration below.
+        </p>
+        <Code code={multiplePrefixesConfig} label="vite.config.ts" />
+        <p>
+            During local development, point the application at <code>/development-api/</code> instead of making an absolute
+            request to the remote domain. Lockxy runs before Vite's proxy: it returns a local response when a mock matches,
+            while a request explicitly bypassed through the panel or cookie continues to the configured development API.
+            The target may contain any domain or subdomain depth because Vite owns that forwarding step.
+        </p>
+        <Callout title="Missing mocks stay visible">
+            <p>
+                A matching request prefix with no local file still produces Lockxy's <code>404</code>. It does not silently
+                fall through to the development API. Use an endpoint or global bypass when remote handling is intentional.
+                Manifest endpoint paths use the complete local request path, such as
+                <code>/development-api/users</code>.
+            </p>
         </Callout>
 
         <h2 id="optional-manifest">Optional manifest</h2>

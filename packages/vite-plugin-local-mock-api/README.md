@@ -24,7 +24,21 @@ export default defineConfig(({ command }) => ({
 }));
 ```
 
-Add a JSON file below `mock/` and request the matching URL from the Vite development server. For example, `mock/users/profile.json` handles `GET /users/profile`, while `mock/users/POST_profile.json` handles `POST /users/profile`.
+Add a JSON file below `mock/` and request the matching URL from the Vite development server. For example, `mock/users/profile.json` handles `GET /api/users/profile`, while `mock/users/POST_profile.json` handles `POST /api/users/profile` with the default request prefix.
+
+## Multiple request prefixes
+
+Use `requestPrefixes` when the local application exposes more than one API namespace:
+
+```ts
+mockApiPlugin({
+    requestPrefixes: ['/api/', '/development-api/'],
+});
+```
+
+For one namespace, a string is enough: `requestPrefixes: '/api/'`.
+
+The matched prefix is removed before file resolution, so `/development-api/users` can resolve to `mock/users.json`. A Vite `server.proxy` entry can forward intentionally bypassed requests from that local prefix to any remote development API. Requests without a matching mock continue to return `404`; they reach the proxy only through an endpoint or global bypass.
 
 The plugin is intended exclusively for local development and must not be used as a production server. Mock files must contain synthetic data only.
 

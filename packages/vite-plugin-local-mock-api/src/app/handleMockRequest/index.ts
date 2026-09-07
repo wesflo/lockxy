@@ -1,9 +1,9 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-import type { MockApiPluginOptions, NextFunction } from '../../interface.js';
+import type { NextFunction, ResolvedMockApiPluginOptions } from '../../interface.js';
 import { getCandidatePaths } from '../../util/getCandidatePaths.js';
 import { getContentType } from '../../util/getContentType.js';
-import { getInternalRouteParts } from '../../util/getInternalRouteParts.js';
+import { getRequestRouteParts } from '../../util/getRequestRouteParts.js';
 import { readExistingFile } from '../../util/readExistingFile.js';
 import { logError } from '../../util/logError.js';
 import { logRequest } from '../../util/logRequest.js';
@@ -14,16 +14,16 @@ export const handleMockRequest = async (
     req: IncomingMessage,
     res: ServerResponse,
     next: NextFunction,
-    options: Required<MockApiPluginOptions>
+    options: ResolvedMockApiPluginOptions
 ): Promise<void> => {
-    const internalRouteParts = getInternalRouteParts(req.url, options.internalPrefix);
+    const requestRouteParts = getRequestRouteParts(req.url, options.requestPrefixes);
 
-    if (!internalRouteParts) {
+    if (!requestRouteParts) {
         next();
         return;
     }
 
-    const candidatePaths = getCandidatePaths(internalRouteParts, req.method, options.extensions);
+    const candidatePaths = getCandidatePaths(requestRouteParts, req.method, options.extensions);
 
     for (const path of candidatePaths) {
         const file = await readExistingFile(path, options.mockRoot);
@@ -59,7 +59,7 @@ export const handleMockRequest = async (
         res,
         404,
         {
-            error: `No local mock found for ${internalRouteParts.join('/')}`,
+            error: `No local mock found for ${requestRouteParts.join('/')}`,
         },
         req.method
     );

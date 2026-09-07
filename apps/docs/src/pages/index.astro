@@ -135,7 +135,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
         <h2 id="how-a-request-is-resolved">How a request is resolved</h2>
         <ol>
-            <li>The plugin checks whether the URL is inside the configured API prefix.</li>
+            <li>The plugin checks whether the URL matches one of the configured request prefixes.</li>
             <li>If browser bypass is enabled, the request continues unchanged to the next Vite middleware or proxy.</li>
             <li>A matching automatic or selected scenario overrides endpoint settings; endpoint settings override root delay.</li>
             <li>If no explicit file applies, the plugin uses method-specific and generic naming-convention candidates.</li>

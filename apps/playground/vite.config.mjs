@@ -9,7 +9,7 @@ export default defineConfig(({ command }) => ({
             ? [
                   mockApiPlugin({
                       mockRoot: new URL('./mock/', import.meta.url),
-                      internalPrefix: '/api/',
+                      requestPrefixes: ['/api/'],
                   }),
               ]
             : [],

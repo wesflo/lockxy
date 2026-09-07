@@ -2,13 +2,13 @@ import { Buffer } from 'node:buffer';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { MockApiPluginOptions } from '../../interface.js';
+import type { ResolvedMockApiPluginOptions } from '../../interface.js';
 
 const mocks = vi.hoisted(() => ({
     findMockEndpoint: vi.fn(),
     findSelectedScenario: vi.fn(),
     getCandidatePaths: vi.fn(),
-    getInternalRouteParts: vi.fn(),
+    getRequestRouteParts: vi.fn(),
     parseScenarioSelections: vi.fn(),
     readExistingFile: vi.fn(),
     readMockManifest: vi.fn(),
@@ -17,7 +17,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('../../util/getCandidatePaths.js', () => ({ getCandidatePaths: mocks.getCandidatePaths }));
-vi.mock('../../util/getInternalRouteParts.js', () => ({ getInternalRouteParts: mocks.getInternalRouteParts }));
+vi.mock('../../util/getRequestRouteParts.js', () => ({ getRequestRouteParts: mocks.getRequestRouteParts }));
 vi.mock('../../util/readExistingFile.js', () => ({ readExistingFile: mocks.readExistingFile }));
 vi.mock('../../util/send.js', () => ({ send: mocks.send }));
 vi.mock('./util/findMockEndpoint.js', () => ({ findMockEndpoint: mocks.findMockEndpoint }));
@@ -29,9 +29,9 @@ vi.mock('./util/wait.js', () => ({ wait: mocks.wait }));
 import { handleScenarioRequest } from './index.js';
 
 describe('handleScenarioRequest', () => {
-    const options: Required<MockApiPluginOptions> = {
+    const options: ResolvedMockApiPluginOptions = {
         mockRoot: new URL('file:///tmp/mocks/'),
-        internalPrefix: '/api/',
+        requestPrefixes: ['/api/'],
         extensions: ['.json'],
         contentTypes: { '.json': 'application/json' },
         manifestFileName: 'mock.manifest.json',
@@ -48,7 +48,7 @@ describe('handleScenarioRequest', () => {
 
     beforeEach(() => {
         vi.resetAllMocks();
-        mocks.getInternalRouteParts.mockReturnValue(['profile']);
+        mocks.getRequestRouteParts.mockReturnValue(['profile']);
         mocks.parseScenarioSelections.mockReturnValue(new Map());
         mocks.getCandidatePaths.mockReturnValue(['GET_profile.json', 'profile.json']);
         mocks.readExistingFile.mockResolvedValue(mockFile);

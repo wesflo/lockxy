@@ -2,10 +2,10 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { MANIFEST_ROUTE } from '@wesflo/local-mock-api-utils';
 
 import { EMPTY_MANIFEST } from '../../constant.js';
-import type { MockApiPluginOptions } from '../../interface.js';
+import type { ResolvedMockApiPluginOptions } from '../../interface.js';
 import { getCandidatePaths } from '../../util/getCandidatePaths.js';
 import { getContentType } from '../../util/getContentType.js';
-import { getInternalRouteParts } from '../../util/getInternalRouteParts.js';
+import { getRequestRouteParts } from '../../util/getRequestRouteParts.js';
 import { readExistingFile } from '../../util/readExistingFile.js';
 import { logDebug } from '../../util/logDebug.js';
 import { logError } from '../../util/logError.js';
@@ -23,7 +23,7 @@ import { wait } from './util/wait.js';
 export const handleScenarioRequest = async (
     req: IncomingMessage,
     res: ServerResponse,
-    options: Required<MockApiPluginOptions>
+    options: ResolvedMockApiPluginOptions
 ): Promise<boolean> => {
     if (!req.url) {
         return false;
@@ -55,9 +55,9 @@ export const handleScenarioRequest = async (
         return true;
     }
 
-    const internalRouteParts = getInternalRouteParts(req.url, options.internalPrefix);
+    const requestRouteParts = getRequestRouteParts(req.url, options.requestPrefixes);
 
-    if (!internalRouteParts) {
+    if (!requestRouteParts) {
         return false;
     }
 
@@ -109,7 +109,7 @@ export const handleScenarioRequest = async (
         return false;
     }
 
-    const candidatePaths = file ? [file] : getCandidatePaths(internalRouteParts, req.method, options.extensions);
+    const candidatePaths = file ? [file] : getCandidatePaths(requestRouteParts, req.method, options.extensions);
 
     for (const path of candidatePaths) {
         const file = await readExistingFile(path, options.mockRoot);
@@ -151,7 +151,7 @@ export const handleScenarioRequest = async (
         res,
         404,
         {
-            error: `No local mock found for ${internalRouteParts.join('/')}`,
+            error: `No local mock found for ${requestRouteParts.join('/')}`,
         },
         req.method
     );

@@ -17,7 +17,7 @@ export const CONTENT_TYPES: Readonly<Record<string, string>> = {
 /**
  * plugin defaults
  */
-export const INTERNAL_PREFIX = '/api/';
+export const REQUEST_PREFIXES = ['/api/'] as const;
 
 export const DEFAULT_MOCK_ROOT = new URL('../../../../../../mock/', import.meta.url);
 

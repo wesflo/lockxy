@@ -1,11 +1,11 @@
 import type { IncomingMessage } from 'node:http';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { MockApiPluginOptions } from '../interface.js';
+import type { ResolvedMockApiPluginOptions } from '../interface.js';
 
 const mocks = vi.hoisted(() => ({
     findMockEndpoint: vi.fn(),
-    getInternalRouteParts: vi.fn(),
+    getRequestRouteParts: vi.fn(),
     parseBypassSelections: vi.fn(),
     readMockManifest: vi.fn(),
 }));
@@ -18,8 +18,8 @@ vi.mock('../app/handleScenarioRequest/util/readMockManifest.js', () => ({
     readMockManifest: mocks.readMockManifest,
 }));
 
-vi.mock('./getInternalRouteParts.js', () => ({
-    getInternalRouteParts: mocks.getInternalRouteParts,
+vi.mock('./getRequestRouteParts.js', () => ({
+    getRequestRouteParts: mocks.getRequestRouteParts,
 }));
 
 vi.mock('./parseBypassSelections.js', () => ({
@@ -29,9 +29,9 @@ vi.mock('./parseBypassSelections.js', () => ({
 import { shouldBypassMockRequest } from './shouldBypassMockRequest.js';
 
 describe('shouldBypassMockRequest', () => {
-    const options: Required<MockApiPluginOptions> = {
+    const options: ResolvedMockApiPluginOptions = {
         mockRoot: new URL('file:///tmp/mocks/'),
-        internalPrefix: '/api/',
+        requestPrefixes: ['/api/'],
         extensions: ['.json'],
         contentTypes: { '.json': 'application/json' },
         manifestFileName: 'mock.manifest.json',
@@ -41,12 +41,12 @@ describe('shouldBypassMockRequest', () => {
 
     beforeEach(() => {
         vi.resetAllMocks();
-        mocks.getInternalRouteParts.mockReturnValue(['orders']);
+        mocks.getRequestRouteParts.mockReturnValue(['orders']);
         mocks.parseBypassSelections.mockReturnValue({ all: false, endpointIds: new Set() });
     });
 
-    it('does not bypass requests outside the configured API prefix', async () => {
-        mocks.getInternalRouteParts.mockReturnValue(null);
+    it('does not bypass requests outside the configured request prefixes', async () => {
+        mocks.getRequestRouteParts.mockReturnValue(null);
 
         await expect(
             shouldBypassMockRequest({ url: '/app.js', headers: {} } as IncomingMessage, options)
