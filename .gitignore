@@ -42,3 +42,4 @@ internal/**/*.d.ts
 
 # Operating system files
 .DS_Store
+/ToDo.md
