@@ -16,11 +16,7 @@ describe('logRequest', () => {
 
     it('colors the method, status, delay, and source while leaving the URL and separators unchanged', () => {
         const info = vi.spyOn(console, 'info').mockImplementation(() => undefined);
-        logRequest(
-            true,
-            { method: 'POST', url: '/api/users', delay: 250, status: 201, source: 'convention' },
-            true
-        );
+        logRequest(true, { method: 'POST', url: '/api/users', delay: 250, status: 201, source: 'convention' }, true);
 
         expect(info).toHaveBeenCalledWith(
             `[local-mock-api] ${LOG_COLORS.success}POST${LOG_COLORS.reset} /api/users -> ` +
