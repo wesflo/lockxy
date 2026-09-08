@@ -82,13 +82,17 @@ jobs:
                   registry-url: https://registry.npmjs.org
                   scope: '@wesflo'
 
+            # Temporarily disabled while verifying the release commit and tag push.
             - name: Install dependencies
+              if: ${{ false }}
               run: pnpm install --frozen-lockfile
 
             - name: Build internal dependencies
+              if: ${{ false }}
               run: pnpm --filter "$PACKAGE_NAME^..." build
 
             - name: Test package
+              if: ${{ false }}
               run: pnpm --dir "$PACKAGE_PATH" test
 
             - name: Create release version
@@ -114,6 +118,7 @@ jobs:
                   echo "version=$version" >> "$GITHUB_OUTPUT"
 
             - name: Build package
+              if: ${{ false }}
               run: pnpm --dir "$PACKAGE_PATH" build
 
             - name: Check Git tag
@@ -128,12 +133,12 @@ jobs:
                   fi
 
             - name: Publish production package
-              if: inputs.prerelease == false
+              if: ${{ false }}
               working-directory: ${{ inputs.package_path }}
               run: npm publish --access public
 
             - name: Publish alpha package
-              if: inputs.prerelease == true
+              if: ${{ false }}
               working-directory: ${{ inputs.package_path }}
               run: npm publish --access public --tag alpha
 
@@ -172,8 +177,9 @@ jobs:
                       echo "::error::RELEASE_DEPLOY_KEY must contain a valid private SSH key without a passphrase."
                       exit 1
                   fi
+                  ssh-add -l
                   mkdir -p "$RUNNER_TEMP/lockxy-release-ssh"
                   gh api meta --jq '.ssh_keys[] | "github.com \(.)"' > "$RUNNER_TEMP/lockxy-release-ssh/known_hosts"
                   git remote set-url origin "git@github.com:$GITHUB_REPOSITORY.git"
-                  GIT_SSH_COMMAND="ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$RUNNER_TEMP/lockxy-release-ssh/known_hosts" \
+                  GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$RUNNER_TEMP/lockxy-release-ssh/known_hosts" \
                   git push --atomic origin "HEAD:$RELEASE_BRANCH" "refs/tags/$tag"
