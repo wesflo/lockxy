@@ -56,6 +56,16 @@ jobs:
                   fetch-depth: 0
                   persist-credentials: false
 
+            - name: Require production deploy key
+              if: inputs.prerelease == false
+              env:
+                  RELEASE_DEPLOY_KEY: ${{ secrets.RELEASE_DEPLOY_KEY }}
+              run: |
+                  if [[ -z "$RELEASE_DEPLOY_KEY" ]]; then
+                      echo "The npm-production environment must provide RELEASE_DEPLOY_KEY."
+                      exit 1
+                  fi
+
             - name: Update release branch
               run: git pull --ff-only origin "$RELEASE_BRANCH"
 
@@ -129,7 +139,6 @@ jobs:
 
             - name: Commit and tag released version
               env:
-                  GH_TOKEN: ${{ github.token }}
                   VERSION: ${{ steps.version.outputs.version }}
               run: |
                   tag="$TAG_PREFIX-v$VERSION"
@@ -138,5 +147,29 @@ jobs:
                   git add "$PACKAGE_PATH/package.json" pnpm-lock.yaml
                   git commit -m "release($TAG_PREFIX): v$VERSION"
                   git tag --annotate "$tag" --message "$PACKAGE_NAME v$VERSION"
+
+            - name: Push alpha release
+              if: inputs.prerelease == true
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  VERSION: ${{ steps.version.outputs.version }}
+              run: |
+                  tag="$TAG_PREFIX-v$VERSION"
                   gh auth setup-git
+                  git push --atomic origin "HEAD:$RELEASE_BRANCH" "refs/tags/$tag"
+
+            - name: Push production release with deploy key
+              if: inputs.prerelease == false
+              env:
+                  RELEASE_DEPLOY_KEY: ${{ secrets.RELEASE_DEPLOY_KEY }}
+                  VERSION: ${{ steps.version.outputs.version }}
+              run: |
+                  tag="$TAG_PREFIX-v$VERSION"
+                  eval "$(ssh-agent -s)"
+                  trap 'ssh-agent -k' EXIT
+                  printf '%s\n' "$RELEASE_DEPLOY_KEY" | ssh-add -
+                  mkdir -p "$RUNNER_TEMP/lockxy-release-ssh"
+                  ssh-keyscan -t ed25519 github.com > "$RUNNER_TEMP/lockxy-release-ssh/known_hosts"
+                  git remote set-url origin "git@github.com:$GITHUB_REPOSITORY.git"
+                  GIT_SSH_COMMAND="ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$RUNNER_TEMP/lockxy-release-ssh/known_hosts" \
                   git push --atomic origin "HEAD:$RELEASE_BRANCH" "refs/tags/$tag"

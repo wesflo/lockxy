@@ -4,12 +4,18 @@ The npm packages are released manually through GitHub Actions. Production and al
 
 ## GitHub configuration
 
-Create these GitHub environments without repository secrets:
+Create these GitHub environments:
 
-- `npm-production`: restrict deployments to `main` and add the desired manual approval rule.
-- `npm-alpha`: allow the feature branches used for alpha releases and add the desired manual approval rule.
+- `npm-production`: restrict deployments to `main`, add the desired manual approval rule, and provide the `RELEASE_DEPLOY_KEY` environment secret.
+- `npm-alpha`: allow the feature branches used for alpha releases, add the desired manual approval rule, and do not add publishing secrets.
 
-The workflows use GitHub's automatically provided token only for committing the released version and pushing its package-specific Git tag. npm authentication uses OIDC and requires no stored token.
+npm authentication uses OIDC and requires no stored npm token. Alpha releases use GitHub's automatically provided token to push their version commit and package-specific Git tag. Production releases load a repository-scoped SSH deploy key only for the final push so the version commit and tag can bypass the protected `main` ruleset.
+
+## Production deploy key
+
+Create a dedicated SSH key without a passphrase. Add its public key to the repository under **Settings → Deploy keys**, enable write access, and add that deploy key to the `main` ruleset bypass list. Store only its private key as the `RELEASE_DEPLOY_KEY` secret in the `npm-production` environment.
+
+The production release stops before testing or publishing when this secret is missing. The private key becomes available only after the `npm-production` environment has been approved and is loaded into a temporary SSH agent only for the final push. Do not reuse a personal SSH key and do not add this key as a repository-level secret.
 
 ## Initial npm bootstrap
 
