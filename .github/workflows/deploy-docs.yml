@@ -1,0 +1,52 @@
+name: Deploy documentation to GitHub Pages
+
+on:
+    workflow_call:
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: pages
+    cancel-in-progress: true
+
+jobs:
+    validate-main:
+        name: Validate main branch
+        runs-on: ubuntu-latest
+        steps:
+            - name: Require main branch
+              if: github.ref != 'refs/heads/main'
+              run: |
+                  echo "Documentation can only be deployed from main."
+                  exit 1
+
+    build:
+        needs: validate-main
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+              with:
+                  persist-credentials: false
+            - name: Build and upload documentation
+              uses: withastro/action@e84f40bd8d2caa9e768ec82ad30dd81f0b280853 # v6
+              with:
+                  path: apps/docs
+                  node-version: 24
+                  package-manager: pnpm@11.24.0
+
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        permissions:
+            pages: write
+            id-token: write
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        steps:
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5

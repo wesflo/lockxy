@@ -1,0 +1,5 @@
+{
+    "case": "alternate-mode-fallback",
+    "source": "demo/legacy.json",
+    "message": "Legacy fallback is active in normal manifest mode."
+}

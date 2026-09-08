@@ -1,0 +1,182 @@
+---
+import Callout from '../components/Callout.astro';
+import Code from '../components/Code.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+
+const checkout = `git clone https://github.com/wesflo/vite-plugin-local-mock-api.git
+cd vite-plugin-local-mock-api
+pnpm install`;
+
+const startBoth = `pnpm dev`;
+
+const demoCommands = `# Standard manifest and the complete fixture set
+pnpm --filter @wesflo/local-mock-api-demo dev
+
+# No mock.manifest.json: naming conventions must keep working
+pnpm dev:missing-manifest
+
+# Malformed mock.manifest.json: expose the error and preserve file fallback
+pnpm dev:invalid-manifest`;
+
+const playgroundCommands = `# Start only the plugin + panel integration
+pnpm dev:playground
+
+# Optionally pass bypassed requests to a real development API
+PLAYGROUND_API_TARGET=https://dev-api.example.com pnpm dev:playground`;
+
+const checks = `# Vite plugin unit tests
+pnpm test:package
+
+# Demo tests
+pnpm test:app
+
+# Proxy panel unit tests
+pnpm --filter @wesflo/wf-vite-mock-proxy test
+
+# Build the complete workspace
+pnpm build`;
+---
+
+<DocsLayout
+    title="Local verification"
+    description="Use the Lockxy demo and playground to verify the Vite plugin and proxy panel locally."
+    activePath="/local-verification/"
+>
+    <article>
+        <p class="kicker">Work on Lockxy</p>
+        <h1>Verify each layer in isolation.</h1>
+        <p class="lead">
+            The repository contains two browser applications with deliberately different responsibilities. Use the demo
+            to inspect the Vite plugin by itself, then use the playground when the proxy panel must participate.
+        </p>
+
+        <h2 id="checkout-and-start">Checkout and start</h2>
+        <p>The workspace expects Node.js 24 and pnpm 11.</p>
+        <Code code={checkout} label="terminal" />
+        <p>Start both verification applications from the repository root:</p>
+        <Code code={startBoth} label="terminal" />
+        <ul>
+            <li><a href="http://localhost:5173"><code>http://localhost:5173</code></a> — standalone plugin demo</li>
+            <li><a href="http://localhost:5174"><code>http://localhost:5174</code></a> — plugin and panel playground</li>
+        </ul>
+        <Callout title="Start with the smallest surface">
+            <p>
+                Reproduce resolver, response, or manifest problems in the demo first. If the demo behaves correctly but
+                the playground does not, the remaining investigation can focus on panel state, cookies, and local storage.
+            </p>
+        </Callout>
+
+        <h2 id="plugin-demo">Plugin demo</h2>
+        <p>
+            The demo exercises <code>@wesflo/vite-plugin-local-mock-api</code> without importing or mounting
+            <code>@wesflo/wf-vite-mock-proxy</code>. Its browser interface is only a request harness: it sends the same calls
+            an application would send and displays status, headers, timing, and response content.
+        </p>
+        <p>Use the standard demo to verify:</p>
+        <ul>
+            <li>method-specific and generic naming-convention precedence;</li>
+            <li>shorter-path fallback when a more specific file is absent;</li>
+            <li>JSON, text, binary PDF, and empty responses;</li>
+            <li>HTTP errors and bodyless <code>204</code> responses;</li>
+            <li>fixed and random delays;</li>
+            <li>explicit files, endpoint defaults, and automatically applied single scenarios.</li>
+        </ul>
+
+        <h2 id="demo-modes">Demo modes</h2>
+        <Code code={demoCommands} label="terminal" />
+        <table>
+            <thead>
+                <tr><th>Mode</th><th>Mock root</th><th>Purpose</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>dev</code></td>
+                    <td><code>apps/demo/mock/</code></td>
+                    <td>Exercises the complete fixture set and a valid manifest.</td>
+                </tr>
+                <tr>
+                    <td><code>dev:missing-manifest</code></td>
+                    <td><code>apps/demo/mock-missing/</code></td>
+                    <td>
+                        Proves that <code>mock.manifest.json</code> is optional and convention-only requests remain plug and
+                        play. A manifest error in the demo UI is expected; run the manifest-fallback request to verify the
+                        mock response itself.
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>dev:invalid-manifest</code></td>
+                    <td><code>apps/demo/mock-invalid/</code></td>
+                    <td>
+                        Makes the manifest route report malformed JSON while a naming-convention fixture remains available.
+                        This separates manifest error reporting from the file resolver fallback.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            These package scripts first run <code>cleanViteCache</code>, which removes only the demo's generated
+            <code>node_modules/.vite</code> pre-bundle cache. That guarantees a fresh Vite start while the linked workspace
+            plugin and its modes are being changed; it does not remove dependencies, mock files, or project state.
+        </p>
+
+        <h2 id="proxy-playground">Proxy playground</h2>
+        <p>
+            The playground loads the same kinds of requests and fixtures, but also mounts the real
+            <code>&lt;wf-vite-mock-proxy&gt;</code> Web Component. Use it to verify the integration between the panel, its
+            browser persistence, and the Vite middleware.
+        </p>
+        <Code code={playgroundCommands} label="terminal" />
+        <p>A useful manual check is:</p>
+        <ol>
+            <li>Select a request and run it once to establish the default response.</li>
+            <li>Open the floating panel and choose another scenario for that endpoint.</li>
+            <li>Run the request again and compare status, delay, and response body.</li>
+            <li>Disable only that endpoint and confirm it is passed to the next Vite middleware.</li>
+            <li>Disable the proxy globally and confirm that every matching request is passed through.</li>
+            <li>Reload the page to verify the enabled-on-load and optional selection persistence settings.</li>
+            <li>Use <strong>Reset all settings</strong> and confirm that panel cookies and local-storage state are removed.</li>
+        </ol>
+        <Callout title="Testing a real development API">
+            <p>
+                Set <code>PLAYGROUND_API_TARGET</code> to configure the playground's Vite proxy. Requests bypassed by the
+                panel can then continue to that API. Without a target, a bypass normally ends in Vite's fallback response;
+                that still proves the mock middleware did not handle it.
+            </p>
+        </Callout>
+
+        <h2 id="what-to-run">What to run</h2>
+        <table>
+            <thead>
+                <tr><th>Question</th><th>Best verification surface</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Does a URL resolve to the correct local file?</td><td>Standard demo</td></tr>
+                <tr><td>Does the plugin work without a manifest?</td><td>Missing-manifest demo mode</td></tr>
+                <tr><td>Is an invalid manifest reported without breaking convention fallback?</td><td>Invalid-manifest demo mode</td></tr>
+                <tr><td>Does a status, delay, file, or single scenario apply correctly?</td><td>Standard demo</td></tr>
+                <tr><td>Does changing a scenario in the browser affect the next request?</td><td>Playground</td></tr>
+                <tr><td>Do endpoint and global bypass reach a development API?</td><td>Playground with an API target</td></tr>
+                <tr><td>Are panel selections, startup state, and launcher position restored?</td><td>Playground</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="repository-map">Repository map</h2>
+        <table>
+            <thead>
+                <tr><th>Path</th><th>What to find there</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>packages/vite-plugin-local-mock-api/</code></td><td>Vite middleware, manifest handling, resolver logic, and plugin tests.</td></tr>
+                <tr><td><code>packages/wf-vite-mock-proxy/</code></td><td>Embeddable proxy panel, browser state, cookies, and panel tests.</td></tr>
+                <tr><td><code>packages/local-mock-api-ui/</code></td><td>Shared UI elements used by the repository applications and panel.</td></tr>
+                <tr><td><code>packages/local-mock-api-utils/</code></td><td>Shared browser and protocol utilities.</td></tr>
+                <tr><td><code>apps/demo/</code></td><td>Plugin-only browser harness, its modes, fixtures, and request cases.</td></tr>
+                <tr><td><code>apps/playground/</code></td><td>Plugin-and-panel integration harness with matching request fixtures.</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="automated-checks">Automated checks</h2>
+        <p>After reproducing behavior in the appropriate browser application, run the focused tests and final build:</p>
+        <Code code={checks} label="terminal" />
+    </article>
+</DocsLayout>

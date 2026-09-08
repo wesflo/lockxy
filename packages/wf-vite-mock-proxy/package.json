@@ -1,0 +1,53 @@
+{
+    "name": "@wesflo/wf-vite-mock-proxy",
+    "version": "0.0.0",
+    "description": "The embeddable Lockxy UI for configuring @wesflo/vite-plugin-local-mock-api in the browser.",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wesflo/vite-plugin-local-mock-api.git",
+        "directory": "packages/wf-vite-mock-proxy"
+    },
+    "homepage": "https://wesflo.github.io/vite-plugin-local-mock-api/proxy-panel/",
+    "bugs": {
+        "url": "https://github.com/wesflo/vite-plugin-local-mock-api/issues"
+    },
+    "type": "module",
+    "types": "./dist/index.d.ts",
+    "module": "./dist/wf-vite-mock-proxy.js",
+    "main": "./dist/wf-vite-mock-proxy.umd.cjs",
+    "unpkg": "./dist/wf-vite-mock-proxy.umd.cjs",
+    "jsdelivr": "./dist/wf-vite-mock-proxy.umd.cjs",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/wf-vite-mock-proxy.js",
+            "default": "./dist/wf-vite-mock-proxy.umd.cjs"
+        }
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "build": "vite build && tsc -p tsconfig.build.json",
+        "test": "vitest run src --passWithNoTests",
+        "check-types": "tsc --noEmit -p tsconfig.json"
+    },
+    "dependencies": {
+        "lit": "^3.3.1"
+    },
+    "devDependencies": {
+        "@wesflo/local-mock-api-ui": "workspace:*",
+        "@wesflo/local-mock-api-utils": "workspace:*",
+        "happy-dom": "^20.13.1",
+        "typescript": "^5.8.2",
+        "vite": "8.2.2",
+        "vitest": "^4.1.11"
+    },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org"
+    }
+}

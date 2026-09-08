@@ -1,0 +1,82 @@
+---
+import Callout from '../components/Callout.astro';
+import Code from '../components/Code.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+
+const moduleUsage = `<wf-vite-mock-proxy></wf-vite-mock-proxy>
+<script type="module">
+  import '@wesflo/wf-vite-mock-proxy';
+</script>`;
+
+const scriptUsage = `<wf-vite-mock-proxy></wf-vite-mock-proxy>
+<script src="./node_modules/@wesflo/wf-vite-mock-proxy/dist/wf-vite-mock-proxy.umd.cjs"></script>`;
+---
+
+<DocsLayout title="Proxy panel" description="Embed and operate the optional Lockxy proxy panel." activePath="/proxy-panel/">
+    <article>
+        <p class="kicker">Optional browser controls</p>
+        <h1>Switch manifest behavior without changing files.</h1>
+        <p class="lead">
+            The plugin works without the panel. Add it when a manifest defines multiple behaviors per URL and developers
+            should be able to select them—or bypass individual endpoints—directly in the browser.
+        </p>
+
+        <h2 id="module-integration">Module integration</h2>
+        <Code code={moduleUsage} label="index.html" />
+
+        <h2 id="classic-script-integration">Classic script integration</h2>
+        <Code code={scriptUsage} label="index.html" />
+        <p>The UMD build is self-contained. The package also publishes an ES module and TypeScript declarations.</p>
+
+        <h2 id="controls">Controls</h2>
+        <ul>
+            <li>Click the floating launcher to open or close the panel.</li>
+            <li>Press <code>Escape</code> to close it and return focus to the launcher.</li>
+            <li>Hold <code>Ctrl</code> or <code>Cmd</code> while dragging to move the launcher.</li>
+            <li>The launcher position is stored in local storage and restored on the next visit.</li>
+            <li>Disable the master switch to pass every API request to the next Vite middleware.</li>
+            <li>Disable an endpoint switch to pass through only that manifest endpoint.</li>
+        </ul>
+
+        <h2 id="bypass-cookie">Bypass cookie</h2>
+        <Code code={`document.cookie = 'wesflo-mock-api-bypass=*; Path=/; SameSite=Lax';`} label="bypass all mocks" />
+        <Code
+            code={`document.cookie = 'wesflo-mock-api-bypass=orders|user-profile; Path=/; SameSite=Lax';`}
+            label="bypass selected endpoint IDs"
+        />
+        <Callout title="Passthrough behavior">
+            <p>
+                Bypass does not perform the remote request itself. It calls the next Vite middleware, so configure
+                <code>server.proxy</code> when requests should continue to a development API.
+            </p>
+        </Callout>
+
+        <h2 id="settings-and-persistence">Settings and persistence</h2>
+        <p>
+            <strong>Enable proxy on load</strong> is enabled by default and stored in local storage. When disabled, mounting
+            the panel sets the global bypass cookie immediately, so requests continue to the next Vite middleware. Enabling
+            it again activates the proxy immediately and for future page loads.
+        </p>
+        <p>
+            <strong>Save selections in local storage</strong> is disabled by default. When enabled, individual endpoint
+            bypasses and scenario choices are stored by normalized HTTP method and manifest path, for example
+            <code>GET /api/orders</code>. The panel maps those values back to the current manifest endpoint IDs after loading.
+            If a selected scenario no longer exists, the first configured scenario is used as a fallback.
+        </p>
+        <Callout title="Shared-origin limitation">
+            <p>
+                Local storage is shared by applications on the same origin. Two micro frontends defining the same method and
+                path can therefore inherit the same saved selection. Use <strong>Reset all settings</strong> to remove all
+                panel-owned preferences, endpoint selections, cookies, and the saved launcher position.
+            </p>
+        </Callout>
+
+        <h2 id="scenario-cookie">Scenario cookie</h2>
+        <p>
+            Scenario selections use <code>wesflo-mock-api-scenarios</code>. Entries are encoded as
+            <code>endpoint-id:scenario-id</code> and separated with <code>|</code>. Prefer the panel or the exported utility
+            helpers over constructing this value manually. If a stored scenario no longer exists after the manifest is
+            changed, the endpoint automatically uses its first configured scenario.
+        </p>
+    </article>
+</DocsLayout>

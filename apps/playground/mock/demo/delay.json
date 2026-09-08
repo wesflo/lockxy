@@ -1,0 +1,5 @@
+{
+    "case": "delay",
+    "source": "demo/delay.json",
+    "message": "The file stays the same; only the selected delay changes."
+}

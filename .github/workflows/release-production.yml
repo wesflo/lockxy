@@ -1,0 +1,102 @@
+name: Production release
+
+run-name: Production release from ${{ github.ref_name }}
+
+on:
+    workflow_dispatch:
+        inputs:
+            documentation:
+                description: Deploy documentation
+                required: true
+                default: false
+                type: boolean
+            vite_plugin:
+                description: Release Vite Plugin npm package
+                required: true
+                default: false
+                type: boolean
+            panel:
+                description: Release Panel npm package
+                required: true
+                default: false
+                type: boolean
+            version_bump:
+                description: Version update for selected npm packages
+                required: true
+                default: patch
+                type: choice
+                options:
+                    - patch
+                    - minor
+                    - major
+
+permissions:
+    contents: read
+
+concurrency:
+    group: production-release
+    cancel-in-progress: false
+
+jobs:
+    validate:
+        name: Validate production release
+        runs-on: ubuntu-latest
+        steps:
+            - name: Require main branch and a selection
+              env:
+                  DOCUMENTATION: ${{ inputs.documentation }}
+                  PANEL: ${{ inputs.panel }}
+                  VITE_PLUGIN: ${{ inputs.vite_plugin }}
+              run: |
+                  if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+                      echo "Production releases can only run from main."
+                      exit 1
+                  fi
+                  if [[ "$DOCUMENTATION" != "true" && "$VITE_PLUGIN" != "true" && "$PANEL" != "true" ]]; then
+                      echo "Select at least one release target."
+                      exit 1
+                  fi
+
+    vite_plugin:
+        needs: validate
+        if: inputs.vite_plugin == true
+        permissions:
+            contents: write
+            id-token: write
+        uses: ./.github/workflows/release-package.yml
+        with:
+            package_path: packages/vite-plugin-local-mock-api
+            package_name: '@wesflo/vite-plugin-local-mock-api'
+            tag_prefix: plugin
+            prerelease: false
+            version_bump: ${{ inputs.version_bump }}
+            branch: main
+            environment_name: npm-production
+
+    panel:
+        needs: [validate, vite_plugin]
+        if: >-
+            ${{ always() && needs.validate.result == 'success' && inputs.panel == true }}
+
+
+        permissions:
+            contents: write
+            id-token: write
+        uses: ./.github/workflows/release-package.yml
+        with:
+            package_path: packages/wf-vite-mock-proxy
+            package_name: '@wesflo/wf-vite-mock-proxy'
+            tag_prefix: panel
+            prerelease: false
+            version_bump: ${{ inputs.version_bump }}
+            branch: main
+            environment_name: npm-production
+
+    documentation:
+        needs: validate
+        if: inputs.documentation == true
+        permissions:
+            contents: read
+            pages: write
+            id-token: write
+        uses: ./.github/workflows/deploy-docs.yml

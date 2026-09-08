@@ -1,0 +1,5 @@
+{
+    "case": "endpoint-defaults",
+    "source": "scenarios/endpoint-defaults.json",
+    "message": "File, status, and delay came directly from the endpoint configuration."
+}

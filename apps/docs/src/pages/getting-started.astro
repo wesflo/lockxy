@@ -1,0 +1,88 @@
+---
+import Callout from '../components/Callout.astro';
+import Code from '../components/Code.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+
+const viteConfig = `import { defineConfig } from 'vite';
+import { mockApiPlugin } from '@wesflo/vite-plugin-local-mock-api';
+
+export default defineConfig(({ command }) => ({
+  plugins: command === 'serve' ? [
+    mockApiPlugin({
+      mockRoot: new URL('./mock/', import.meta.url),
+      requestPrefixes: '/api/',
+    }),
+  ] : [],
+}));`;
+
+const fileTree = `mock/
+├── PUT_profile.json
+└── users/
+    ├── profile.json
+    └── POST_profile.json`;
+
+const html = `<body>
+  <your-micro-frontend></your-micro-frontend>
+  <wf-vite-mock-proxy></wf-vite-mock-proxy>
+  <script type="module" src="/src/index.ts"></script>
+</body>`;
+
+const entry = `import '@wesflo/wf-vite-mock-proxy';`;
+---
+
+<DocsLayout title="Getting started" description="Set up Lockxy in a Vite project." activePath="/getting-started/">
+    <article>
+        <p class="kicker">Quick start</p>
+        <h1>From zero to a local response.</h1>
+        <p class="lead">Install the plugin and add a correctly named local file. That is the complete basic setup.</p>
+
+        <h2 id="1-add-the-vite-plugin">1. Add the Vite plugin</h2>
+        <Code code={viteConfig} label="vite.config.ts" />
+        <Callout title="Development only">
+            <p>
+                The configuration above excludes the plugin from builds. As an additional safety net, the plugin refuses
+                to register mock middleware in a production build or production mode and prints a prominent warning.
+            </p>
+        </Callout>
+
+        <h2 id="2-add-a-mock-file">2. Add a mock file</h2>
+        <Code code={fileTree} label="project structure" />
+        <p>
+            A <code>GET /api/users/profile</code> request resolves to <code>mock/users/profile.json</code>. For
+            <code>POST</code>, the method-specific <code>POST_profile.json</code> wins before the generic file.
+            With the shown files, the nested generic file also wins for <code>PUT</code>. Nesting is optional: once that
+            more specific fallback is absent, <code>PUT /api/users/profile</code> resolves to the root-level
+            <code>mock/PUT_profile.json</code>.
+        </p>
+
+        <h2 id="3-start-vite">3. Start Vite</h2>
+        <Code code="pnpm dev" label="terminal" />
+        <p>
+            Send requests from your application as usual. The plugin answers matching requests inside Vite's development
+            server, so no application-side fetch wrapper is required.
+        </p>
+
+        <Callout title="No manifest required">
+            <p>
+                The default file resolver is the primary workflow. Add <code>mock.manifest.json</code> only when selected
+                calls need custom status codes, delays, failures, or multiple response variants.
+            </p>
+        </Callout>
+
+        <h2 id="optional-mount-the-proxy-panel">Optional: mount the proxy panel</h2>
+        <Code code={html} label="index.html" />
+        <Code code={entry} label="src/index.ts" />
+        <p>
+            Install <code>@wesflo/wf-vite-mock-proxy</code> and mount it only if you want browser controls for scenarios or
+            endpoint passthrough. The panel reads the optional manifest from the fixed
+            <code>/_local-mock-api/manifest</code> route.
+        </p>
+        <Callout title="Panel stays optional">
+            <p>
+                The panel renders only after it loads a manifest containing configurable endpoints. Without a manifest—or
+                with a convention-only or delay-only manifest—it adds no visible UI. A production deployment normally gets
+                a 404 for the development-only manifest route and therefore renders nothing.
+            </p>
+        </Callout>
+    </article>
+</DocsLayout>

@@ -1,0 +1,8 @@
+@import '@wesflo/local-mock-api-ui/style.css';
+
+html,
+body {
+    min-height: 100%;
+    margin: 0;
+    background: radial-gradient(circle at 80% 8%, rgb(26 166 218 / 7%), transparent 28%), #f8fafc;
+}

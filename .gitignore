@@ -1,0 +1,45 @@
+# Dependencies and package-manager caches
+node_modules/
+.npm/
+.pnpm-store/
+.turbo/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Local environment files
+.env
+.env.*
+*.env.json
+!.env.example
+**/mocks/
+
+# Vite and TypeScript caches
+.vite/
+.astro/
+*.tsbuildinfo
+
+# Build and documentation output
+dist/
+bundle/
+storybook-static/
+*.tgz
+
+# Test output
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# Generated internal tooling output
+internal/**/*.js
+internal/**/*.js.map
+internal/**/*.d.ts
+!internal/**/*.cjs
+
+# Operating system files
+.DS_Store
+/ToDo.md

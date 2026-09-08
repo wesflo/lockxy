@@ -1,0 +1,324 @@
+---
+import Callout from '../components/Callout.astro';
+import Code from '../components/Code.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+
+const manifest = `{
+  "endpoints": [
+    {
+      "id": "user-profile",
+      "label": "User profile",
+      "method": "GET",
+      "path": "/api/users/:id",
+      "scenarios": [
+        {
+          "id": "success",
+          "label": "Successful response",
+          "status": 200,
+          "delay": 250,
+          "file": "scenarios/user-success.json"
+        },
+        {
+          "id": "not-found",
+          "label": "404 Not Found",
+          "status": 404,
+          "file": "scenarios/user-not-found.json"
+        }
+      ]
+    }
+  ]
+}`;
+
+const rootDelay = `{
+  "delay": 400
+}`;
+
+const randomDelay = `{
+  "delay": [200, 600]
+}`;
+
+const directEndpoint = `{
+  "endpoints": [
+    {
+      "id": "json-response",
+      "label": "Simple JSON response",
+      "method": "GET",
+      "path": "/api/demo/json",
+      "file": "scenarios/explicit.json",
+      "status": 200,
+      "delay": 150
+    }
+  ]
+}`;
+
+const directFile = `{
+  "endpoints": [
+    {
+      "path": "/api/demo/json",
+      "file": "scenarios/explicit.json"
+    }
+  ]
+}`;
+
+const noContent = `{
+  "endpoints": [
+    {
+      "path": "/api/demo/json",
+      "status": 204
+    }
+  ]
+}`;
+
+const schemaManifest = `{
+  "$schema": "../node_modules/@wesflo/vite-plugin-local-mock-api/mock.manifest.schema.json",
+  "delay": 400
+}`;
+
+const diagnosticsConfig = `mockApiPlugin({
+  debug: true,
+  logging: true
+})`;
+
+const multiplePrefixesConfig = `import { defineConfig } from 'vite';
+import { mockApiPlugin } from '@wesflo/vite-plugin-local-mock-api';
+
+export default defineConfig(({ command }) => ({
+  plugins: command === 'serve' ? [
+    mockApiPlugin({
+      requestPrefixes: ['/api/', '/development-api/'],
+    }),
+  ] : [],
+  server: {
+    proxy: {
+      '/development-api': {
+        target: 'https://api.v1.supertoll.domain.de',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\\/development-api/, ''),
+      },
+    },
+  },
+}));`;
+---
+
+<DocsLayout title="Configuration" description="Plugin options, manifests, and file resolution." activePath="/configuration/">
+    <article>
+        <p class="kicker">Convention before configuration</p>
+        <h1>File naming first. Manifest when needed.</h1>
+        <p class="lead">
+            Most projects only need local files. The plugin derives candidates from the request URL and HTTP method;
+            configuration becomes useful when individual calls need exceptional behavior.
+        </p>
+
+        <h2 id="file-naming-conventions">File naming conventions</h2>
+        <p>
+            A URL becomes a path below <code>mockRoot</code>. For each candidate, the plugin checks the uppercased HTTP
+            method prefix first and the generic filename second.
+        </p>
+        <table>
+            <thead><tr><th>Request</th><th>Preferred file</th><th>Generic fallback</th></tr></thead>
+            <tbody>
+                <tr><td><code>GET /api/users/profile</code></td><td><code>users/GET_profile.json</code></td><td><code>users/profile.json</code></td></tr>
+                <tr><td><code>POST /api/users/profile</code></td><td><code>users/POST_profile.json</code></td><td><code>users/profile.json</code></td></tr>
+                <tr><td><code>GET /api/reports/monthly</code></td><td><code>reports/GET_monthly.pdf</code></td><td><code>reports/monthly.pdf</code></td></tr>
+            </tbody>
+        </table>
+        <p>
+            More specific route candidates are tried before suffix and parent fallbacks. First, all candidates for
+            <code>users/profile</code> are checked; within each configured extension, the method-prefixed filename wins
+            over the generic filename. Only then does resolution continue with the root-level <code>profile</code> suffix.
+            Looking only at JSON, <code>PUT /api/users/profile</code> therefore checks
+            <code>users/PUT_profile.json</code>, <code>users/profile.json</code>, <code>PUT_profile.json</code>, and
+            <code>profile.json</code> in that order. Parent fallbacks follow afterwards.
+        </p>
+        <p>
+            The <code>*</code> candidates use the configured extension order. Supported defaults include JSON, PDF, CSV,
+            text, JPEG, PNG, and WebP.
+        </p>
+
+        <h2 id="plugin-options">Plugin options</h2>
+        <table>
+            <thead><tr><th>Option</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>mockRoot</code></td><td><code>URL</code></td><td>Directory containing mock files and the manifest.</td></tr>
+                <tr><td><code>requestPrefixes</code></td><td><code>string | readonly string[]</code></td><td>One or more local request prefixes handled by the plugin. Defaults to <code>['/api/']</code>.</td></tr>
+                <tr><td><code>extensions</code></td><td><code>string[]</code></td><td>Additional file extensions appended to the built-in candidates.</td></tr>
+                <tr><td><code>contentTypes</code></td><td><code>Record&lt;string, string&gt;</code></td><td>Additional or overridden extension-to-content-type mappings.</td></tr>
+                <tr><td><code>manifestFileName</code></td><td><code>string</code></td><td>Manifest filename inside <code>mockRoot</code>. Defaults to <code>mock.manifest.json</code>.</td></tr>
+                <tr><td><code>debug</code></td><td><code>boolean</code></td><td>Enables semantic manifest and referenced-file validation. Defaults to <code>false</code>.</td></tr>
+                <tr><td><code>logging</code></td><td><code>boolean</code></td><td>Logs handled requests and runtime errors. Defaults to <code>true</code>.</td></tr>
+            </tbody>
+        </table>
+        <Callout title="Fixed route">
+            <p><code>MANIFEST_ROUTE</code> is intentionally fixed and cannot be overridden by plugin options.</p>
+        </Callout>
+
+        <h3 id="multiple-request-prefixes">Multiple request prefixes and development APIs</h3>
+        <p>
+            Pass a string for one local URL namespace or an array for several. If prefixes overlap, the longest matching
+            value wins regardless of their order. For example, both <code>/api/users</code> and
+            <code>/development-api/users</code> resolve against <code>mock/users.*</code> with the configuration below.
+        </p>
+        <Code code={multiplePrefixesConfig} label="vite.config.ts" />
+        <p>
+            During local development, point the application at <code>/development-api/</code> instead of making an absolute
+            request to the remote domain. Lockxy runs before Vite's proxy: it returns a local response when a mock matches,
+            while a request explicitly bypassed through the panel or cookie continues to the configured development API.
+            The target may contain any domain or subdomain depth because Vite owns that forwarding step.
+        </p>
+        <Callout title="Missing mocks stay visible">
+            <p>
+                A matching request prefix with no local file still produces Lockxy's <code>404</code>. It does not silently
+                fall through to the development API. Use an endpoint or global bypass when remote handling is intentional.
+                Manifest endpoint paths use the complete local request path, such as
+                <code>/development-api/users</code>.
+            </p>
+        </Callout>
+
+        <h3 id="runtime-file-cache">Runtime file index and manifest cache</h3>
+        <p>
+            Lockxy recursively indexes the paths and names below <code>mockRoot</code> when the Vite development server
+            starts. Candidate resolution then checks this in-memory index and reads only the selected response file instead
+            of probing every possible filename on disk. The optional manifest is also loaded once at startup rather than on
+            every request.
+        </p>
+        <ul>
+            <li>
+                Lockxy explicitly adds <code>mockRoot</code> to Vite's watcher, so the mock directory does not need to live
+                below <code>src</code>.
+            </li>
+            <li>
+                Adding or removing a file or directory rebuilds the path index. Creating, replacing, or editing the
+                manifest reloads its cached configuration.
+            </li>
+            <li>
+                Convention and manifest-fallback candidates are checked directly against the index. There is no additional
+                per-request or negative lookup cache.
+            </li>
+            <li>
+                Response contents are never cached. They are read from the resolved path for every request, so edits become
+                visible immediately and memory use stays predictable.
+            </li>
+            <li>All runtime indexes and caches start from scratch whenever the Vite development server restarts.</li>
+        </ul>
+
+        <h2 id="optional-manifest">Optional manifest</h2>
+        <p>
+            Create <code>mock.manifest.json</code> only for endpoints that need additional handling. Other requests continue
+            to use normal file resolution, so adopting a manifest is not an all-or-nothing decision.
+        </p>
+        <Callout title="A missing manifest is valid">
+            <p>
+                The plugin deliberately treats a missing manifest as “no overrides configured,” not as an error. A project
+                containing only convention-based mock files therefore remains plug and play. If a manifest exists but is
+                malformed, the plugin reports the error instead of treating it as absent.
+            </p>
+        </Callout>
+
+        <h3 id="json-schema">JSON Schema</h3>
+        <p>
+            The npm package ships <code>mock.manifest.schema.json</code> for editor autocomplete and inline validation.
+            Add <code>$schema</code> to the manifest and adjust the relative path if <code>mockRoot</code> is elsewhere.
+            The same schema is also available from the
+            <a href="https://wesflo.github.io/vite-plugin-local-mock-api/schema/mock.manifest.schema.json">documentation site</a>.
+        </p>
+        <Code code={schemaManifest} label="mock/mock.manifest.json" />
+
+        <h3 id="validation-and-logging">Validation and logging</h3>
+        <p>
+            JSON parsing and the minimum structure required for safe request handling are always checked. Enable
+            <code>debug</code> during manifest development for the more expensive checks: invalid status codes and delays,
+            unsafe or missing response files, duplicate endpoint or scenario IDs, and active routes that can match the same
+            method and path shape. Diagnostics include the exact field path; JSON syntax errors also include line and column.
+        </p>
+        <Code code={diagnosticsConfig} label="vite.config.ts" />
+        <p>
+            Request logging is enabled by default and prints method, URL, effective delay, status, and one source word:
+            <code>Manifest</code>, <code>Convention</code>, <code>Passthrough</code>, or <code>Error</code>. In an interactive
+            terminal, methods use their familiar request colors, successful and error statuses use their status-family
+            colors, delay is orange, and the source is shown in Lockxy's primary color.
+            Plain output is used for non-interactive logs and when the <code>NO_COLOR</code> environment variable is set.
+            Runtime problems such as corrupt selection cookies, unsafe paths, missing files, and invalid manifests use the
+            same <code>[local-mock-api]</code> prefix. Set <code>logging: false</code> for a quiet development server.
+        </p>
+        <p>
+            Every response produced by the mock server includes <code>X-Local-Mock-Api: true</code>, including empty and
+            error responses. This makes mocked traffic immediately recognizable in the browser network inspector.
+        </p>
+
+        <h3 id="root-fields">Root fields</h3>
+        <p>
+            The optional root-level <code>delay</code> applies to every mocked API request. This is already a complete
+            manifest; an <code>endpoints</code> array is not required:
+        </p>
+        <Code code={rootDelay} label="mock/mock.manifest.json" />
+        <p>
+            A two-value range chooses a new inclusive random delay for every request. For example,
+            <code>[200, 600]</code> produces an integer delay from 200 through 600 milliseconds. The minimum must not exceed
+            the maximum.
+        </p>
+        <Code code={randomDelay} label="random root delay" />
+
+        <h3 id="direct-endpoint-handling">Direct endpoint handling</h3>
+        <p>
+            An endpoint can define <code>file</code>, <code>status</code>, and <code>delay</code> directly, independently or
+            in combination. Only <code>path</code> is required. Without <code>method</code>, the endpoint matches every HTTP
+            method; without <code>file</code>, normal naming-convention resolution remains active.
+        </p>
+        <Code code={directEndpoint} label="complete endpoint configuration" />
+        <Code code={directFile} label="minimal explicit response file" />
+        <Code code={noContent} label="file-free 204 response" />
+        <p>
+            Direct <code>204</code> and <code>304</code> statuses are exceptions to file resolution: they immediately return
+            empty responses. Responses to <code>HEAD</code> requests never include a body either.
+        </p>
+
+        <h3 id="multiple-scenarios">Multiple scenarios</h3>
+        <Code code={manifest} label="mock/mock.manifest.json" />
+        <p>
+            Exactly one configured scenario is selected automatically—no panel and no scenario cookie are needed. With
+            multiple scenarios, the panel or scenario cookie chooses one. Until a choice exists, endpoint-level settings
+            and then normal file resolution are used.
+        </p>
+
+        <h3 id="endpoint-fields">Endpoint fields</h3>
+        <table>
+            <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>id</code></td><td>No</td><td>Stable ID for panel controls and cookies. When omitted, it is generated from method and path.</td></tr>
+                <tr><td><code>method</code></td><td>No</td><td>HTTP method matched case-insensitively. When omitted, every method matches.</td></tr>
+                <tr><td><code>path</code></td><td>Yes</td><td>Exact path shape. Segments beginning with <code>:</code> match dynamic values.</td></tr>
+                <tr><td><code>label</code></td><td>No</td><td>Human-readable name displayed in the proxy panel.</td></tr>
+                <tr><td><code>active</code></td><td>No</td><td>Set to <code>false</code> to exclude the endpoint from scenario matching.</td></tr>
+                <tr><td><code>file</code></td><td>No</td><td>Explicit response file relative to <code>mockRoot</code>.</td></tr>
+                <tr><td><code>status</code></td><td>No</td><td>HTTP response status. A file-free <code>204</code> returns an empty response.</td></tr>
+                <tr><td><code>delay</code></td><td>No</td><td>Fixed milliseconds or an inclusive <code>[minimum, maximum]</code> range.</td></tr>
+                <tr><td><code>scenarios</code></td><td>No</td><td>One automatic or multiple selectable response variants.</td></tr>
+            </tbody>
+        </table>
+
+        <h3 id="scenario-fields">Scenario fields</h3>
+        <p>
+            Scenario <code>id</code> and <code>label</code> are optional. A missing ID is generated from the parent endpoint
+            path and the scenario's one-based position; a missing label falls back to the explicit or generated ID. The
+            optional <code>file</code> is relative to <code>mockRoot</code>; <code>status</code> changes the HTTP status and
+            <code>delay</code> accepts fixed milliseconds or an inclusive random range. If <code>file</code> is omitted,
+            normal candidate resolution is used.
+            Because generated scenario IDs include their position, define explicit IDs when selections must remain stable
+            while scenarios are reordered. If a cookie references a scenario that no longer exists, the first configured
+            scenario is used as a safe fallback.
+        </p>
+        <Callout title="Response precedence">
+            <p>
+                A selected or automatic scenario overrides endpoint-level <code>file</code>, <code>status</code>, and
+                <code>delay</code>. Endpoint values override the root delay. Any remaining file lookup follows the naming
+                conventions.
+            </p>
+        </Callout>
+        <Callout title="Typical manifest use cases">
+            <p>
+                Return a real <code>204</code> response, simulate <code>400</code> or <code>500</code> failures, delay a call
+                to test loading and timeout behavior, or point one endpoint at an explicit response file.
+            </p>
+        </Callout>
+    </article>
+</DocsLayout>

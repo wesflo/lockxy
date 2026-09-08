@@ -1,0 +1,25 @@
+{
+    "name": "@wesflo/wf-vite-mock-proxy-playground",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite --config vite.config.mjs",
+        "build": "vite build --config vite.config.mjs",
+        "check-types": "tsc --noEmit -p tsconfig.json"
+    },
+    "dependencies": {
+        "@wesflo/local-mock-api-ui": "workspace:*",
+        "@wesflo/wf-vite-mock-proxy": "workspace:*",
+        "lit": "^3.3.1"
+    },
+    "devDependencies": {
+        "@wesflo/vite-plugin-local-mock-api": "workspace:*",
+        "typescript": "^5.8.2",
+        "vite": "8.2.2"
+    },
+    "engines": {
+        "node": ">=24 <25",
+        "pnpm": ">=11 <12"
+    }
+}
