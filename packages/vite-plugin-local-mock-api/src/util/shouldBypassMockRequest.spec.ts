@@ -1,21 +1,16 @@
 import type { IncomingMessage } from 'node:http';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { ResolvedMockApiPluginOptions } from '../interface.js';
+import type { MockApiRuntimeOptions } from '../interface.js';
 
 const mocks = vi.hoisted(() => ({
     findMockEndpoint: vi.fn(),
     getRequestRouteParts: vi.fn(),
     parseBypassSelections: vi.fn(),
-    readMockManifest: vi.fn(),
 }));
 
 vi.mock('../app/handleScenarioRequest/util/findMockEndpoint.js', () => ({
     findMockEndpoint: mocks.findMockEndpoint,
-}));
-
-vi.mock('../app/handleScenarioRequest/util/readMockManifest.js', () => ({
-    readMockManifest: mocks.readMockManifest,
 }));
 
 vi.mock('./getRequestRouteParts.js', () => ({
@@ -29,7 +24,7 @@ vi.mock('./parseBypassSelections.js', () => ({
 import { shouldBypassMockRequest } from './shouldBypassMockRequest.js';
 
 describe('shouldBypassMockRequest', () => {
-    const options: ResolvedMockApiPluginOptions = {
+    const options: MockApiRuntimeOptions = {
         mockRoot: new URL('file:///tmp/mocks/'),
         requestPrefixes: ['/api/'],
         extensions: ['.json'],
@@ -37,12 +32,15 @@ describe('shouldBypassMockRequest', () => {
         manifestFileName: 'mock.manifest.json',
         debug: false,
         logging: false,
+        fileIndex: new Set(),
+        manifestResult: { status: 'missing' },
     };
 
     beforeEach(() => {
         vi.resetAllMocks();
         mocks.getRequestRouteParts.mockReturnValue(['orders']);
         mocks.parseBypassSelections.mockReturnValue({ all: false, endpointIds: new Set() });
+        options.manifestResult = { status: 'missing' };
     });
 
     it('does not bypass requests outside the configured request prefixes', async () => {
@@ -65,7 +63,7 @@ describe('shouldBypassMockRequest', () => {
             )
         ).resolves.toBe(true);
 
-        expect(mocks.readMockManifest).not.toHaveBeenCalled();
+        expect(mocks.findMockEndpoint).not.toHaveBeenCalled();
     });
 
     it('bypasses a request whose manifest endpoint id is selected', async () => {
@@ -74,10 +72,10 @@ describe('shouldBypassMockRequest', () => {
             all: false,
             endpointIds: new Set(['orders']),
         });
-        mocks.readMockManifest.mockResolvedValue({
+        options.manifestResult = {
             status: 'valid',
             manifest: { endpoints: [] },
-        });
+        };
         mocks.findMockEndpoint.mockReturnValue(endpoint);
 
         await expect(
@@ -99,17 +97,17 @@ describe('shouldBypassMockRequest', () => {
             all: false,
             endpointIds: new Set(['users']),
         });
-        mocks.readMockManifest.mockResolvedValue({
+        options.manifestResult = {
             status: 'valid',
             manifest: { endpoints: [] },
-        });
+        };
         mocks.findMockEndpoint.mockReturnValue({ id: 'orders' });
 
         await expect(
             shouldBypassMockRequest({ url: '/api/orders', method: 'GET', headers: {} } as IncomingMessage, options)
         ).resolves.toBe(false);
 
-        mocks.readMockManifest.mockResolvedValue({ status: 'missing' });
+        options.manifestResult = { status: 'missing' };
 
         await expect(
             shouldBypassMockRequest({ url: '/api/users', method: 'GET', headers: {} } as IncomingMessage, options)

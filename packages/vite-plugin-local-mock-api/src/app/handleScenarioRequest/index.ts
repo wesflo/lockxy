@@ -2,11 +2,10 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { MANIFEST_ROUTE } from '@wesflo/local-mock-api-utils';
 
 import { EMPTY_MANIFEST } from '../../constant.js';
-import type { MockApiRuntimeOptions, MockFileLookupResult } from '../../interface.js';
+import type { MockApiRuntimeOptions, MockFile } from '../../interface.js';
 import { findMockFile } from '../../util/findMockFile.js';
 import { getCandidatePaths } from '../../util/getCandidatePaths.js';
 import { getContentType } from '../../util/getContentType.js';
-import { getMockFileCacheKey } from '../../util/getMockFileCacheKey.js';
 import { getRequestRouteParts } from '../../util/getRequestRouteParts.js';
 import { readExistingFile } from '../../util/readExistingFile.js';
 import { logDebug } from '../../util/logDebug.js';
@@ -18,7 +17,6 @@ import { findMockEndpoint } from './util/findMockEndpoint.js';
 import { findSelectedScenario } from './util/findSelectedScenario.js';
 import { isSafeScenarioFile } from './util/isSafeScenarioFile.js';
 import { parseScenarioSelections } from './util/parseScenarioSelections.js';
-import { readMockManifest } from './util/readMockManifest.js';
 import { resolveDelay } from './util/resolveDelay.js';
 import { wait } from './util/wait.js';
 
@@ -34,7 +32,7 @@ export const handleScenarioRequest = async (
     const { pathname } = new URL(req.url, 'http://localhost');
 
     if (req.method?.toUpperCase() === 'GET' && pathname === MANIFEST_ROUTE) {
-        const result = await readMockManifest(options.mockRoot, options.manifestFileName, options.debug);
+        const result = options.manifestResult;
 
         if (result.status === 'valid') {
             logDebug(options.debug && options.logging, `${options.manifestFileName} passed manifest validation.`);
@@ -63,7 +61,7 @@ export const handleScenarioRequest = async (
         return false;
     }
 
-    const manifestResult = await readMockManifest(options.mockRoot, options.manifestFileName, options.debug);
+    const manifestResult = options.manifestResult;
 
     if (manifestResult.status === 'missing') {
         return false;
@@ -112,17 +110,15 @@ export const handleScenarioRequest = async (
     }
 
     const candidatePaths = file ? [file] : getCandidatePaths(requestRouteParts, req.method, options.extensions);
-    let result: MockFileLookupResult | null;
+    let responseFile: MockFile | null;
 
     if (file) {
-        const explicitFile = await readExistingFile(file, options.mockRoot);
-        result = explicitFile ? { file: explicitFile, cacheHit: false } : null;
+        responseFile = options.fileIndex.has(file) ? await readExistingFile(file, options.mockRoot) : null;
     } else {
-        const cacheKey = getMockFileCacheKey(req.url, req.method);
-        result = await findMockFile(options.filePathCache, cacheKey, candidatePaths, options.mockRoot);
+        responseFile = await findMockFile(options.fileIndex, candidatePaths, options.mockRoot);
     }
 
-    if (result) {
+    if (responseFile) {
         if (delay) {
             await wait(delay);
         }
@@ -131,10 +127,10 @@ export const handleScenarioRequest = async (
             res,
             status,
             {
-                'content-type': getContentType(result.file.extension, options.contentTypes),
-                'content-length': String(result.file.content.length),
+                'content-type': getContentType(responseFile.extension, options.contentTypes),
+                'content-length': String(responseFile.content.length),
             },
-            result.file.content,
+            responseFile.content,
             req.method
         );
         logRequest(options.logging, {
@@ -142,7 +138,7 @@ export const handleScenarioRequest = async (
             url: req.url,
             delay,
             status,
-            source: result.cacheHit ? 'cache' : 'manifest',
+            source: 'manifest',
         });
 
         return true;

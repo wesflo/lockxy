@@ -40,7 +40,7 @@ For one namespace, a string is enough: `requestPrefixes: '/api/'`.
 
 The matched prefix is removed before file resolution, so `/development-api/users` can resolve to `mock/users.json`. A Vite `server.proxy` entry can forward intentionally bypassed requests from that local prefix to any remote development API. Requests without a matching mock continue to return `404`; they reach the proxy only through an endpoint or global bypass.
 
-Successful naming-convention paths are cached in memory for the lifetime of the Vite development server. The cache uses the normalized method and URL pathname, stores no misses or file contents, and is shared with manifest fallback resolution. Request logs identify responses with a single source word such as `Manifest`, `Cache`, or `Convention`; interactive terminal output also colors methods, statuses, delays, and sources.
+At startup, Lockxy indexes every file path below `mockRoot` and loads the optional manifest once. The Vite watcher explicitly observes that directory even when it is outside `src`; adding or removing files rebuilds the index, while manifest changes reload its configuration. Candidate resolution uses the in-memory index instead of probing every possible filename on disk. Response contents are never cached, so new files and edited responses are available without restarting Vite. Request logs identify responses with a single source word such as `Manifest` or `Convention`; interactive terminal output also colors methods, statuses, delays, and sources.
 
 The plugin is intended exclusively for local development and must not be used as a production server. Mock files must contain synthetic data only.
 

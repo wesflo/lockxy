@@ -48,8 +48,9 @@ export const METHOD_LOG_COLORS: Readonly<Record<string, string>> = {
 
 export const RESPONSE_SOURCE_LABELS: Readonly<Record<MockResponseSource, string>> = {
     manifest: 'Manifest',
-    cache: 'Cache',
     convention: 'Convention',
     passthrough: 'Passthrough',
     error: 'Error',
 };
+
+export const FILE_INDEX_EVENTS = new Set(['add', 'addDir', 'unlink', 'unlinkDir']);

@@ -7,7 +7,6 @@ const mocks = vi.hoisted(() => ({
     findMockFile: vi.fn(),
     getCandidatePaths: vi.fn(),
     getContentType: vi.fn(),
-    getMockFileCacheKey: vi.fn(),
     getRequestRouteParts: vi.fn(),
     logRequest: vi.fn(),
     send: vi.fn(),
@@ -24,10 +23,6 @@ vi.mock('../../util/getCandidatePaths.js', () => ({
 
 vi.mock('../../util/getContentType.js', () => ({
     getContentType: mocks.getContentType,
-}));
-
-vi.mock('../../util/getMockFileCacheKey.js', () => ({
-    getMockFileCacheKey: mocks.getMockFileCacheKey,
 }));
 
 vi.mock('../../util/getRequestRouteParts.js', () => ({
@@ -63,13 +58,13 @@ describe('handleMockRequest', () => {
         manifestFileName: 'mock.manifest.json',
         debug: false,
         logging: false,
-        filePathCache: new Map(),
+        fileIndex: new Set(),
+        manifestResult: { status: 'missing' },
     };
 
     beforeEach(() => {
         vi.resetAllMocks();
         mocks.getContentType.mockReturnValue('application/json; charset=utf-8');
-        mocks.getMockFileCacheKey.mockReturnValue('GET_/_internal/orders');
     });
 
     it('passes a request outside the configured prefixes to the next middleware', async () => {
@@ -87,14 +82,13 @@ describe('handleMockRequest', () => {
         const content = Buffer.from('{"source":"fallback"}');
         mocks.getRequestRouteParts.mockReturnValue(['orders']);
         mocks.getCandidatePaths.mockReturnValue(['GET_orders.json', 'orders.json', 'orders.pdf']);
-        mocks.findMockFile.mockResolvedValue({ file: { content, extension: '.json' }, cacheHit: false });
+        mocks.findMockFile.mockResolvedValue({ content, extension: '.json' });
 
         await handleMockRequest(request, response, vi.fn(), options);
 
         expect(mocks.getCandidatePaths).toHaveBeenCalledWith(['orders'], 'GET', options.extensions);
         expect(mocks.findMockFile).toHaveBeenCalledWith(
-            options.filePathCache,
-            'GET_/_internal/orders',
+            options.fileIndex,
             ['GET_orders.json', 'orders.json', 'orders.pdf'],
             mockRoot
         );
@@ -114,17 +108,6 @@ describe('handleMockRequest', () => {
             false,
             expect.objectContaining({ source: 'convention' })
         );
-    });
-
-    it('reports a cached convention path as a cache response', async () => {
-        const content = Buffer.from('{}');
-        mocks.getRequestRouteParts.mockReturnValue(['orders']);
-        mocks.getCandidatePaths.mockReturnValue(['orders.json']);
-        mocks.findMockFile.mockResolvedValue({ file: { content, extension: '.json' }, cacheHit: true });
-
-        await handleMockRequest(request, response, vi.fn(), options);
-
-        expect(mocks.logRequest).toHaveBeenCalledWith(false, expect.objectContaining({ source: 'cache' }));
     });
 
     it('returns the original 404 response after every candidate misses', async () => {

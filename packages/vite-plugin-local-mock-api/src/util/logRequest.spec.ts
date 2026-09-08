@@ -18,7 +18,7 @@ describe('logRequest', () => {
         const info = vi.spyOn(console, 'info').mockImplementation(() => undefined);
         logRequest(
             true,
-            { method: 'POST', url: '/api/users', delay: 250, status: 201, source: 'cache' },
+            { method: 'POST', url: '/api/users', delay: 250, status: 201, source: 'convention' },
             true
         );
 
@@ -26,7 +26,7 @@ describe('logRequest', () => {
             `[local-mock-api] ${LOG_COLORS.success}POST${LOG_COLORS.reset} /api/users -> ` +
                 `${LOG_COLORS.success}201${LOG_COLORS.reset}; ` +
                 `${LOG_COLORS.warning}delay=250ms${LOG_COLORS.reset}; ` +
-                `${LOG_COLORS.primary}Cache${LOG_COLORS.reset}`
+                `${LOG_COLORS.primary}Convention${LOG_COLORS.reset}`
         );
     });
 

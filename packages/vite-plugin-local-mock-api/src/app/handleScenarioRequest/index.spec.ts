@@ -9,27 +9,25 @@ const mocks = vi.hoisted(() => ({
     findMockEndpoint: vi.fn(),
     findSelectedScenario: vi.fn(),
     getCandidatePaths: vi.fn(),
-    getMockFileCacheKey: vi.fn(),
     getRequestRouteParts: vi.fn(),
     logRequest: vi.fn(),
     parseScenarioSelections: vi.fn(),
     readExistingFile: vi.fn(),
-    readMockManifest: vi.fn(),
     send: vi.fn(),
+    sendJson: vi.fn(),
     wait: vi.fn(),
 }));
 
 vi.mock('../../util/findMockFile.js', () => ({ findMockFile: mocks.findMockFile }));
 vi.mock('../../util/getCandidatePaths.js', () => ({ getCandidatePaths: mocks.getCandidatePaths }));
-vi.mock('../../util/getMockFileCacheKey.js', () => ({ getMockFileCacheKey: mocks.getMockFileCacheKey }));
 vi.mock('../../util/getRequestRouteParts.js', () => ({ getRequestRouteParts: mocks.getRequestRouteParts }));
 vi.mock('../../util/logRequest.js', () => ({ logRequest: mocks.logRequest }));
 vi.mock('../../util/readExistingFile.js', () => ({ readExistingFile: mocks.readExistingFile }));
 vi.mock('../../util/send.js', () => ({ send: mocks.send }));
+vi.mock('../../util/sendJson.js', () => ({ sendJson: mocks.sendJson }));
 vi.mock('./util/findMockEndpoint.js', () => ({ findMockEndpoint: mocks.findMockEndpoint }));
 vi.mock('./util/findSelectedScenario.js', () => ({ findSelectedScenario: mocks.findSelectedScenario }));
 vi.mock('./util/parseScenarioSelections.js', () => ({ parseScenarioSelections: mocks.parseScenarioSelections }));
-vi.mock('./util/readMockManifest.js', () => ({ readMockManifest: mocks.readMockManifest }));
 vi.mock('./util/wait.js', () => ({ wait: mocks.wait }));
 
 import { handleScenarioRequest } from './index.js';
@@ -43,7 +41,8 @@ describe('handleScenarioRequest', () => {
         manifestFileName: 'mock.manifest.json',
         debug: false,
         logging: false,
-        filePathCache: new Map(),
+        fileIndex: new Set(),
+        manifestResult: { status: 'missing' },
     };
     const request = {
         url: '/api/profile',
@@ -58,16 +57,15 @@ describe('handleScenarioRequest', () => {
         mocks.getRequestRouteParts.mockReturnValue(['profile']);
         mocks.parseScenarioSelections.mockReturnValue(new Map());
         mocks.getCandidatePaths.mockReturnValue(['GET_profile.json', 'profile.json']);
-        mocks.getMockFileCacheKey.mockReturnValue('GET_/api/profile');
-        mocks.findMockFile.mockResolvedValue({ file: mockFile, cacheHit: false });
+        mocks.findMockFile.mockResolvedValue(mockFile);
         mocks.readExistingFile.mockResolvedValue(mockFile);
+        options.fileIndex = new Set();
+        options.manifestResult = { status: 'missing' };
     });
 
     it('leaves convention-only requests untouched when the manifest is missing', async () => {
         const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
         const debug = vi.spyOn(console, 'debug').mockImplementation(() => undefined);
-        mocks.readMockManifest.mockResolvedValue({ status: 'missing' });
-
         await expect(
             handleScenarioRequest(request, response, { ...options, debug: true, logging: true })
         ).resolves.toBe(false);
@@ -79,15 +77,14 @@ describe('handleScenarioRequest', () => {
     });
 
     it('applies a root delay while keeping naming-convention resolution', async () => {
-        mocks.readMockManifest.mockResolvedValue({ status: 'valid', manifest: { delay: 400 } });
+        options.manifestResult = { status: 'valid', manifest: { delay: 400 } };
         mocks.findMockEndpoint.mockReturnValue(undefined);
 
         await expect(handleScenarioRequest(request, response, options)).resolves.toBe(true);
 
         expect(mocks.getCandidatePaths).toHaveBeenCalledWith(['profile'], 'GET', ['.json']);
         expect(mocks.findMockFile).toHaveBeenCalledWith(
-            options.filePathCache,
-            'GET_/api/profile',
+            options.fileIndex,
             ['GET_profile.json', 'profile.json'],
             options.mockRoot
         );
@@ -101,16 +98,6 @@ describe('handleScenarioRequest', () => {
         );
     });
 
-    it('reports a cached manifest fallback as a cache response', async () => {
-        mocks.readMockManifest.mockResolvedValue({ status: 'valid', manifest: { delay: 400 } });
-        mocks.findMockEndpoint.mockReturnValue(undefined);
-        mocks.findMockFile.mockResolvedValue({ file: mockFile, cacheHit: true });
-
-        await handleScenarioRequest(request, response, options);
-
-        expect(mocks.logRequest).toHaveBeenCalledWith(false, expect.objectContaining({ source: 'cache' }));
-    });
-
     it('applies endpoint response settings without scenarios', async () => {
         const endpoint = {
             path: '/api/profile',
@@ -118,7 +105,8 @@ describe('handleScenarioRequest', () => {
             status: 202,
             delay: 150,
         };
-        mocks.readMockManifest.mockResolvedValue({ status: 'valid', manifest: { delay: 400, endpoints: [endpoint] } });
+        options.fileIndex = new Set(['scenarios/explicit.json']);
+        options.manifestResult = { status: 'valid', manifest: { delay: 400, endpoints: [endpoint] } };
         mocks.findMockEndpoint.mockReturnValue(endpoint);
         mocks.findSelectedScenario.mockReturnValue(undefined);
 
@@ -135,10 +123,27 @@ describe('handleScenarioRequest', () => {
         );
     });
 
+    it('rejects a missing manifest file from the index without accessing the file system', async () => {
+        const endpoint = { path: '/api/profile', file: 'scenarios/missing.json' };
+        options.manifestResult = { status: 'valid', manifest: { endpoints: [endpoint] } };
+        mocks.findMockEndpoint.mockReturnValue(endpoint);
+        mocks.findSelectedScenario.mockReturnValue(undefined);
+
+        await expect(handleScenarioRequest(request, response, options)).resolves.toBe(true);
+
+        expect(mocks.readExistingFile).not.toHaveBeenCalled();
+        expect(mocks.sendJson).toHaveBeenCalledWith(
+            response,
+            404,
+            { error: 'No local mock found for profile' },
+            'GET'
+        );
+    });
+
     it('resolves a new random delay inside the configured range', async () => {
         vi.spyOn(Math, 'random').mockReturnValue(0.5);
         const endpoint = { path: '/api/profile', delay: [200, 600] as const };
-        mocks.readMockManifest.mockResolvedValue({ status: 'valid', manifest: { endpoints: [endpoint] } });
+        options.manifestResult = { status: 'valid', manifest: { endpoints: [endpoint] } };
         mocks.findMockEndpoint.mockReturnValue(endpoint);
         mocks.findSelectedScenario.mockReturnValue(undefined);
 
@@ -149,7 +154,7 @@ describe('handleScenarioRequest', () => {
 
     it('returns an empty 204 response without reading a configured file', async () => {
         const endpoint = { path: '/api/profile', status: 204, file: 'must-not-be-read.json' };
-        mocks.readMockManifest.mockResolvedValue({ status: 'valid', manifest: { endpoints: [endpoint] } });
+        options.manifestResult = { status: 'valid', manifest: { endpoints: [endpoint] } };
         mocks.findMockEndpoint.mockReturnValue(endpoint);
         mocks.findSelectedScenario.mockReturnValue(undefined);
 

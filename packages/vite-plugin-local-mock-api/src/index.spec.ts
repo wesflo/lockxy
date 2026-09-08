@@ -3,9 +3,12 @@ import type { ResolvedConfig, ViteDevServer } from 'vite';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
+    buildMockFileIndex: vi.fn(),
     handleMockRequest: vi.fn(),
     handleScenarioRequest: vi.fn(),
     normalizeMockRoot: vi.fn(),
+    readMockManifest: vi.fn(),
+    registerMockWatcher: vi.fn(),
     shouldBypassMockRequest: vi.fn(),
     defaultMockRoot: new URL('file:///default/mocks/'),
 }));
@@ -16,6 +19,10 @@ vi.mock('./app/handleMockRequest/index.js', () => ({
 
 vi.mock('./app/handleScenarioRequest/index.js', () => ({
     handleScenarioRequest: mocks.handleScenarioRequest,
+}));
+
+vi.mock('./app/handleScenarioRequest/util/readMockManifest.js', () => ({
+    readMockManifest: mocks.readMockManifest,
 }));
 
 vi.mock('./constant.js', () => ({
@@ -32,6 +39,14 @@ vi.mock('./util/normalizeMockRoot.js', () => ({
     normalizeMockRoot: mocks.normalizeMockRoot,
 }));
 
+vi.mock('./util/buildMockFileIndex.js', () => ({
+    buildMockFileIndex: mocks.buildMockFileIndex,
+}));
+
+vi.mock('./util/registerMockWatcher.js', () => ({
+    registerMockWatcher: mocks.registerMockWatcher,
+}));
+
 vi.mock('./util/shouldBypassMockRequest.js', () => ({
     shouldBypassMockRequest: mocks.shouldBypassMockRequest,
 }));
@@ -46,6 +61,8 @@ describe('mockApiPlugin', () => {
     beforeEach(() => {
         vi.resetAllMocks();
         mocks.normalizeMockRoot.mockReturnValue(normalizedMockRoot);
+        mocks.buildMockFileIndex.mockResolvedValue(new Set(['orders.json']));
+        mocks.readMockManifest.mockResolvedValue({ status: 'missing' });
         mocks.handleScenarioRequest.mockResolvedValue(false);
         mocks.shouldBypassMockRequest.mockResolvedValue(false);
     });
@@ -77,8 +94,8 @@ describe('mockApiPlugin', () => {
             contentTypes: { '.xml': 'application/xml' },
             manifestFileName: 'custom.manifest.json',
         });
-        const configureServer = plugin.configureServer as (server: ViteDevServer) => void;
-        configureServer({ middlewares: { use } } as unknown as ViteDevServer);
+        const configureServer = plugin.configureServer as (server: ViteDevServer) => Promise<void>;
+        await configureServer({ middlewares: { use } } as unknown as ViteDevServer);
 
         await middleware!({} as IncomingMessage, {} as ServerResponse, vi.fn());
 
@@ -103,8 +120,8 @@ describe('mockApiPlugin', () => {
             middleware = registeredMiddleware;
         });
         const plugin = mockApiPlugin();
-        const configureServer = plugin.configureServer as (server: ViteDevServer) => void;
-        configureServer({ middlewares: { use } } as unknown as ViteDevServer);
+        const configureServer = plugin.configureServer as (server: ViteDevServer) => Promise<void>;
+        await configureServer({ middlewares: { use } } as unknown as ViteDevServer);
         const request = {} as IncomingMessage;
         const response = {} as ServerResponse;
         const next = vi.fn();
@@ -120,7 +137,8 @@ describe('mockApiPlugin', () => {
             manifestFileName: 'mock.manifest.json',
             debug: false,
             logging: true,
-            filePathCache: expect.any(Map),
+            fileIndex: new Set(['orders.json']),
+            manifestResult: { status: 'missing' },
         });
     });
 
@@ -130,8 +148,8 @@ describe('mockApiPlugin', () => {
             middleware = registeredMiddleware;
         });
         const plugin = mockApiPlugin();
-        const configureServer = plugin.configureServer as (server: ViteDevServer) => void;
-        configureServer({ middlewares: { use } } as unknown as ViteDevServer);
+        const configureServer = plugin.configureServer as (server: ViteDevServer) => Promise<void>;
+        await configureServer({ middlewares: { use } } as unknown as ViteDevServer);
         const request = {} as IncomingMessage;
         const response = { once: vi.fn() } as unknown as ServerResponse;
         const next = vi.fn();
@@ -144,41 +162,18 @@ describe('mockApiPlugin', () => {
         expect(mocks.handleMockRequest).not.toHaveBeenCalled();
     });
 
-    it('creates a fresh file path cache for every development server', async () => {
-        const middlewares: Middleware[] = [];
-        const plugin = mockApiPlugin();
-        const configureServer = plugin.configureServer as (server: ViteDevServer) => void;
-        const createServer = () =>
-            ({
-                middlewares: {
-                    use: (middleware: Middleware) => middlewares.push(middleware),
-                },
-            }) as unknown as ViteDevServer;
-
-        configureServer(createServer());
-        configureServer(createServer());
-        await middlewares[0]!({} as IncomingMessage, {} as ServerResponse, vi.fn());
-        await middlewares[1]!({} as IncomingMessage, {} as ServerResponse, vi.fn());
-
-        const firstCache = mocks.handleMockRequest.mock.calls[0]?.[3].filePathCache;
-        const secondCache = mocks.handleMockRequest.mock.calls[1]?.[3].filePathCache;
-        expect(firstCache).toBeInstanceOf(Map);
-        expect(secondCache).toBeInstanceOf(Map);
-        expect(firstCache).not.toBe(secondCache);
-    });
-
     it.each([
         ['build', 'production'],
         ['serve', 'production'],
-    ])('warns and refuses middleware for command %s in mode %s', (command, mode) => {
+    ])('warns and refuses middleware for command %s in mode %s', async (command, mode) => {
         const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
         const use = vi.fn();
         const plugin = mockApiPlugin();
         const configResolved = plugin.configResolved as (config: ResolvedConfig) => void;
-        const configureServer = plugin.configureServer as (server: ViteDevServer) => void;
+        const configureServer = plugin.configureServer as (server: ViteDevServer) => Promise<void>;
 
         configResolved({ command, mode } as ResolvedConfig);
-        configureServer({ middlewares: { use } } as unknown as ViteDevServer);
+        await configureServer({ middlewares: { use } } as unknown as ViteDevServer);
 
         expect(warning).toHaveBeenCalledWith(expect.stringContaining('SAFETY WARNING'));
         expect(use).not.toHaveBeenCalled();

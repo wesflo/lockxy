@@ -8,6 +8,7 @@ import {
 
 import { handleMockRequest } from './app/handleMockRequest/index.js';
 import { handleScenarioRequest } from './app/handleScenarioRequest/index.js';
+import { readMockManifest } from './app/handleScenarioRequest/util/readMockManifest.js';
 import {
     CONTENT_TYPES,
     DEFAULT_MOCK_ROOT,
@@ -18,10 +19,12 @@ import {
     LOGGING,
 } from './constant.js';
 import type { MockApiPluginOptions, MockApiRuntimeOptions, ResolvedMockApiPluginOptions } from './interface.js';
+import { buildMockFileIndex } from './util/buildMockFileIndex.js';
 import { logError } from './util/logError.js';
 import { logRequest } from './util/logRequest.js';
 import { normalizeMockRoot } from './util/normalizeMockRoot.js';
 import { normalizeRequestPrefixes } from './util/normalizeRequestPrefixes.js';
+import { registerMockWatcher } from './util/registerMockWatcher.js';
 import { sendJson } from './util/sendJson.js';
 import { shouldBypassMockRequest } from './util/shouldBypassMockRequest.js';
 
@@ -63,15 +66,17 @@ export const mockApiPlugin = ({
             }
         },
 
-        configureServer: (server) => {
+        configureServer: async (server) => {
             if (!developmentServer) {
                 return;
             }
 
             const runtimeOptions: MockApiRuntimeOptions = {
                 ...options,
-                filePathCache: new Map(),
+                fileIndex: await buildMockFileIndex(options.mockRoot),
+                manifestResult: await readMockManifest(options.mockRoot, options.manifestFileName, options.debug),
             };
+            registerMockWatcher(server.watcher, runtimeOptions);
 
             server.middlewares.use(async (req, res, next) => {
                 try {
