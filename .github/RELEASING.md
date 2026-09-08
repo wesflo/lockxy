@@ -13,7 +13,13 @@ npm authentication uses OIDC and requires no stored npm token. Alpha releases us
 
 ## Production deploy key
 
-Create a dedicated SSH key without a passphrase. Add its public key to the repository under **Settings → Deploy keys**, enable write access, and add that deploy key to the `main` ruleset bypass list. Store only its private key as the `RELEASE_DEPLOY_KEY` secret in the `npm-production` environment.
+Create a dedicated SSH key without a passphrase:
+
+```sh
+ssh-keygen -t ed25519 -C "lockxy-release" -f ./lockxy-release-deploy-key -N ""
+```
+
+Add its public key to the repository under **Settings → Deploy keys**, enable write access, and add that deploy key to the `main` ruleset bypass list. Store only its private key as the `RELEASE_DEPLOY_KEY` secret in the `npm-production` environment. A passphrase-protected key cannot be unlocked interactively by the GitHub Actions runner.
 
 The production release stops before testing or publishing when this secret is missing. The private key becomes available only after the `npm-production` environment has been approved and is loaded into a temporary SSH agent only for the final push. Do not reuse a personal SSH key and do not add this key as a repository-level secret.
 

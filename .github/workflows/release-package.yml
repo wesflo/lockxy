@@ -168,7 +168,10 @@ jobs:
                   tag="$TAG_PREFIX-v$VERSION"
                   eval "$(ssh-agent -s)"
                   trap 'ssh-agent -k' EXIT
-                  printf '%s\n' "$RELEASE_DEPLOY_KEY" | ssh-add -
+                  if ! printf '%s\n' "$RELEASE_DEPLOY_KEY" | SSH_ASKPASS=/bin/false SSH_ASKPASS_REQUIRE=force DISPLAY=:0 ssh-add -; then
+                      echo "::error::RELEASE_DEPLOY_KEY must contain a valid private SSH key without a passphrase."
+                      exit 1
+                  fi
                   mkdir -p "$RUNNER_TEMP/lockxy-release-ssh"
                   gh api meta --jq '.ssh_keys[] | "github.com \(.)"' > "$RUNNER_TEMP/lockxy-release-ssh/known_hosts"
                   git remote set-url origin "git@github.com:$GITHUB_REPOSITORY.git"
