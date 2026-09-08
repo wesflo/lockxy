@@ -1,6 +1,6 @@
 {
     "name": "@wesflo/vite-plugin-local-mock-api",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "The Lockxy Vite plugin for serving a local mock API.",
     "author": {
         "name": "Florian Wessner",
@@ -44,27 +44,27 @@
         "check-types": "tsc --noEmit -p tsconfig.json"
     },
     "devDependencies": {
-        "@wesflo/local-mock-api-utils": "workspace:*",
         "@eslint/js": "^9.23.0",
         "@types/jest": "^29.5.14",
         "@types/node": "^22.13.13",
         "@typescript-eslint/eslint-plugin": "^8.27.0",
         "@typescript-eslint/parser": "^8.27.0",
+        "@vitest/coverage-v8": "^4.1.11",
+        "@wesflo/local-mock-api-utils": "workspace:*",
         "eslint": "9.39.4",
-        "eslint-plugin-vitest-globals": "^1.5.0",
         "eslint-plugin-import": "2.31.0",
+        "eslint-plugin-vitest-globals": "^1.5.0",
         "globals": "^16.0.0",
         "happy-dom": "^20.13.1",
         "lint-staged": "15.2.10",
         "prettier": "3.8.1",
-        "types-package-json": "^2.0.39",
         "tslib": "2.8.1",
+        "types-package-json": "^2.0.39",
         "typescript": "^5.8.2",
         "typescript-eslint": "^8.27.0",
         "vite": "8.2.2",
         "vite-plugin-banner": "0.8.1",
-        "vitest": "^4.1.11",
-        "@vitest/coverage-v8": "^4.1.11"
+        "vitest": "^4.1.11"
     },
     "publishConfig": {
         "access": "public",
