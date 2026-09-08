@@ -110,10 +110,7 @@ describe('handleMockRequest', () => {
             'GET'
         );
         expect(mocks.sendJson).not.toHaveBeenCalled();
-        expect(mocks.logRequest).toHaveBeenCalledWith(
-            false,
-            expect.objectContaining({ source: 'convention' })
-        );
+        expect(mocks.logRequest).toHaveBeenCalledWith(false, expect.objectContaining({ source: 'convention' }));
     });
 
     it('reports a cached convention path as a cache response', async () => {
