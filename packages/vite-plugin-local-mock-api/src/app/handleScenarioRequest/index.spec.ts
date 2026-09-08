@@ -132,12 +132,7 @@ describe('handleScenarioRequest', () => {
         await expect(handleScenarioRequest(request, response, options)).resolves.toBe(true);
 
         expect(mocks.readExistingFile).not.toHaveBeenCalled();
-        expect(mocks.sendJson).toHaveBeenCalledWith(
-            response,
-            404,
-            { error: 'No local mock found for profile' },
-            'GET'
-        );
+        expect(mocks.sendJson).toHaveBeenCalledWith(response, 404, { error: 'No local mock found for profile' }, 'GET');
     });
 
     it('resolves a new random delay inside the configured range', async () => {

@@ -23,11 +23,7 @@ describe('buildMockFileIndex', () => {
 
         const index = await buildMockFileIndex(new URL('./', pathToFileURL(join(directory, 'placeholder'))));
 
-        expect([...index].sort()).toEqual([
-            'mock.manifest.json',
-            'users/profile.json',
-            'users/responses/avatar.png',
-        ]);
+        expect([...index].sort()).toEqual(['mock.manifest.json', 'users/profile.json', 'users/responses/avatar.png']);
     });
 
     it('returns an empty index when the mock root does not exist', async () => {
