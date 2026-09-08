@@ -2,13 +2,16 @@ import { Buffer } from 'node:buffer';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { ResolvedMockApiPluginOptions } from '../../interface.js';
+import type { MockApiRuntimeOptions } from '../../interface.js';
 
 const mocks = vi.hoisted(() => ({
+    findMockFile: vi.fn(),
     findMockEndpoint: vi.fn(),
     findSelectedScenario: vi.fn(),
     getCandidatePaths: vi.fn(),
+    getMockFileCacheKey: vi.fn(),
     getRequestRouteParts: vi.fn(),
+    logRequest: vi.fn(),
     parseScenarioSelections: vi.fn(),
     readExistingFile: vi.fn(),
     readMockManifest: vi.fn(),
@@ -16,8 +19,11 @@ const mocks = vi.hoisted(() => ({
     wait: vi.fn(),
 }));
 
+vi.mock('../../util/findMockFile.js', () => ({ findMockFile: mocks.findMockFile }));
 vi.mock('../../util/getCandidatePaths.js', () => ({ getCandidatePaths: mocks.getCandidatePaths }));
+vi.mock('../../util/getMockFileCacheKey.js', () => ({ getMockFileCacheKey: mocks.getMockFileCacheKey }));
 vi.mock('../../util/getRequestRouteParts.js', () => ({ getRequestRouteParts: mocks.getRequestRouteParts }));
+vi.mock('../../util/logRequest.js', () => ({ logRequest: mocks.logRequest }));
 vi.mock('../../util/readExistingFile.js', () => ({ readExistingFile: mocks.readExistingFile }));
 vi.mock('../../util/send.js', () => ({ send: mocks.send }));
 vi.mock('./util/findMockEndpoint.js', () => ({ findMockEndpoint: mocks.findMockEndpoint }));
@@ -29,7 +35,7 @@ vi.mock('./util/wait.js', () => ({ wait: mocks.wait }));
 import { handleScenarioRequest } from './index.js';
 
 describe('handleScenarioRequest', () => {
-    const options: ResolvedMockApiPluginOptions = {
+    const options: MockApiRuntimeOptions = {
         mockRoot: new URL('file:///tmp/mocks/'),
         requestPrefixes: ['/api/'],
         extensions: ['.json'],
@@ -37,6 +43,7 @@ describe('handleScenarioRequest', () => {
         manifestFileName: 'mock.manifest.json',
         debug: false,
         logging: false,
+        filePathCache: new Map(),
     };
     const request = {
         url: '/api/profile',
@@ -51,6 +58,8 @@ describe('handleScenarioRequest', () => {
         mocks.getRequestRouteParts.mockReturnValue(['profile']);
         mocks.parseScenarioSelections.mockReturnValue(new Map());
         mocks.getCandidatePaths.mockReturnValue(['GET_profile.json', 'profile.json']);
+        mocks.getMockFileCacheKey.mockReturnValue('GET_/api/profile');
+        mocks.findMockFile.mockResolvedValue({ file: mockFile, cacheHit: false });
         mocks.readExistingFile.mockResolvedValue(mockFile);
     });
 
@@ -76,6 +85,12 @@ describe('handleScenarioRequest', () => {
         await expect(handleScenarioRequest(request, response, options)).resolves.toBe(true);
 
         expect(mocks.getCandidatePaths).toHaveBeenCalledWith(['profile'], 'GET', ['.json']);
+        expect(mocks.findMockFile).toHaveBeenCalledWith(
+            options.filePathCache,
+            'GET_/api/profile',
+            ['GET_profile.json', 'profile.json'],
+            options.mockRoot
+        );
         expect(mocks.wait).toHaveBeenCalledWith(400);
         expect(mocks.send).toHaveBeenCalledWith(
             response,
@@ -84,6 +99,16 @@ describe('handleScenarioRequest', () => {
             mockFile.content,
             'GET'
         );
+    });
+
+    it('reports a cached manifest fallback as a cache response', async () => {
+        mocks.readMockManifest.mockResolvedValue({ status: 'valid', manifest: { delay: 400 } });
+        mocks.findMockEndpoint.mockReturnValue(undefined);
+        mocks.findMockFile.mockResolvedValue({ file: mockFile, cacheHit: true });
+
+        await handleScenarioRequest(request, response, options);
+
+        expect(mocks.logRequest).toHaveBeenCalledWith(false, expect.objectContaining({ source: 'cache' }));
     });
 
     it('applies endpoint response settings without scenarios', async () => {
@@ -131,6 +156,7 @@ describe('handleScenarioRequest', () => {
         await expect(handleScenarioRequest(request, response, options)).resolves.toBe(true);
 
         expect(mocks.getCandidatePaths).not.toHaveBeenCalled();
+        expect(mocks.findMockFile).not.toHaveBeenCalled();
         expect(mocks.readExistingFile).not.toHaveBeenCalled();
         expect(mocks.send).toHaveBeenCalledWith(response, 204, {}, '', 'GET');
     });

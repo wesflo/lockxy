@@ -14,9 +14,18 @@ export interface ResolvedMockApiPluginOptions extends Omit<Required<MockApiPlugi
     requestPrefixes: readonly string[];
 }
 
+export interface MockApiRuntimeOptions extends ResolvedMockApiPluginOptions {
+    filePathCache: Map<string, string>;
+}
+
 export interface MockFile {
     content: Buffer;
     extension: string;
+}
+
+export interface MockFileLookupResult {
+    file: MockFile;
+    cacheHit: boolean;
 }
 
 export type NextFunction = () => void;
@@ -79,7 +88,7 @@ export interface BypassSelections {
     endpointIds: ReadonlySet<string>;
 }
 
-export type MockResponseSource = 'manifest' | 'naming convention' | 'passthrough' | 'plugin error';
+export type MockResponseSource = 'manifest' | 'cache' | 'convention' | 'passthrough' | 'error';
 
 export interface RequestLogDetails {
     method: string;

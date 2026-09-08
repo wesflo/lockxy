@@ -174,6 +174,21 @@ export default defineConfig(({ command }) => ({
             </p>
         </Callout>
 
+        <h3 id="runtime-file-cache">Runtime file cache</h3>
+        <p>
+            Lockxy caches successful file-path resolutions in memory by normalized HTTP method and URL pathname, for
+            example <code>GET_/api/users</code>. Manifest selection is evaluated first so changing a scenario in the panel
+            remains effective. Whenever that selection needs naming-convention fallback, Lockxy checks the same path cache
+            before generating and searching all candidates.
+        </p>
+        <ul>
+            <li>The cache starts empty for every Vite development server.</li>
+            <li>Only successful paths are cached; a previous <code>404</code> never hides a file added later.</li>
+            <li>Query parameters are excluded because they do not change naming-convention resolution.</li>
+            <li>Only the path is cached. File contents are read again, so editing a response remains visible immediately.</li>
+            <li>If a cached file is removed, its entry is discarded and the remaining candidates are searched again.</li>
+        </ul>
+
         <h2 id="optional-manifest">Optional manifest</h2>
         <p>
             Create <code>mock.manifest.json</code> only for endpoints that need additional handling. Other requests continue
@@ -205,10 +220,13 @@ export default defineConfig(({ command }) => ({
         </p>
         <Code code={diagnosticsConfig} label="vite.config.ts" />
         <p>
-            Request logging is enabled by default and prints method, URL, effective delay, status, and whether the response
-            came from the manifest, naming conventions, or passthrough. Runtime problems such as corrupt selection cookies,
-            unsafe paths, missing files, and invalid manifests use the same <code>[local-mock-api]</code> prefix. Set
-            <code>logging: false</code> for a quiet development server.
+            Request logging is enabled by default and prints method, URL, effective delay, status, and one source word:
+            <code>Manifest</code>, <code>Cache</code>, <code>Convention</code>, <code>Passthrough</code>, or
+            <code>Error</code>. In an interactive terminal, methods use their familiar request colors, successful and error
+            statuses use their status-family colors, delay is orange, and the source is shown in Lockxy's primary color.
+            Plain output is used for non-interactive logs and when the <code>NO_COLOR</code> environment variable is set.
+            Runtime problems such as corrupt selection cookies, unsafe paths, missing files, and invalid manifests use the
+            same <code>[local-mock-api]</code> prefix. Set <code>logging: false</code> for a quiet development server.
         </p>
         <p>
             Every response produced by the mock server includes <code>X-Local-Mock-Api: true</code>, including empty and

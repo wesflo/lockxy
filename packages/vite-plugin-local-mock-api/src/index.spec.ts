@@ -120,6 +120,7 @@ describe('mockApiPlugin', () => {
             manifestFileName: 'mock.manifest.json',
             debug: false,
             logging: true,
+            filePathCache: expect.any(Map),
         });
     });
 
@@ -141,6 +142,29 @@ describe('mockApiPlugin', () => {
         expect(next).toHaveBeenCalledOnce();
         expect(mocks.handleScenarioRequest).not.toHaveBeenCalled();
         expect(mocks.handleMockRequest).not.toHaveBeenCalled();
+    });
+
+    it('creates a fresh file path cache for every development server', async () => {
+        const middlewares: Middleware[] = [];
+        const plugin = mockApiPlugin();
+        const configureServer = plugin.configureServer as (server: ViteDevServer) => void;
+        const createServer = () =>
+            ({
+                middlewares: {
+                    use: (middleware: Middleware) => middlewares.push(middleware),
+                },
+            }) as unknown as ViteDevServer;
+
+        configureServer(createServer());
+        configureServer(createServer());
+        await middlewares[0]!({} as IncomingMessage, {} as ServerResponse, vi.fn());
+        await middlewares[1]!({} as IncomingMessage, {} as ServerResponse, vi.fn());
+
+        const firstCache = mocks.handleMockRequest.mock.calls[0]?.[3].filePathCache;
+        const secondCache = mocks.handleMockRequest.mock.calls[1]?.[3].filePathCache;
+        expect(firstCache).toBeInstanceOf(Map);
+        expect(secondCache).toBeInstanceOf(Map);
+        expect(firstCache).not.toBe(secondCache);
     });
 
     it.each([

@@ -2,9 +2,11 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { MANIFEST_ROUTE } from '@wesflo/local-mock-api-utils';
 
 import { EMPTY_MANIFEST } from '../../constant.js';
-import type { ResolvedMockApiPluginOptions } from '../../interface.js';
+import type { MockApiRuntimeOptions, MockFileLookupResult } from '../../interface.js';
+import { findMockFile } from '../../util/findMockFile.js';
 import { getCandidatePaths } from '../../util/getCandidatePaths.js';
 import { getContentType } from '../../util/getContentType.js';
+import { getMockFileCacheKey } from '../../util/getMockFileCacheKey.js';
 import { getRequestRouteParts } from '../../util/getRequestRouteParts.js';
 import { readExistingFile } from '../../util/readExistingFile.js';
 import { logDebug } from '../../util/logDebug.js';
@@ -23,7 +25,7 @@ import { wait } from './util/wait.js';
 export const handleScenarioRequest = async (
     req: IncomingMessage,
     res: ServerResponse,
-    options: ResolvedMockApiPluginOptions
+    options: MockApiRuntimeOptions
 ): Promise<boolean> => {
     if (!req.url) {
         return false;
@@ -110,35 +112,40 @@ export const handleScenarioRequest = async (
     }
 
     const candidatePaths = file ? [file] : getCandidatePaths(requestRouteParts, req.method, options.extensions);
+    let result: MockFileLookupResult | null;
 
-    for (const path of candidatePaths) {
-        const file = await readExistingFile(path, options.mockRoot);
+    if (file) {
+        const explicitFile = await readExistingFile(file, options.mockRoot);
+        result = explicitFile ? { file: explicitFile, cacheHit: false } : null;
+    } else {
+        const cacheKey = getMockFileCacheKey(req.url, req.method);
+        result = await findMockFile(options.filePathCache, cacheKey, candidatePaths, options.mockRoot);
+    }
 
-        if (file) {
-            if (delay) {
-                await wait(delay);
-            }
-
-            send(
-                res,
-                status,
-                {
-                    'content-type': getContentType(file.extension, options.contentTypes),
-                    'content-length': String(file.content.length),
-                },
-                file.content,
-                req.method
-            );
-            logRequest(options.logging, {
-                method: req.method ?? 'GET',
-                url: req.url,
-                delay,
-                status,
-                source: 'manifest',
-            });
-
-            return true;
+    if (result) {
+        if (delay) {
+            await wait(delay);
         }
+
+        send(
+            res,
+            status,
+            {
+                'content-type': getContentType(result.file.extension, options.contentTypes),
+                'content-length': String(result.file.content.length),
+            },
+            result.file.content,
+            req.method
+        );
+        logRequest(options.logging, {
+            method: req.method ?? 'GET',
+            url: req.url,
+            delay,
+            status,
+            source: result.cacheHit ? 'cache' : 'manifest',
+        });
+
+        return true;
     }
 
     logError(

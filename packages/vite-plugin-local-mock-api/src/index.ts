@@ -17,7 +17,7 @@ import {
     MANIFEST_FILE_NAME,
     LOGGING,
 } from './constant.js';
-import type { MockApiPluginOptions, ResolvedMockApiPluginOptions } from './interface.js';
+import type { MockApiPluginOptions, MockApiRuntimeOptions, ResolvedMockApiPluginOptions } from './interface.js';
 import { logError } from './util/logError.js';
 import { logRequest } from './util/logRequest.js';
 import { normalizeMockRoot } from './util/normalizeMockRoot.js';
@@ -68,11 +68,16 @@ export const mockApiPlugin = ({
                 return;
             }
 
+            const runtimeOptions: MockApiRuntimeOptions = {
+                ...options,
+                filePathCache: new Map(),
+            };
+
             server.middlewares.use(async (req, res, next) => {
                 try {
-                    if (await shouldBypassMockRequest(req, options)) {
+                    if (await shouldBypassMockRequest(req, runtimeOptions)) {
                         res.once('finish', () => {
-                            logRequest(options.logging, {
+                            logRequest(runtimeOptions.logging, {
                                 method: req.method ?? 'GET',
                                 url: req.url ?? '',
                                 delay: 0,
@@ -84,14 +89,14 @@ export const mockApiPlugin = ({
                         return;
                     }
 
-                    const handled = await handleScenarioRequest(req, res, options);
+                    const handled = await handleScenarioRequest(req, res, runtimeOptions);
 
                     if (!handled) {
-                        await handleMockRequest(req, res, next, options);
+                        await handleMockRequest(req, res, next, runtimeOptions);
                     }
                 } catch (error) {
                     logError(
-                        options.logging,
+                        runtimeOptions.logging,
                         `Unexpected error while handling ${req.method ?? 'GET'} ${req.url ?? ''}.`,
                         error
                     );
@@ -100,12 +105,12 @@ export const mockApiPlugin = ({
                     } else {
                         res.end();
                     }
-                    logRequest(options.logging, {
+                    logRequest(runtimeOptions.logging, {
                         method: req.method ?? 'GET',
                         url: req.url ?? '',
                         delay: 0,
                         status: res.statusCode || 500,
-                        source: 'plugin error',
+                        source: 'error',
                     });
                 }
             });
