@@ -104,10 +104,7 @@ describe('handleMockRequest', () => {
             'GET'
         );
         expect(mocks.sendJson).not.toHaveBeenCalled();
-        expect(mocks.logRequest).toHaveBeenCalledWith(
-            false,
-            expect.objectContaining({ source: 'convention' })
-        );
+        expect(mocks.logRequest).toHaveBeenCalledWith(false, expect.objectContaining({ source: 'convention' }));
     });
 
     it('returns the original 404 response after every candidate misses', async () => {
