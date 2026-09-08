@@ -161,6 +161,7 @@ jobs:
             - name: Push production release with deploy key
               if: inputs.prerelease == false
               env:
+                  GH_TOKEN: ${{ github.token }}
                   RELEASE_DEPLOY_KEY: ${{ secrets.RELEASE_DEPLOY_KEY }}
                   VERSION: ${{ steps.version.outputs.version }}
               run: |
@@ -169,7 +170,7 @@ jobs:
                   trap 'ssh-agent -k' EXIT
                   printf '%s\n' "$RELEASE_DEPLOY_KEY" | ssh-add -
                   mkdir -p "$RUNNER_TEMP/lockxy-release-ssh"
-                  ssh-keyscan -t ed25519 github.com > "$RUNNER_TEMP/lockxy-release-ssh/known_hosts"
+                  gh api meta --jq '.ssh_keys[] | "github.com \(.)"' > "$RUNNER_TEMP/lockxy-release-ssh/known_hosts"
                   git remote set-url origin "git@github.com:$GITHUB_REPOSITORY.git"
                   GIT_SSH_COMMAND="ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$RUNNER_TEMP/lockxy-release-ssh/known_hosts" \
                   git push --atomic origin "HEAD:$RELEASE_BRANCH" "refs/tags/$tag"
