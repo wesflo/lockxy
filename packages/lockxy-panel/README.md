@@ -9,8 +9,22 @@ The optional Lockxy browser panel for configuring manifest scenarios provided by
 
 ## Installation
 
+With pnpm:
+
 ```sh
 pnpm add --save-dev @wesflo/lockxy-panel
+```
+
+With npm:
+
+```sh
+npm install --save-dev @wesflo/lockxy-panel
+```
+
+With Yarn:
+
+```sh
+yarn add --dev @wesflo/lockxy-panel
 ```
 
 Register the Web Component and add it to the HTML of a Vite application:

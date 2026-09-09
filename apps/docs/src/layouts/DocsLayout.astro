@@ -20,9 +20,10 @@ const url = (path: string) => `${base}${path}`;
 const links = [
     { href: '/', label: 'Overview', icon: '⌂' },
     { href: '/getting-started/', label: 'Getting started', icon: '→' },
-    { href: '/configuration/', label: 'Configuration', icon: '◇' },
+    { href: '/vite-plugin/', label: 'Vite Plugin', icon: '◇' },
+    { href: '/manifest/', label: 'Manifest', icon: '≡' },
     { href: '/proxy-panel/', label: 'Proxy panel', icon: '≋' },
-    { href: '/local-verification/', label: 'Local verification', icon: '✓' },
+    { href: '/playgrounds/', label: 'Playgrounds', icon: '✓' },
 ];
 const pageSections: Record<string, Array<{ href: string; label: string }>> = {
     '/': [
@@ -35,19 +36,26 @@ const pageSections: Record<string, Array<{ href: string; label: string }>> = {
         { href: '#1-add-the-vite-plugin', label: 'Add the plugin' },
         { href: '#2-add-a-mock-file', label: 'Add a mock file' },
         { href: '#3-start-vite', label: 'Start Vite' },
+        { href: '#optional-add-a-manifest', label: 'Optional manifest' },
         { href: '#optional-mount-the-proxy-panel', label: 'Optional panel' },
     ],
-    '/configuration/': [
+    '/vite-plugin/': [
         { href: '#file-naming-conventions', label: 'Naming conventions' },
         { href: '#plugin-options', label: 'Plugin options' },
         { href: '#multiple-request-prefixes', label: 'Request prefixes' },
         { href: '#runtime-file-cache', label: 'Runtime index' },
-        { href: '#optional-manifest', label: 'Optional manifest' },
+    ],
+    '/manifest/': [
+        { href: '#when-to-use-a-manifest', label: 'When to use it' },
+        { href: '#location-and-schema', label: 'Location and schema' },
+        { href: '#minimal-manifests', label: 'Minimal manifests' },
         { href: '#root-fields', label: 'Root fields' },
-        { href: '#direct-endpoint-handling', label: 'Direct endpoint handling' },
-        { href: '#multiple-scenarios', label: 'Multiple scenarios' },
         { href: '#endpoint-fields', label: 'Endpoint fields' },
         { href: '#scenario-fields', label: 'Scenario fields' },
+        { href: '#response-precedence', label: 'Response precedence' },
+        { href: '#delays-and-statuses', label: 'Delays and statuses' },
+        { href: '#validation', label: 'Validation' },
+        { href: '#best-practices', label: 'Best practices' },
     ],
     '/proxy-panel/': [
         { href: '#module-integration', label: 'Module integration' },
@@ -56,7 +64,7 @@ const pageSections: Record<string, Array<{ href: string; label: string }>> = {
         { href: '#bypass-cookie', label: 'Bypass cookie' },
         { href: '#scenario-cookie', label: 'Scenario cookie' },
     ],
-    '/local-verification/': [
+    '/playgrounds/': [
         { href: '#checkout-and-start', label: 'Checkout and start' },
         { href: '#plugin-demo', label: 'Plugin demo' },
         { href: '#demo-modes', label: 'Demo modes' },

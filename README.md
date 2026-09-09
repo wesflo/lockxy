@@ -18,7 +18,110 @@ Plug-and-play local mock responses for API requests handled by the Vite developm
 
 This project is intended exclusively for local development. Do not deploy the mock server or proxy panel as production services, and only use synthetic data in mock files.
 
+## Installation
+
+With pnpm:
+
+```sh
+pnpm add --save-dev @wesflo/vite-plugin-lockxy
+```
+
+With npm:
+
+```sh
+npm install --save-dev @wesflo/vite-plugin-lockxy
+```
+
+With Yarn:
+
+```sh
+yarn add --dev @wesflo/vite-plugin-lockxy
+```
+
+## Quick start
+
+```ts
+import { defineConfig } from 'vite';
+import lockxy from '@wesflo/vite-plugin-lockxy';
+
+export default defineConfig(({ command }) => ({
+    plugins: command === 'serve' ? [lockxy()] : [],
+}));
+```
+
+With the default `/api/` request prefix, these files handle `GET` and `POST /api/users/profile`:
+
+```text
+mock/
+└── users/
+    ├── profile.json
+    └── POST_profile.json
+```
+
+Method-specific files win over generic files. Nested route candidates win over root-level fallbacks, so `mock/users/PUT_profile.json`, `mock/users/profile.json`, `mock/PUT_profile.json`, and `mock/profile.json` are tried in that order for `PUT /api/users/profile`.
+
+## Plugin configuration
+
+All options are optional:
+
+```ts
+lockxy({
+    mockRoot: new URL('./mock/', import.meta.url),
+    requestPrefixes: ['/api/'],
+    extensions: ['.xml'],
+    contentTypes: {
+        '.xml': 'application/xml; charset=utf-8',
+    },
+    manifestFileName: 'mock.manifest.json',
+    debug: false,
+    logging: true,
+});
+```
+
+| Option | Type | Default | Purpose |
+| --- | --- | --- | --- |
+| `mockRoot` | `URL` | Project `mock/` directory | Contains mock files and the optional manifest. |
+| `requestPrefixes` | `string \| readonly string[]` | `'/api/'` | One or more local URL namespaces handled by Lockxy. |
+| `extensions` | `readonly string[]` | `[]` | Adds file extensions after the built-in JSON, PDF, CSV, text, JPEG, PNG, and WebP candidates. |
+| `contentTypes` | `Readonly<Record<string, string>>` | `{}` | Adds or overrides extension-to-content-type mappings. |
+| `manifestFileName` | `string` | `'mock.manifest.json'` | Manifest filename inside `mockRoot`. |
+| `debug` | `boolean` | `false` | Enables detailed manifest and referenced-file validation. |
+| `logging` | `boolean` | `true` | Logs requests and runtime errors. |
+
+## Optional manifest
+
+Naming conventions work without a manifest. Add `mock/mock.manifest.json` only for exceptional behavior such as statuses, delays, explicit files, dynamic paths, or selectable scenarios:
+
+```json
+{
+    "$schema": "../node_modules/@wesflo/vite-plugin-lockxy/mock.manifest.schema.json",
+    "delay": [200, 600],
+    "endpoints": [
+        {
+            "path": "/api/health",
+            "status": 204
+        },
+        {
+            "method": "GET",
+            "path": "/api/users/:id",
+            "file": "scenarios/user.json",
+            "delay": 250
+        }
+    ]
+}
+```
+
+Only `path` is required for an endpoint. Without `method`, every method matches; without `file`, normal naming conventions resolve the response. Root delay applies to all calls, while endpoint and scenario values override it. A single scenario is automatic; multiple scenarios can be selected with the optional panel. Set `debug: true` for precise validation diagnostics.
+
 ## Mock Proxy panel
+
+Install the optional panel with the same package manager:
+
+```sh
+pnpm add --save-dev @wesflo/lockxy-panel
+npm install --save-dev @wesflo/lockxy-panel
+yarn add --dev @wesflo/lockxy-panel
+```
 
 In a Vite-powered micro frontend, register the Web Component and place it directly in the HTML:
 
@@ -44,7 +147,9 @@ The panel loads the manifest from the fixed `/_local-mock-api/manifest` route. A
 Configure every local URL namespace Lockxy should handle through `requestPrefixes`:
 
 ```ts
-mockApiPlugin({
+import lockxy from '@wesflo/vite-plugin-lockxy';
+
+lockxy({
     requestPrefixes: ['/api/', '/development-api/'],
 });
 ```

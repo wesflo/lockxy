@@ -4,11 +4,11 @@ import Code from '../components/Code.astro';
 import DocsLayout from '../layouts/DocsLayout.astro';
 
 const viteConfig = `import { defineConfig } from 'vite';
-import { mockApiPlugin } from '@wesflo/vite-plugin-lockxy';
+import lockxy from '@wesflo/vite-plugin-lockxy';
 
 export default defineConfig(({ command }) => ({
   plugins: command === 'serve' ? [
-    mockApiPlugin({
+    lockxy({
       mockRoot: new URL('./mock/', import.meta.url),
       requestPrefixes: '/api/',
     }),
@@ -28,6 +28,19 @@ const html = `<body>
 </body>`;
 
 const entry = `import '@wesflo/lockxy-panel';`;
+const manifest = `{
+  "$schema": "../node_modules/@wesflo/vite-plugin-lockxy/mock.manifest.schema.json",
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/users/profile",
+      "status": 200,
+      "delay": 400,
+      "file": "users/profile.json"
+    }
+  ]
+}`;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <DocsLayout title="Getting started" description="Set up Lockxy in a Vite project." activePath="/getting-started/">
@@ -68,6 +81,18 @@ const entry = `import '@wesflo/lockxy-panel';`;
                 calls need custom status codes, delays, failures, or multiple response variants.
             </p>
         </Callout>
+
+        <h2 id="optional-add-a-manifest">Optional: add a manifest</h2>
+        <p>
+            Create <code>mock/mock.manifest.json</code> only when a call needs behavior beyond naming conventions. For
+            example, this endpoint keeps using a local response file while adding a fixed delay:
+        </p>
+        <Code code={manifest} label="mock/mock.manifest.json" />
+        <p>
+            Only <code>path</code> is required for an endpoint. Files, statuses, delays, methods, IDs, labels, and scenarios
+            are optional. Read the <a href={`${base}/manifest/`}>Manifest guide</a> for precedence, all available fields,
+            validation, and recommended patterns.
+        </p>
 
         <h2 id="optional-mount-the-proxy-panel">Optional: mount the proxy panel</h2>
         <Code code={html} label="index.html" />

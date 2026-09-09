@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { mockApiPlugin } from '@wesflo/vite-plugin-lockxy';
+import lockxy from '@wesflo/vite-plugin-lockxy';
 
 const mockRoots = {
     development: './mock/',
@@ -19,6 +19,6 @@ export default defineConfig(({ command, mode }) => {
         build: {
             outDir: 'dist',
         },
-        plugins: command === 'serve' ? [mockApiPlugin({ mockRoot, requestPrefixes: '/api/' })] : [],
+        plugins: command === 'serve' ? [lockxy({ mockRoot, requestPrefixes: '/api/' })] : [],
     };
 });

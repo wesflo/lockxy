@@ -10,7 +10,6 @@ const mocks = vi.hoisted(() => ({
     readMockManifest: vi.fn(),
     registerMockWatcher: vi.fn(),
     shouldBypassMockRequest: vi.fn(),
-    defaultMockRoot: new URL('file:///default/mocks/'),
 }));
 
 vi.mock('./app/handleMockRequest/index.js', () => ({
@@ -27,7 +26,6 @@ vi.mock('./app/handleScenarioRequest/util/readMockManifest.js', () => ({
 
 vi.mock('./constant.js', () => ({
     CONTENT_TYPES: { '.json': 'application/json' },
-    DEFAULT_MOCK_ROOT: mocks.defaultMockRoot,
     EXTENSIONS: ['.json'],
     DEBUG: false,
     REQUEST_PREFIXES: ['/api/'],
@@ -51,11 +49,11 @@ vi.mock('./util/shouldBypassMockRequest.js', () => ({
     shouldBypassMockRequest: mocks.shouldBypassMockRequest,
 }));
 
-import { mockApiPlugin } from './index.js';
+import lockxy, { lockxy as namedLockxy } from './index.js';
 
 type Middleware = (request: IncomingMessage, response: ServerResponse, next: () => void) => Promise<void>;
 
-describe('mockApiPlugin', () => {
+describe('lockxy', () => {
     const normalizedMockRoot = new URL('file:///normalized/mocks/');
 
     beforeEach(() => {
@@ -67,18 +65,31 @@ describe('mockApiPlugin', () => {
         mocks.shouldBypassMockRequest.mockResolvedValue(false);
     });
 
-    it('creates the original named plugin and normalizes the default mock root', () => {
-        const plugin = mockApiPlugin();
+    it('exports the plugin factory as both the default and named export', () => {
+        expect(lockxy).toBe(namedLockxy);
+    });
+
+    it('creates the plugin and prepares the default mock root', () => {
+        const plugin = lockxy();
 
         expect(plugin.name).toBe('lockxy');
-        expect(mocks.normalizeMockRoot).toHaveBeenCalledWith(mocks.defaultMockRoot);
+        expect(mocks.normalizeMockRoot).toHaveBeenCalledWith(undefined);
         expect(typeof plugin.configureServer).toBe('function');
+    });
+
+    it('resolves the default mock root from the Vite project root', () => {
+        const plugin = lockxy();
+        const configResolved = plugin.configResolved as (config: ResolvedConfig) => void;
+
+        configResolved({ command: 'serve', mode: 'development', root: '/projects/application' } as ResolvedConfig);
+
+        expect(mocks.normalizeMockRoot).toHaveBeenLastCalledWith(undefined, '/projects/application');
     });
 
     it('normalizes an explicitly configured mock root', () => {
         const mockRoot = new URL('file:///custom/mocks');
 
-        mockApiPlugin({ mockRoot });
+        lockxy({ mockRoot });
 
         expect(mocks.normalizeMockRoot).toHaveBeenCalledWith(mockRoot);
     });
@@ -88,7 +99,7 @@ describe('mockApiPlugin', () => {
         const use = vi.fn((registeredMiddleware: Middleware) => {
             middleware = registeredMiddleware;
         });
-        const plugin = mockApiPlugin({
+        const plugin = lockxy({
             requestPrefixes: '/custom-api/',
             extensions: ['.xml'],
             contentTypes: { '.xml': 'application/xml' },
@@ -119,7 +130,7 @@ describe('mockApiPlugin', () => {
         const use = vi.fn((registeredMiddleware: Middleware) => {
             middleware = registeredMiddleware;
         });
-        const plugin = mockApiPlugin();
+        const plugin = lockxy();
         const configureServer = plugin.configureServer as (server: ViteDevServer) => Promise<void>;
         await configureServer({ middlewares: { use } } as unknown as ViteDevServer);
         const request = {} as IncomingMessage;
@@ -147,7 +158,7 @@ describe('mockApiPlugin', () => {
         const use = vi.fn((registeredMiddleware: Middleware) => {
             middleware = registeredMiddleware;
         });
-        const plugin = mockApiPlugin();
+        const plugin = lockxy();
         const configureServer = plugin.configureServer as (server: ViteDevServer) => Promise<void>;
         await configureServer({ middlewares: { use } } as unknown as ViteDevServer);
         const request = {} as IncomingMessage;
@@ -168,7 +179,7 @@ describe('mockApiPlugin', () => {
     ])('warns and refuses middleware for command %s in mode %s', async (command, mode) => {
         const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
         const use = vi.fn();
-        const plugin = mockApiPlugin();
+        const plugin = lockxy();
         const configResolved = plugin.configResolved as (config: ResolvedConfig) => void;
         const configureServer = plugin.configureServer as (server: ViteDevServer) => Promise<void>;
 
