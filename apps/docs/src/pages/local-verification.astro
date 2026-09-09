@@ -3,14 +3,14 @@ import Callout from '../components/Callout.astro';
 import Code from '../components/Code.astro';
 import DocsLayout from '../layouts/DocsLayout.astro';
 
-const checkout = `git clone https://github.com/wesflo/vite-plugin-local-mock-api.git
-cd vite-plugin-local-mock-api
+const checkout = `git clone https://github.com/wesflo/lockxy.git
+cd lockxy
 pnpm install`;
 
 const startBoth = `pnpm dev`;
 
 const demoCommands = `# Standard manifest and the complete fixture set
-pnpm --filter @wesflo/local-mock-api-demo dev
+pnpm --filter @wesflo/lockxy-demo dev
 
 # No mock.manifest.json: naming conventions must keep working
 pnpm dev:missing-manifest
@@ -31,7 +31,7 @@ pnpm test:package
 pnpm test:app
 
 # Proxy panel unit tests
-pnpm --filter @wesflo/wf-vite-mock-proxy test
+pnpm --filter @wesflo/lockxy-panel test
 
 # Build the complete workspace
 pnpm build`;
@@ -68,8 +68,8 @@ pnpm build`;
 
         <h2 id="plugin-demo">Plugin demo</h2>
         <p>
-            The demo exercises <code>@wesflo/vite-plugin-local-mock-api</code> without importing or mounting
-            <code>@wesflo/wf-vite-mock-proxy</code>. Its browser interface is only a request harness: it sends the same calls
+            The demo exercises <code>@wesflo/vite-plugin-lockxy</code> without importing or mounting
+            <code>@wesflo/lockxy-panel</code>. Its browser interface is only a request harness: it sends the same calls
             an application would send and displays status, headers, timing, and response content.
         </p>
         <p>Use the standard demo to verify:</p>
@@ -122,7 +122,7 @@ pnpm build`;
         <h2 id="proxy-playground">Proxy playground</h2>
         <p>
             The playground loads the same kinds of requests and fixtures, but also mounts the real
-            <code>&lt;wf-vite-mock-proxy&gt;</code> Web Component. Use it to verify the integration between the panel, its
+            <code>&lt;wf-lockxy-panel&gt;</code> Web Component. Use it to verify the integration between the panel, its
             browser persistence, and the Vite middleware.
         </p>
         <Code code={playgroundCommands} label="terminal" />
@@ -166,8 +166,8 @@ pnpm build`;
                 <tr><th>Path</th><th>What to find there</th></tr>
             </thead>
             <tbody>
-                <tr><td><code>packages/vite-plugin-local-mock-api/</code></td><td>Vite middleware, manifest handling, resolver logic, and plugin tests.</td></tr>
-                <tr><td><code>packages/wf-vite-mock-proxy/</code></td><td>Embeddable proxy panel, browser state, cookies, and panel tests.</td></tr>
+                <tr><td><code>packages/vite-plugin-lockxy/</code></td><td>Vite middleware, manifest handling, resolver logic, and plugin tests.</td></tr>
+                <tr><td><code>packages/lockxy-panel/</code></td><td>Embeddable proxy panel, browser state, cookies, and panel tests.</td></tr>
                 <tr><td><code>packages/local-mock-api-ui/</code></td><td>Shared UI elements used by the repository applications and panel.</td></tr>
                 <tr><td><code>packages/local-mock-api-utils/</code></td><td>Shared browser and protocol utilities.</td></tr>
                 <tr><td><code>apps/demo/</code></td><td>Plugin-only browser harness, its modes, fixtures, and request cases.</td></tr>

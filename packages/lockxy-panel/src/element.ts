@@ -37,7 +37,7 @@ import { renderMockProxy } from './view.js';
 import { nothing } from 'lit';
 
 @wfElement(MOCK_PROXY_TAG_NAME)
-export class WfViteMockProxy extends MockProxyInteractionElement {
+export class WfLockxyPanel extends MockProxyInteractionElement {
     static styles = [resetStyles, mockProxyStyle];
 
     @state() private bypass = parseBypassCookie();

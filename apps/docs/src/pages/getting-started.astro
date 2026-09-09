@@ -4,7 +4,7 @@ import Code from '../components/Code.astro';
 import DocsLayout from '../layouts/DocsLayout.astro';
 
 const viteConfig = `import { defineConfig } from 'vite';
-import { mockApiPlugin } from '@wesflo/vite-plugin-local-mock-api';
+import { mockApiPlugin } from '@wesflo/vite-plugin-lockxy';
 
 export default defineConfig(({ command }) => ({
   plugins: command === 'serve' ? [
@@ -23,11 +23,11 @@ const fileTree = `mock/
 
 const html = `<body>
   <your-micro-frontend></your-micro-frontend>
-  <wf-vite-mock-proxy></wf-vite-mock-proxy>
+  <wf-lockxy-panel></wf-lockxy-panel>
   <script type="module" src="/src/index.ts"></script>
 </body>`;
 
-const entry = `import '@wesflo/wf-vite-mock-proxy';`;
+const entry = `import '@wesflo/lockxy-panel';`;
 ---
 
 <DocsLayout title="Getting started" description="Set up Lockxy in a Vite project." activePath="/getting-started/">
@@ -73,7 +73,7 @@ const entry = `import '@wesflo/wf-vite-mock-proxy';`;
         <Code code={html} label="index.html" />
         <Code code={entry} label="src/index.ts" />
         <p>
-            Install <code>@wesflo/wf-vite-mock-proxy</code> and mount it only if you want browser controls for scenarios or
+            Install <code>@wesflo/lockxy-panel</code> and mount it only if you want browser controls for scenarios or
             endpoint passthrough. The panel reads the optional manifest from the fixed
             <code>/_local-mock-api/manifest</code> route.
         </p>

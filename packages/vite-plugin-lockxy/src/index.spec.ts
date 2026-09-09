@@ -70,7 +70,7 @@ describe('mockApiPlugin', () => {
     it('creates the original named plugin and normalizes the default mock root', () => {
         const plugin = mockApiPlugin();
 
-        expect(plugin.name).toBe('local-mock-api');
+        expect(plugin.name).toBe('lockxy');
         expect(mocks.normalizeMockRoot).toHaveBeenCalledWith(mocks.defaultMockRoot);
         expect(typeof plugin.configureServer).toBe('function');
     });

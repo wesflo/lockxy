@@ -8,13 +8,13 @@ import './element.js';
 import type { MockProxySettings } from './element.js';
 
 const createSettings = async (): Promise<MockProxySettings> => {
-    const element = document.createElement('wf-vite-mock-proxy-settings') as MockProxySettings;
+    const element = document.createElement('wf-lockxy-panel-settings') as MockProxySettings;
     document.body.append(element);
     await element.updateComplete;
     return element;
 };
 
-describe('wf-vite-mock-proxy-settings', () => {
+describe('wf-lockxy-panel-settings', () => {
     it('renders the documented defaults', async () => {
         const element = await createSettings();
         const switches = element.shadowRoot?.querySelectorAll<WfSwitch>('wf-switch');

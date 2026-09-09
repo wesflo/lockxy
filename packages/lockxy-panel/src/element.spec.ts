@@ -14,7 +14,7 @@ import {
     SAVE_SELECTIONS_STORAGE_KEY,
 } from './constant.js';
 import './element.js';
-import type { WfViteMockProxy } from './element.js';
+import type { WfLockxyPanel } from './element.js';
 
 const manifest = {
     endpoints: [
@@ -30,26 +30,26 @@ const manifest = {
     ],
 };
 
-const createElement = async (): Promise<WfViteMockProxy> => {
-    const element = document.createElement('wf-vite-mock-proxy') as WfViteMockProxy;
+const createElement = async (): Promise<WfLockxyPanel> => {
+    const element = document.createElement('wf-lockxy-panel') as WfLockxyPanel;
     document.body.append(element);
     await element.updateComplete;
     await vi.waitFor(async () => {
-        const endpoints = element.shadowRoot?.querySelector<MockProxyEndpoints>('wf-vite-mock-proxy-endpoints');
+        const endpoints = element.shadowRoot?.querySelector<MockProxyEndpoints>('wf-lockxy-panel-endpoints');
         await endpoints?.updateComplete;
         expect(endpoints?.shadowRoot?.querySelector('.endpoint')).not.toBeNull();
     });
     return element;
 };
 
-const getEndpoints = (element: WfViteMockProxy): MockProxyEndpoints =>
-    element.shadowRoot?.querySelector<MockProxyEndpoints>('wf-vite-mock-proxy-endpoints') as MockProxyEndpoints;
+const getEndpoints = (element: WfLockxyPanel): MockProxyEndpoints =>
+    element.shadowRoot?.querySelector<MockProxyEndpoints>('wf-lockxy-panel-endpoints') as MockProxyEndpoints;
 
-const getSettings = async (element: WfViteMockProxy): Promise<MockProxySettings> => {
+const getSettings = async (element: WfLockxyPanel): Promise<MockProxySettings> => {
     element.shadowRoot?.querySelector<HTMLButtonElement>('#tab-settings')?.click();
     await element.updateComplete;
     const settings = element.shadowRoot?.querySelector<MockProxySettings>(
-        'wf-vite-mock-proxy-settings'
+        'wf-lockxy-panel-settings'
     ) as MockProxySettings;
     await settings.updateComplete;
     return settings;
@@ -61,7 +61,7 @@ const clickSwitch = async (element: WfSwitch): Promise<void> => {
     await element.updateComplete;
 };
 
-describe('wf-vite-mock-proxy', () => {
+describe('wf-lockxy-panel', () => {
     beforeEach(() => {
         document.body.replaceChildren();
         document.cookie = `${BYPASS_COOKIE_NAME}=; Max-Age=0; Path=/`;
@@ -110,7 +110,7 @@ describe('wf-vite-mock-proxy', () => {
 
     it('does not render when the manifest has no configurable endpoints', async () => {
         vi.mocked(fetch).mockResolvedValue(new Response('{}', { status: 200 }));
-        const element = document.createElement('wf-vite-mock-proxy') as WfViteMockProxy;
+        const element = document.createElement('wf-lockxy-panel') as WfLockxyPanel;
 
         document.body.append(element);
         await vi.waitFor(() => expect(fetch).toHaveBeenCalled());
@@ -144,8 +144,8 @@ describe('wf-vite-mock-proxy', () => {
         element.shadowRoot?.querySelector<HTMLButtonElement>('#tab-settings')?.click();
         await element.updateComplete;
 
-        expect(element.shadowRoot?.querySelector('wf-vite-mock-proxy-settings')).not.toBeNull();
-        expect(element.shadowRoot?.querySelector('wf-vite-mock-proxy-endpoints')).toBeNull();
+        expect(element.shadowRoot?.querySelector('wf-lockxy-panel-settings')).not.toBeNull();
+        expect(element.shadowRoot?.querySelector('wf-lockxy-panel-endpoints')).toBeNull();
     });
 
     it('persists the proxy-on-load setting and applies it on the next mount', async () => {

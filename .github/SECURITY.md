@@ -2,13 +2,13 @@
 
 ## Supported versions
 
-Security fixes are provided for the latest published versions of `@wesflo/vite-plugin-local-mock-api` and `@wesflo/wf-vite-mock-proxy`.
+Security fixes are provided for the latest published versions of `@wesflo/vite-plugin-lockxy` and `@wesflo/lockxy-panel`.
 
 ## Reporting a vulnerability
 
 Please do not report security vulnerabilities through public issues, pull requests, or discussions.
 
-Use [GitHub private vulnerability reporting](https://github.com/wesflo/vite-plugin-local-mock-api/security/advisories/new) and include:
+Use [GitHub private vulnerability reporting](https://github.com/wesflo/lockxy/security/advisories/new) and include:
 
 - the affected package and version;
 - steps to reproduce the issue;

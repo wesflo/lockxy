@@ -230,7 +230,7 @@ export const renderDemo = (model: DemoViewModel, actions: DemoViewActions) => {
                 <wf-badge tone="info">Local Mock API</wf-badge>
             </a>
             <nav aria-label="Demo navigation">
-                <a href="https://wesflo.github.io/vite-plugin-local-mock-api/" target="_blank">
+                <a href="https://wesflo.github.io/lockxy/" target="_blank">
                     <wf-icon name="book"></wf-icon>
                     Docs
                 </a>

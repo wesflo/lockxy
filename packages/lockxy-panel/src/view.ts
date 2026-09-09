@@ -9,7 +9,7 @@ import type { SettingChangeDetail } from './component/Settings/interface.js';
 const renderContent = (model: MockProxyViewModel, actions: MockProxyViewActions) =>
     model.activeTab === ENDPOINTS_TAB
         ? html`
-              <wf-vite-mock-proxy-endpoints
+              <wf-lockxy-panel-endpoints
                   id="panel-endpoints"
                   role="tabpanel"
                   aria-labelledby="tab-endpoints"
@@ -28,10 +28,10 @@ const renderContent = (model: MockProxyViewModel, actions: MockProxyViewActions)
                   @onQueryChange=${(event: CustomEvent<{ query: string }>) =>
                       actions.handleQueryChange(event.detail.query)}
                   @onRetryManifest=${actions.retryManifest}
-              ></wf-vite-mock-proxy-endpoints>
+              ></wf-lockxy-panel-endpoints>
           `
         : html`
-              <wf-vite-mock-proxy-settings
+              <wf-lockxy-panel-settings
                   id="panel-settings"
                   role="tabpanel"
                   aria-labelledby="tab-settings"
@@ -40,7 +40,7 @@ const renderContent = (model: MockProxyViewModel, actions: MockProxyViewActions)
                   @onSettingChange=${(event: CustomEvent<SettingChangeDetail>) =>
                       actions.handleSettingChange(event.detail)}
                   @onResetSettings=${actions.resetSettings}
-              ></wf-vite-mock-proxy-settings>
+              ></wf-lockxy-panel-settings>
           `;
 
 export const renderMockProxy = (model: MockProxyViewModel, actions: MockProxyViewActions) => html`

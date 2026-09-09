@@ -54,13 +54,13 @@ export const mockApiPlugin = ({
     };
 
     return {
-        name: 'local-mock-api',
+        name: 'lockxy',
 
         configResolved: (config) => {
             developmentServer = config.command === 'serve' && config.mode !== 'production';
             if (!developmentServer) {
                 console.warn(
-                    '[local-mock-api] SAFETY WARNING: the mock API plugin was included in a production build or mode. ' +
+                    '[lockxy] SAFETY WARNING: the mock API plugin was included in a production build or mode. ' +
                         'Mock middleware is disabled; include this plugin only in development configuration.'
                 );
             }

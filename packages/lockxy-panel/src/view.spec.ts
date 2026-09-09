@@ -52,7 +52,7 @@ describe('renderMockProxy', () => {
         expect(panel?.getAttribute('aria-hidden')).toBe('false');
         expect(tabs[0]?.getAttribute('aria-selected')).toBe('true');
         expect(tabs[1]?.getAttribute('tabindex')).toBe('-1');
-        expect(container.querySelector('wf-vite-mock-proxy-endpoints')).not.toBeNull();
+        expect(container.querySelector('wf-lockxy-panel-endpoints')).not.toBeNull();
     });
 
     it('connects launcher, close and tab controls to their actions', () => {
@@ -73,7 +73,7 @@ describe('renderMockProxy', () => {
         const container = document.createElement('div');
         const actions = createActions();
         render(renderMockProxy({ ...model, activeTab: SETTINGS_TAB }, actions), container);
-        const settings = container.querySelector('wf-vite-mock-proxy-settings');
+        const settings = container.querySelector('wf-lockxy-panel-settings');
 
         settings?.dispatchEvent(
             new CustomEvent('onSettingChange', {
@@ -82,7 +82,7 @@ describe('renderMockProxy', () => {
         );
         settings?.dispatchEvent(new CustomEvent('onResetSettings'));
 
-        expect(container.querySelector('wf-vite-mock-proxy-endpoints')).toBeNull();
+        expect(container.querySelector('wf-lockxy-panel-endpoints')).toBeNull();
         expect(actions.handleSettingChange).toHaveBeenCalledWith({ name: 'saveSelections', checked: true });
         expect(actions.resetSettings).toHaveBeenCalledOnce();
     });

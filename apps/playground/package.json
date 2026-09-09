@@ -1,5 +1,5 @@
 {
-    "name": "@wesflo/wf-vite-mock-proxy-playground",
+    "name": "@wesflo/lockxy-playground",
     "version": "0.0.0",
     "private": true,
     "type": "module",
@@ -10,11 +10,11 @@
     },
     "dependencies": {
         "@wesflo/local-mock-api-ui": "workspace:*",
-        "@wesflo/wf-vite-mock-proxy": "workspace:*",
+        "@wesflo/lockxy-panel": "workspace:*",
         "lit": "^3.3.1"
     },
     "devDependencies": {
-        "@wesflo/vite-plugin-local-mock-api": "workspace:*",
+        "@wesflo/vite-plugin-lockxy": "workspace:*",
         "typescript": "^5.8.2",
         "vite": "8.2.2"
     },

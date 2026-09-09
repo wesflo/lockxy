@@ -4,9 +4,9 @@ export const logError = (enabled: boolean, message: string, error?: unknown): vo
     }
 
     if (error === undefined) {
-        console.error(`[local-mock-api] ${message}`);
+        console.error(`[lockxy] ${message}`);
         return;
     }
 
-    console.error(`[local-mock-api] ${message}`, error);
+    console.error(`[lockxy] ${message}`, error);
 };

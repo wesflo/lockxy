@@ -1,7 +1,7 @@
 {
-    "name": "@wesflo/wf-vite-mock-proxy",
-    "version": "0.0.6",
-    "description": "The embeddable Lockxy UI for configuring @wesflo/vite-plugin-local-mock-api in the browser.",
+    "name": "@wesflo/lockxy-panel",
+    "version": "0.0.0",
+    "description": "The embeddable Lockxy UI for configuring @wesflo/vite-plugin-lockxy in the browser.",
     "author": {
         "name": "Florian Wessner",
         "email": "lockxy@wesflo.de"
@@ -9,24 +9,24 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/wesflo/vite-plugin-local-mock-api.git",
-        "directory": "packages/wf-vite-mock-proxy"
+        "url": "git+https://github.com/wesflo/lockxy.git",
+        "directory": "packages/lockxy-panel"
     },
-    "homepage": "https://wesflo.github.io/vite-plugin-local-mock-api/proxy-panel/",
+    "homepage": "https://wesflo.github.io/lockxy/proxy-panel/",
     "bugs": {
-        "url": "https://github.com/wesflo/vite-plugin-local-mock-api/issues"
+        "url": "https://github.com/wesflo/lockxy/issues"
     },
     "type": "module",
     "types": "./dist/index.d.ts",
-    "module": "./dist/wf-vite-mock-proxy.js",
-    "main": "./dist/wf-vite-mock-proxy.umd.cjs",
-    "unpkg": "./dist/wf-vite-mock-proxy.umd.cjs",
-    "jsdelivr": "./dist/wf-vite-mock-proxy.umd.cjs",
+    "module": "./dist/wf-lockxy-panel.js",
+    "main": "./dist/wf-lockxy-panel.umd.cjs",
+    "unpkg": "./dist/wf-lockxy-panel.umd.cjs",
+    "jsdelivr": "./dist/wf-lockxy-panel.umd.cjs",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
-            "import": "./dist/wf-vite-mock-proxy.js",
-            "default": "./dist/wf-vite-mock-proxy.umd.cjs"
+            "import": "./dist/wf-lockxy-panel.js",
+            "default": "./dist/wf-lockxy-panel.umd.cjs"
         }
     },
     "files": [
@@ -35,7 +35,7 @@
         "LICENSE"
     ],
     "scripts": {
-        "build": "vite build && tsc -p tsconfig.build.json",
+        "build": "rm -rf ./dist && vite build && tsc -p tsconfig.build.json",
         "test": "vitest run src --passWithNoTests",
         "check-types": "tsc --noEmit -p tsconfig.json"
     },

@@ -1,4 +1,4 @@
-import schema from '../../../../../packages/vite-plugin-local-mock-api/mock.manifest.schema.json';
+import schema from '../../../../../packages/vite-plugin-lockxy/mock.manifest.schema.json';
 
 export const prerender = true;
 

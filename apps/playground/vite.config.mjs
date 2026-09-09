@@ -1,4 +1,4 @@
-import { mockApiPlugin } from '@wesflo/vite-plugin-local-mock-api';
+import { mockApiPlugin } from '@wesflo/vite-plugin-lockxy';
 import { defineConfig } from 'vite';
 
 const apiTarget = process.env.PLAYGROUND_API_TARGET;

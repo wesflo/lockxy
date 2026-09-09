@@ -70,7 +70,7 @@ const noContent = `{
 }`;
 
 const schemaManifest = `{
-  "$schema": "../node_modules/@wesflo/vite-plugin-local-mock-api/mock.manifest.schema.json",
+  "$schema": "../node_modules/@wesflo/vite-plugin-lockxy/mock.manifest.schema.json",
   "delay": 400
 }`;
 
@@ -80,7 +80,7 @@ const diagnosticsConfig = `mockApiPlugin({
 })`;
 
 const multiplePrefixesConfig = `import { defineConfig } from 'vite';
-import { mockApiPlugin } from '@wesflo/vite-plugin-local-mock-api';
+import { mockApiPlugin } from '@wesflo/vite-plugin-lockxy';
 
 export default defineConfig(({ command }) => ({
   plugins: command === 'serve' ? [
@@ -219,7 +219,7 @@ export default defineConfig(({ command }) => ({
             The npm package ships <code>mock.manifest.schema.json</code> for editor autocomplete and inline validation.
             Add <code>$schema</code> to the manifest and adjust the relative path if <code>mockRoot</code> is elsewhere.
             The same schema is also available from the
-            <a href="https://wesflo.github.io/vite-plugin-local-mock-api/schema/mock.manifest.schema.json">documentation site</a>.
+            <a href="https://wesflo.github.io/lockxy/schema/mock.manifest.schema.json">documentation site</a>.
         </p>
         <Code code={schemaManifest} label="mock/mock.manifest.json" />
 
@@ -238,7 +238,7 @@ export default defineConfig(({ command }) => ({
             colors, delay is orange, and the source is shown in Lockxy's primary color.
             Plain output is used for non-interactive logs and when the <code>NO_COLOR</code> environment variable is set.
             Runtime problems such as corrupt selection cookies, unsafe paths, missing files, and invalid manifests use the
-            same <code>[local-mock-api]</code> prefix. Set <code>logging: false</code> for a quiet development server.
+            same <code>[lockxy]</code> prefix. Set <code>logging: false</code> for a quiet development server.
         </p>
         <p>
             Every response produced by the mock server includes <code>X-Local-Mock-Api: true</code>, including empty and

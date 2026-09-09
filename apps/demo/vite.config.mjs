@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { mockApiPlugin } from '@wesflo/vite-plugin-local-mock-api';
+import { mockApiPlugin } from '@wesflo/vite-plugin-lockxy';
 
 const mockRoots = {
     development: './mock/',

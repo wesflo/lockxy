@@ -32,7 +32,7 @@ export const logRequest = (
     const source = RESPONSE_SOURCE_LABELS[details.source];
 
     console.info(
-        `[local-mock-api] ${colorize(method, methodColor, colorsEnabled)} ${details.url} -> ` +
+        `[lockxy] ${colorize(method, methodColor, colorsEnabled)} ${details.url} -> ` +
             `${colorize(String(details.status), getStatusColor(details.status), colorsEnabled)}; ` +
             `${colorize(`delay=${details.delay}ms`, LOG_COLORS.warning, colorsEnabled)}; ` +
             colorize(source, LOG_COLORS.primary, colorsEnabled)
