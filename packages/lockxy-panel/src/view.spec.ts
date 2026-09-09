@@ -10,6 +10,7 @@ import { renderMockProxy } from './view.js';
 const model: MockProxyViewModel = {
     activeTab: ENDPOINTS_TAB,
     bypass: { all: false, endpointIds: new Set() },
+    canSaveSelections: true,
     dragging: false,
     endpoints: [{ id: 'users', method: 'GET', path: '/api/users' }],
     error: '',

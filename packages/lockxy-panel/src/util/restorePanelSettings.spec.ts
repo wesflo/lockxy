@@ -11,14 +11,27 @@ describe('restorePanelSettings', () => {
 
         const values = new Map([
             ['wesflo-mock-api-proxy-on-load', 'false'],
-            ['wesflo-mock-api-save-selections', 'true'],
+            ['wesflo-mock-api-save-selections:checkout', 'true'],
         ]);
         expect(
-            restorePanelSettings({
-                getItem: (key) => values.get(key) ?? null,
-                setItem: vi.fn(),
-                removeItem: vi.fn(),
-            })
+            restorePanelSettings(
+                {
+                    getItem: (key) => values.get(key) ?? null,
+                    setItem: vi.fn(),
+                    removeItem: vi.fn(),
+                },
+                'checkout'
+            )
         ).toEqual({ proxyOnLoad: false, saveSelections: true });
+    });
+
+    it('does not restore unscoped selections without a manifest ID', () => {
+        const storage = {
+            getItem: (key: string) => (key === 'wesflo-mock-api-save-selections' ? 'true' : null),
+            setItem: vi.fn(),
+            removeItem: vi.fn(),
+        };
+
+        expect(restorePanelSettings(storage)).toEqual({ proxyOnLoad: true, saveSelections: false });
     });
 });

@@ -1,12 +1,18 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://wesflo.github.io/lockxy/schema/mock.manifest.schema.json",
-    "title": "Local Mock API manifest",
+    "title": "Lockxy manifest",
     "description": "Optional behavior overrides for @wesflo/vite-plugin-lockxy.",
     "type": "object",
     "additionalProperties": false,
     "properties": {
         "$schema": { "type": "string" },
+        "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "description": "Stable project identifier used to namespace optional panel storage."
+        },
         "delay": { "$ref": "#/$defs/delay" },
         "endpoints": {
             "type": "array",

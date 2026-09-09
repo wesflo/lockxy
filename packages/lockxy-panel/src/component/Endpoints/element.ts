@@ -56,12 +56,19 @@ export class MockProxyEndpoints extends LitElement {
 
     private displayPath = (path: string): string => path.replace(/^\/api(?=\/|$)/, '') || '/';
 
+    protected updated(): void {
+        this.shadowRoot?.querySelectorAll<HTMLSelectElement>('select[data-endpoint-id]').forEach((select) => {
+            select.value = this.scenarios.get(select.dataset.endpointId ?? '') ?? '';
+        });
+    }
+
     private renderEndpoint = (endpoint: MockEndpoint) => {
         const active = this.isEndpointActive(endpoint);
         const unavailable = endpoint.active === false;
         const disabled = unavailable || this.bypass.all;
         const method = endpoint.method ?? 'ANY';
         const scenarios = endpoint.scenarios ?? [];
+        const selectedScenarioId = this.scenarios.get(endpoint.id ?? '') ?? '';
 
         return html`
             <article class=${`endpoint ${unavailable ? 'inactive' : ''}`}>
@@ -80,7 +87,7 @@ export class MockProxyEndpoints extends LitElement {
                               <label>
                                   <span class="sr-only">Scenario for ${method} ${endpoint.path}</span>
                                   <select
-                                      .value=${this.scenarios.get(endpoint.id ?? '') ?? ''}
+                                      data-endpoint-id=${endpoint.id ?? ''}
                                       ?disabled=${disabled || !active}
                                       @change=${(event: Event) =>
                                           this.emit<ScenarioChangeDetail>(ON_SCENARIO_CHANGE_EVENT, {
@@ -88,12 +95,15 @@ export class MockProxyEndpoints extends LitElement {
                                               scenarioId: (event.currentTarget as HTMLSelectElement).value,
                                           })}
                                   >
-                                      <option value="">
+                                      <option value="" ?selected=${selectedScenarioId === ''}>
                                           ${scenarios.length ? 'Default file resolution' : 'Endpoint configuration'}
                                       </option>
                                       ${scenarios.map(
                                           (scenario) => html`
-                                              <option value=${scenario.id ?? ''}>
+                                              <option
+                                                  value=${scenario.id ?? ''}
+                                                  ?selected=${scenario.id === selectedScenarioId}
+                                              >
                                                   ${scenario.label ?? scenario.id ?? 'Unnamed scenario'}
                                               </option>
                                           `

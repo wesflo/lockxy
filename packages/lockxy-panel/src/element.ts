@@ -26,6 +26,7 @@ import type { SettingChangeDetail } from './component/Settings/interface.js';
 import './component/Settings/element.js';
 import { mockProxyStyle } from './style.js';
 import { createCookieSelectionValues } from './util/createCookieSelectionValues.js';
+import { getManifestStorageKey } from './util/getManifestStorageKey.js';
 import { mergeStoredEndpointSelections } from './util/mergeStoredEndpointSelections.js';
 import { persistBooleanSetting } from './util/persistBooleanSetting.js';
 import { persistEndpointSelections } from './util/persistEndpointSelections.js';
@@ -33,6 +34,7 @@ import { removeStoredSetting } from './util/removeStoredSetting.js';
 import { resetPanelStorage } from './util/resetPanelStorage.js';
 import { restoreEndpointSelections } from './util/restoreEndpointSelections.js';
 import { restorePanelSettings } from './util/restorePanelSettings.js';
+import { sanitizeCookieSelectionValues } from './util/sanitizeCookieSelectionValues.js';
 import { renderMockProxy } from './view.js';
 import { nothing } from 'lit';
 
@@ -54,8 +56,9 @@ export class WfLockxyPanel extends MockProxyInteractionElement {
         const settings = restorePanelSettings(localStorage);
         this.proxyOnLoad = settings.proxyOnLoad;
         this.saveSelections = settings.saveSelections;
-        setCookieValue(SCENARIO_COOKIE_NAME, '');
-        setCookieValue(BYPASS_COOKIE_NAME, this.proxyOnLoad ? '' : BYPASS_ALL_VALUE);
+        if (getCookieValue(BYPASS_COOKIE_NAME) === undefined && !this.proxyOnLoad) {
+            setCookieValue(BYPASS_COOKIE_NAME, BYPASS_ALL_VALUE);
+        }
         this.syncCookieState();
         void this.loadManifest();
     }
@@ -73,6 +76,8 @@ export class WfLockxyPanel extends MockProxyInteractionElement {
 
             const manifest = (await response.json()) as MockManifest;
             this.manifest = manifest.endpoints?.length ? manifest : undefined;
+            this.saveSelections = restorePanelSettings(localStorage, this.manifest?.id).saveSelections;
+            this.sanitizeCookieState();
             if (this.saveSelections) {
                 this.applyStoredSelections();
             }
@@ -84,27 +89,47 @@ export class WfLockxyPanel extends MockProxyInteractionElement {
         }
     };
 
+    private sanitizeCookieState = (): void => {
+        const bypassCookie = getCookieValue(BYPASS_COOKIE_NAME);
+        const scenarioCookie = getCookieValue(SCENARIO_COOKIE_NAME);
+        const sanitized = sanitizeCookieSelectionValues(this.manifest?.endpoints ?? [], bypassCookie, scenarioCookie);
+
+        if ((bypassCookie ?? '') !== sanitized.bypass) {
+            setCookieValue(BYPASS_COOKIE_NAME, sanitized.bypass);
+        }
+        if ((scenarioCookie ?? '') !== sanitized.scenarios) {
+            setCookieValue(SCENARIO_COOKIE_NAME, sanitized.scenarios);
+        }
+        this.syncCookieState();
+    };
+
     private syncCookieState = (): void => {
         this.bypass = parseBypassCookie(getCookieValue(BYPASS_COOKIE_NAME));
         this.scenarios = parseScenarioCookie(getCookieValue(SCENARIO_COOKIE_NAME));
     };
 
     private applyStoredSelections = (): void => {
-        const stored = restoreEndpointSelections(localStorage, ENDPOINT_SELECTIONS_STORAGE_KEY);
-        const values = createCookieSelectionValues(this.manifest?.endpoints ?? [], stored, this.proxyOnLoad);
+        if (!this.manifest?.id) {
+            return;
+        }
+
+        const storageKey = getManifestStorageKey(ENDPOINT_SELECTIONS_STORAGE_KEY, this.manifest.id);
+        const stored = restoreEndpointSelections(localStorage, storageKey);
+        const values = createCookieSelectionValues(this.manifest.endpoints ?? [], stored, !this.bypass.all);
         setCookieValue(BYPASS_COOKIE_NAME, values.bypass);
         setCookieValue(SCENARIO_COOKIE_NAME, values.scenarios);
         this.syncCookieState();
     };
 
     private persistSelections = (endpoints: readonly MockEndpoint[]): void => {
-        if (!this.saveSelections) {
+        if (!this.saveSelections || !this.manifest?.id) {
             return;
         }
 
-        const current = restoreEndpointSelections(localStorage, ENDPOINT_SELECTIONS_STORAGE_KEY);
+        const storageKey = getManifestStorageKey(ENDPOINT_SELECTIONS_STORAGE_KEY, this.manifest.id);
+        const current = restoreEndpointSelections(localStorage, storageKey);
         const selections = mergeStoredEndpointSelections(current, endpoints, this.bypass, this.scenarios);
-        persistEndpointSelections(localStorage, ENDPOINT_SELECTIONS_STORAGE_KEY, selections);
+        persistEndpointSelections(localStorage, storageKey, selections);
     };
 
     private setProxyActive = (active: boolean): void => {
@@ -147,12 +172,18 @@ export class WfLockxyPanel extends MockProxyInteractionElement {
                 this.applyStoredSelections();
             }
         } else {
+            if (!this.manifest?.id) {
+                return;
+            }
+
             this.saveSelections = checked;
-            persistBooleanSetting(localStorage, SAVE_SELECTIONS_STORAGE_KEY, checked);
+            const saveKey = getManifestStorageKey(SAVE_SELECTIONS_STORAGE_KEY, this.manifest.id);
+            const selectionsKey = getManifestStorageKey(ENDPOINT_SELECTIONS_STORAGE_KEY, this.manifest.id);
+            persistBooleanSetting(localStorage, saveKey, checked);
             if (checked) {
                 this.persistSelections(this.manifest?.endpoints ?? []);
             } else {
-                removeStoredSetting(localStorage, ENDPOINT_SELECTIONS_STORAGE_KEY);
+                removeStoredSetting(localStorage, selectionsKey);
             }
         }
     };
@@ -175,6 +206,7 @@ export class WfLockxyPanel extends MockProxyInteractionElement {
                   {
                       activeTab: this.activeTab,
                       bypass: this.bypass,
+                      canSaveSelections: Boolean(this.manifest.id),
                       dragging: Boolean(this.dragState),
                       endpoints: this.manifest?.endpoints ?? [],
                       error: this.error,

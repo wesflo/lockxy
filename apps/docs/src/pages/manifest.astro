@@ -5,6 +5,7 @@ import DocsLayout from '../layouts/DocsLayout.astro';
 
 const schemaManifest = `{
   "$schema": "../node_modules/@wesflo/vite-plugin-lockxy/mock.manifest.schema.json",
+  "id": "checkout",
   "delay": 400
 }`;
 
@@ -28,6 +29,7 @@ const minimalStatus = `{
 
 const completeManifest = `{
   "$schema": "../node_modules/@wesflo/vite-plugin-lockxy/mock.manifest.schema.json",
+  "id": "shop-frontend",
   "delay": [100, 300],
   "endpoints": [
     {
@@ -123,6 +125,7 @@ lockxy({
             <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
             <tbody>
                 <tr><td><code>$schema</code></td><td>No</td><td>Schema URL used by the editor; ignored during response handling.</td></tr>
+                <tr><td><code>id</code></td><td>No</td><td>Stable project ID that enables manifest-scoped panel storage.</td></tr>
                 <tr><td><code>delay</code></td><td>No</td><td>Default delay for all mocked requests, in milliseconds or as an inclusive range.</td></tr>
                 <tr><td><code>endpoints</code></td><td>No</td><td>Targeted behavior definitions for selected method and path combinations.</td></tr>
             </tbody>
@@ -144,9 +147,14 @@ lockxy({
             </tbody>
         </table>
         <p>
-            Paths match by segment count. A dynamic segment matches exactly one value, so <code>/api/users/:id</code>
-            matches <code>/api/users/42</code> but not <code>/api/users/42/orders</code>. Query parameters do not participate
-            in endpoint matching. The first active endpoint matching method and path wins.
+            Required paths match by segment count. A dynamic segment matches exactly one value, so
+            <code>/api/users/:id</code> matches <code>/api/users/42</code> but not <code>/api/users/42/orders</code>. Query
+            parameters do not participate in endpoint matching. The first active endpoint matching method and path wins.
+        </p>
+        <p>
+            Add <code>?</code> to make a dynamic segment optional. For example,
+            <code>/_internal/webcomponent/shoppingCart/cart/:id?</code> matches both the cart collection path and a path
+            ending in a concrete cart ID.
         </p>
 
         <h2 id="scenario-fields">Scenario fields</h2>
@@ -217,6 +225,7 @@ lockxy({
             <li><strong>Start with conventions.</strong> Add manifest entries only for behavior that files alone cannot express clearly.</li>
             <li><strong>Keep endpoints narrow.</strong> Set <code>method</code> unless the same behavior intentionally applies to every method.</li>
             <li><strong>Use stable IDs.</strong> Define explicit endpoint and scenario IDs when cookies or panel persistence matter.</li>
+            <li><strong>Identify each project.</strong> Add a stable root <code>id</code> before enabling local-storage persistence in the panel.</li>
             <li><strong>Use descriptive labels.</strong> Describe the behavior—such as “Timeout” or “Validation error”—rather than the filename.</li>
             <li><strong>Prefer realistic HTTP behavior.</strong> Model failures with status codes and valid response bodies, and use real bodyless statuses.</li>
             <li><strong>Keep files inside <code>mockRoot</code>.</strong> Use relative paths and never reference secrets or production data.</li>

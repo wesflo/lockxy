@@ -7,6 +7,7 @@ describe('validateManifestStructure', () => {
         [null, 'mock.json: root must be an object'],
         [[], 'mock.json: root must be an object'],
         [{ endpoints: {} }, 'mock.json.endpoints: must be an array'],
+        [{ id: 42 }, 'mock.json.id: must be a string'],
         [{ endpoints: [null] }, 'mock.json.endpoints[0]: must be an object'],
         [{ endpoints: [{}] }, 'mock.json.endpoints[0].path: must be a string beginning with /'],
         [{ endpoints: [{ path: 'api/users' }] }, 'mock.json.endpoints[0].path: must be a string beginning with /'],
@@ -21,7 +22,7 @@ describe('validateManifestStructure', () => {
     });
 
     it('returns a structurally safe convention override', () => {
-        const manifest = { delay: 100, endpoints: [{ path: '/api/users', scenarios: [{}] }] };
+        const manifest = { id: 'checkout', delay: 100, endpoints: [{ path: '/api/users', scenarios: [{}] }] };
 
         expect(validateManifestStructure(manifest, 'mock.json')).toBe(manifest);
     });

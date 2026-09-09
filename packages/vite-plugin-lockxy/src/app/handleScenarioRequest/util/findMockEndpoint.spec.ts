@@ -17,6 +17,14 @@ describe('findMockEndpoint', () => {
         expect(findMockEndpoint(manifest, 'post', '/api/profile')).toEqual(manifest.endpoints[0]);
     });
 
+    it('matches optional manifest parameters when present or absent', () => {
+        const endpoint = { path: '/_internal/webcomponent/shoppingCart/cart/:id?', method: 'GET' };
+        const manifest = { endpoints: [endpoint] };
+
+        expect(findMockEndpoint(manifest, 'GET', '/_internal/webcomponent/shoppingCart/cart/528380')).toBe(endpoint);
+        expect(findMockEndpoint(manifest, 'GET', '/_internal/webcomponent/shoppingCart/cart')).toBe(endpoint);
+    });
+
     it('supports a manifest without endpoints', () => {
         expect(findMockEndpoint({ delay: 400 }, 'GET', '/api/profile')).toBeUndefined();
     });

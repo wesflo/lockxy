@@ -148,7 +148,7 @@ export const handleScenarioRequest = async (
         options.logging,
         file
             ? `Manifest response file "${file}" not found for ${req.method ?? 'GET'} ${req.url}.`
-            : `No local mock file found for ${req.method ?? 'GET'} ${req.url}. Tried: ${candidatePaths.join(', ')}.`
+            : `No indexed local mock matched ${req.method ?? 'GET'} ${req.url}.`
     );
     sendJson(
         res,

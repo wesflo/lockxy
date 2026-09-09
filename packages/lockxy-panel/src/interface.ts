@@ -4,6 +4,7 @@ export interface BypassSelection {
 }
 
 export interface MockManifest {
+    id?: string;
     delay?: MockDelay;
     endpoints?: MockEndpoint[];
 }
@@ -58,6 +59,8 @@ export interface PositionStorage {
 }
 
 export interface SettingsStorage extends PositionStorage {
+    readonly length?: number;
+    key?(index: number): string | null;
     removeItem(key: string): void;
 }
 
@@ -81,6 +84,7 @@ export interface PanelSettings {
 export interface MockProxyViewModel {
     activeTab: MockProxyTab;
     bypass: BypassSelection;
+    canSaveSelections: boolean;
     dragging: boolean;
     endpoints: readonly MockEndpoint[];
     error: string;

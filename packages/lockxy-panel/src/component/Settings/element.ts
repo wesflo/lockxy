@@ -13,6 +13,7 @@ export class MockProxySettings extends LitElement {
     static styles = [resetStyles, settingsStyle];
 
     @property({ type: Boolean }) proxyOnLoad = true;
+    @property({ type: Boolean }) canSaveSelections = false;
     @property({ type: Boolean }) saveSelections = false;
 
     private emitSettingChange = (name: SettingName, checked: boolean): void => {
@@ -44,13 +45,18 @@ export class MockProxySettings extends LitElement {
         <div class="setting">
             <wf-switch
                 .checked=${this.saveSelections}
+                .disabled=${!this.canSaveSelections}
                 label="Save selections in local storage"
                 @onSwitchChange=${(event: CustomEvent<SwitchChangeDetail>) =>
                     this.emitSettingChange('saveSelections', event.detail.checked)}
             ></wf-switch>
             <div>
                 <strong>Save selections in local storage</strong>
-                <p>Endpoint and scenario choices are preserved.</p>
+                <p>
+                    ${this.canSaveSelections
+                        ? 'Endpoint and scenario choices are preserved for this manifest.'
+                        : 'Add a root manifest ID to enable project-specific storage.'}
+                </p>
             </div>
         </div>
         <div class="divider"></div>

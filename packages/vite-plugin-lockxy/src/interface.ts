@@ -34,6 +34,7 @@ export type MockDelay = number | readonly [number, number];
 
 export interface MockManifest {
     $schema?: string;
+    id?: string;
     delay?: MockDelay;
     endpoints?: MockEndpoint[];
 }

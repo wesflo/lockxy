@@ -36,6 +36,7 @@ const renderContent = (model: MockProxyViewModel, actions: MockProxyViewActions)
                   role="tabpanel"
                   aria-labelledby="tab-settings"
                   .proxyOnLoad=${model.proxyOnLoad}
+                  .canSaveSelections=${model.canSaveSelections}
                   .saveSelections=${model.saveSelections}
                   @onSettingChange=${(event: CustomEvent<SettingChangeDetail>) =>
                       actions.handleSettingChange(event.detail)}

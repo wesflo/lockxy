@@ -9,9 +9,28 @@ import { createScenarioId } from './createScenarioId.js';
 
 const routeParts = (path: string): string[] => path.split('/').filter(Boolean);
 
-const routesOverlap = (left: readonly string[], right: readonly string[]): boolean =>
-    left.length === right.length &&
-    left.every((part, index) => part === right[index] || part.startsWith(':') || right[index]?.startsWith(':'));
+const isOptionalParameter = (part: string | undefined): boolean => Boolean(part?.startsWith(':') && part.endsWith('?'));
+
+const routesOverlap = (left: readonly string[], right: readonly string[], leftIndex = 0, rightIndex = 0): boolean => {
+    if (leftIndex === left.length) {
+        return right.slice(rightIndex).every(isOptionalParameter);
+    }
+    if (rightIndex === right.length) {
+        return left.slice(leftIndex).every(isOptionalParameter);
+    }
+
+    const leftPart = left[leftIndex]!;
+    const rightPart = right[rightIndex]!;
+    if (isOptionalParameter(leftPart) && routesOverlap(left, right, leftIndex + 1, rightIndex)) {
+        return true;
+    }
+    if (isOptionalParameter(rightPart) && routesOverlap(left, right, leftIndex, rightIndex + 1)) {
+        return true;
+    }
+
+    const compatible = leftPart === rightPart || leftPart.startsWith(':') || rightPart.startsWith(':');
+    return compatible && routesOverlap(left, right, leftIndex + 1, rightIndex + 1);
+};
 
 const validateResponse = (value: MockResponseConfig, path: string, issues: string[]): void => {
     if (value.status !== undefined && (!Number.isInteger(value.status) || value.status < 100 || value.status > 599)) {
@@ -75,6 +94,7 @@ export const validateMockManifest = async (manifest: MockManifest, fileName: str
 
     validateResponse(manifest, fileName, issues);
     validateOptionalText(manifest.$schema, `${fileName}.$schema`, issues);
+    validateOptionalId(manifest.id, `${fileName}.id`, issues);
 
     for (const [endpointIndex, endpoint] of (manifest.endpoints ?? []).entries()) {
         const path = `${fileName}.endpoints[${endpointIndex}]`;

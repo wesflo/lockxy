@@ -95,6 +95,7 @@ Naming conventions work without a manifest. Add `mock/mock.manifest.json` only f
 ```json
 {
     "$schema": "../node_modules/@wesflo/vite-plugin-lockxy/mock.manifest.schema.json",
+    "id": "my-frontend",
     "delay": [200, 600],
     "endpoints": [
         {
@@ -111,7 +112,7 @@ Naming conventions work without a manifest. Add `mock/mock.manifest.json` only f
 }
 ```
 
-Only `path` is required for an endpoint. Without `method`, every method matches; without `file`, normal naming conventions resolve the response. Root delay applies to all calls, while endpoint and scenario values override it. A single scenario is automatic; multiple scenarios can be selected with the optional panel. Set `debug: true` for precise validation diagnostics.
+Only `path` is required for an endpoint. Without `method`, every method matches; without `file`, normal naming conventions resolve the response. Use `:id?` for an optional dynamic path segment. The optional root `id` enables project-specific selection storage in the panel. Root delay applies to all calls, while endpoint and scenario values override it. A single scenario is automatic; multiple scenarios can be selected with the optional panel. Set `debug: true` for precise validation diagnostics.
 
 ## Mock Proxy panel
 

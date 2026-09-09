@@ -100,6 +100,7 @@ describe('handleScenarioRequest', () => {
 
     it('applies endpoint response settings without scenarios', async () => {
         const endpoint = {
+            id: 'profile',
             path: '/api/profile',
             file: 'scenarios/explicit.json',
             status: 202,
@@ -124,7 +125,7 @@ describe('handleScenarioRequest', () => {
     });
 
     it('rejects a missing manifest file from the index without accessing the file system', async () => {
-        const endpoint = { path: '/api/profile', file: 'scenarios/missing.json' };
+        const endpoint = { id: 'profile', path: '/api/profile', file: 'scenarios/missing.json' };
         options.manifestResult = { status: 'valid', manifest: { endpoints: [endpoint] } };
         mocks.findMockEndpoint.mockReturnValue(endpoint);
         mocks.findSelectedScenario.mockReturnValue(undefined);
@@ -137,7 +138,7 @@ describe('handleScenarioRequest', () => {
 
     it('resolves a new random delay inside the configured range', async () => {
         vi.spyOn(Math, 'random').mockReturnValue(0.5);
-        const endpoint = { path: '/api/profile', delay: [200, 600] as const };
+        const endpoint = { id: 'profile', path: '/api/profile', delay: [200, 600] as const };
         options.manifestResult = { status: 'valid', manifest: { endpoints: [endpoint] } };
         mocks.findMockEndpoint.mockReturnValue(endpoint);
         mocks.findSelectedScenario.mockReturnValue(undefined);
@@ -148,7 +149,7 @@ describe('handleScenarioRequest', () => {
     });
 
     it('returns an empty 204 response without reading a configured file', async () => {
-        const endpoint = { path: '/api/profile', status: 204, file: 'must-not-be-read.json' };
+        const endpoint = { id: 'profile', path: '/api/profile', status: 204, file: 'must-not-be-read.json' };
         options.manifestResult = { status: 'valid', manifest: { endpoints: [endpoint] } };
         mocks.findMockEndpoint.mockReturnValue(endpoint);
         mocks.findSelectedScenario.mockReturnValue(undefined);

@@ -11,6 +11,9 @@ export const validateManifestStructure = (value: unknown, fileName: string): Moc
     if (value.endpoints !== undefined && !Array.isArray(value.endpoints)) {
         throw new TypeError(`${fileName}.endpoints: must be an array`);
     }
+    if (value.id !== undefined && typeof value.id !== 'string') {
+        throw new TypeError(`${fileName}.id: must be a string`);
+    }
 
     value.endpoints?.forEach((endpoint, endpointIndex) => {
         const path = `${fileName}.endpoints[${endpointIndex}]`;
