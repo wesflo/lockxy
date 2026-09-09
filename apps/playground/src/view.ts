@@ -40,7 +40,7 @@ export const renderPlayground = (model: PlaygroundViewModel, actions: Playground
                     <wf-icon name="play"></wf-icon>
                     Demo
                 </a>
-                <a href="https://wesflo.github.io/vite-plugin-local-mock-api/" target="_blank">
+                <a href="https://wesflo.github.io/lockxy/" target="_blank">
                     <wf-icon name="book"></wf-icon>
                     Docs
                 </a>

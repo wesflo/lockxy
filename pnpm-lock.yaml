@@ -23,9 +23,9 @@ importers:
       '@wesflo/local-mock-api-utils':
         specifier: workspace:*
         version: link:../../packages/local-mock-api-utils
-      '@wesflo/vite-plugin-local-mock-api':
+      '@wesflo/vite-plugin-lockxy':
         specifier: workspace:*
-        version: link:../../packages/vite-plugin-local-mock-api
+        version: link:../../packages/vite-plugin-lockxy
     devDependencies:
       '@eslint/js':
         specifier: ^9.23.0
@@ -72,16 +72,16 @@ importers:
       '@wesflo/local-mock-api-ui':
         specifier: workspace:*
         version: link:../../packages/local-mock-api-ui
-      '@wesflo/wf-vite-mock-proxy':
+      '@wesflo/lockxy-panel':
         specifier: workspace:*
-        version: link:../../packages/wf-vite-mock-proxy
+        version: link:../../packages/lockxy-panel
       lit:
         specifier: ^3.3.1
         version: 3.3.3
     devDependencies:
-      '@wesflo/vite-plugin-local-mock-api':
+      '@wesflo/vite-plugin-lockxy':
         specifier: workspace:*
-        version: link:../../packages/vite-plugin-local-mock-api
+        version: link:../../packages/vite-plugin-lockxy
       typescript:
         specifier: ^5.8.2
         version: 5.9.3
@@ -117,7 +117,32 @@ importers:
         specifier: ^4.1.11
         version: 4.1.11(@types/node@22.20.1)(@vitest/coverage-v8@4.1.11)(happy-dom@20.13.2)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(yaml@2.5.1))
 
-  packages/vite-plugin-local-mock-api:
+  packages/lockxy-panel:
+    dependencies:
+      lit:
+        specifier: ^3.3.1
+        version: 3.3.3
+    devDependencies:
+      '@wesflo/local-mock-api-ui':
+        specifier: workspace:*
+        version: link:../local-mock-api-ui
+      '@wesflo/local-mock-api-utils':
+        specifier: workspace:*
+        version: link:../local-mock-api-utils
+      happy-dom:
+        specifier: ^20.13.1
+        version: 20.13.2
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+      vite:
+        specifier: 8.2.2
+        version: 8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(yaml@2.5.1)
+      vitest:
+        specifier: ^4.1.11
+        version: 4.1.11(@types/node@22.20.1)(@vitest/coverage-v8@4.1.11)(happy-dom@20.13.2)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(yaml@2.5.1))
+
+  packages/vite-plugin-lockxy:
     devDependencies:
       '@eslint/js':
         specifier: ^9.23.0
@@ -179,31 +204,6 @@ importers:
       vite-plugin-banner:
         specifier: 0.8.1
         version: 0.8.1
-      vitest:
-        specifier: ^4.1.11
-        version: 4.1.11(@types/node@22.20.1)(@vitest/coverage-v8@4.1.11)(happy-dom@20.13.2)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(yaml@2.5.1))
-
-  packages/wf-vite-mock-proxy:
-    dependencies:
-      lit:
-        specifier: ^3.3.1
-        version: 3.3.3
-    devDependencies:
-      '@wesflo/local-mock-api-ui':
-        specifier: workspace:*
-        version: link:../local-mock-api-ui
-      '@wesflo/local-mock-api-utils':
-        specifier: workspace:*
-        version: link:../local-mock-api-utils
-      happy-dom:
-        specifier: ^20.13.1
-        version: 20.13.2
-      typescript:
-        specifier: ^5.8.2
-        version: 5.9.3
-      vite:
-        specifier: 8.2.2
-        version: 8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(yaml@2.5.1)
       vitest:
         specifier: ^4.1.11
         version: 4.1.11(@types/node@22.20.1)(@vitest/coverage-v8@4.1.11)(happy-dom@20.13.2)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(yaml@2.5.1))

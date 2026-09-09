@@ -7,7 +7,7 @@ import './element.js';
 import type { MockProxyEndpoints } from './element.js';
 
 const createElement = async (): Promise<MockProxyEndpoints> => {
-    const element = document.createElement('wf-vite-mock-proxy-endpoints') as MockProxyEndpoints;
+    const element = document.createElement('wf-lockxy-panel-endpoints') as MockProxyEndpoints;
     element.loading = false;
     document.body.append(element);
     return element;

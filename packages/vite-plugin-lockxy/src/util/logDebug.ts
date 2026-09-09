@@ -1,5 +1,5 @@
 export const logDebug = (enabled: boolean, message: string): void => {
     if (enabled) {
-        console.debug(`[local-mock-api] ${message}`);
+        console.debug(`[lockxy] ${message}`);
     }
 };

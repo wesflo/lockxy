@@ -1,6 +1,6 @@
 {
-    "name": "@wesflo/vite-plugin-local-mock-api",
-    "version": "0.0.6",
+    "name": "@wesflo/vite-plugin-lockxy",
+    "version": "0.0.0",
     "description": "The Lockxy Vite plugin for serving a local mock API.",
     "author": {
         "name": "Florian Wessner",
@@ -9,12 +9,12 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/wesflo/vite-plugin-local-mock-api.git",
-        "directory": "packages/vite-plugin-local-mock-api"
+        "url": "git+https://github.com/wesflo/lockxy.git",
+        "directory": "packages/vite-plugin-lockxy"
     },
-    "homepage": "https://wesflo.github.io/vite-plugin-local-mock-api/",
+    "homepage": "https://wesflo.github.io/lockxy/",
     "bugs": {
-        "url": "https://github.com/wesflo/vite-plugin-local-mock-api/issues"
+        "url": "https://github.com/wesflo/lockxy/issues"
     },
     "type": "module",
     "exports": {

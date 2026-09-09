@@ -27,7 +27,7 @@ describe('MockApiDemo', () => {
         await element.updateComplete;
 
         expect(customElements.get(DEMO_TAG_NAME)).toBe(MockApiDemo);
-        expect(customElements.get('wf-vite-mock-proxy')).toBeUndefined();
+        expect(customElements.get('wf-lockxy-panel')).toBeUndefined();
         expect(element.shadowRoot?.querySelector('h1')?.textContent).toContain('Build and test mock scenarios');
     });
 });

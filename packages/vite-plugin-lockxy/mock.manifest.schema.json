@@ -1,8 +1,8 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://wesflo.github.io/vite-plugin-local-mock-api/schema/mock.manifest.schema.json",
+    "$id": "https://wesflo.github.io/lockxy/schema/mock.manifest.schema.json",
     "title": "Local Mock API manifest",
-    "description": "Optional behavior overrides for @wesflo/vite-plugin-local-mock-api.",
+    "description": "Optional behavior overrides for @wesflo/vite-plugin-lockxy.",
     "type": "object",
     "additionalProperties": false,
     "properties": {

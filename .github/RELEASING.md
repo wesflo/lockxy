@@ -27,23 +27,23 @@ The production release stops before testing or publishing when this secret is mi
 
 Both scoped packages must exist on npm before their Trusted Publisher settings can be configured:
 
-- `@wesflo/vite-plugin-local-mock-api`
-- `@wesflo/wf-vite-mock-proxy`
+- `@wesflo/vite-plugin-lockxy`
+- `@wesflo/lockxy-panel`
 
-Publish each package once from a clean `main` checkout using an npm account with two-factor authentication. Build and test the package, choose and commit its initial version, inspect the package with `npm pack --dry-run`, publish it with `npm publish --access public`, and create the corresponding `plugin-v*` or `panel-v*` Git tag. Do not run an automated release until the committed version matches the version published during this bootstrap.
+Publish each package once from a clean `main` checkout using an npm account with two-factor authentication. Build and test the package, choose and commit its initial version, inspect the package with `npm pack --dry-run`, publish it with `npm publish --access public`, and create the corresponding `vite-plugin-lockxy-v*` or `lockxy-panel-v*` Git tag. Do not run an automated release until the committed version matches the version published during this bootstrap.
 
 ## npm Trusted Publishers
 
 After the bootstrap, add the following GitHub Actions Trusted Publishers in the settings of each npm package:
 
-| Package                              | Workflow                 | Environment      | Allowed action |
-| ------------------------------------ | ------------------------ | ---------------- | -------------- |
-| `@wesflo/vite-plugin-local-mock-api` | `release-production.yml` | `npm-production` | `npm publish`  |
-| `@wesflo/vite-plugin-local-mock-api` | `release-alpha.yml`      | `npm-alpha`      | `npm publish`  |
-| `@wesflo/wf-vite-mock-proxy`         | `release-production.yml` | `npm-production` | `npm publish`  |
-| `@wesflo/wf-vite-mock-proxy`         | `release-alpha.yml`      | `npm-alpha`      | `npm publish`  |
+| Package                      | Workflow                 | Environment      | Allowed action |
+| ---------------------------- | ------------------------ | ---------------- | -------------- |
+| `@wesflo/vite-plugin-lockxy` | `release-production.yml` | `npm-production` | `npm publish`  |
+| `@wesflo/vite-plugin-lockxy` | `release-alpha.yml`      | `npm-alpha`      | `npm publish`  |
+| `@wesflo/lockxy-panel`       | `release-production.yml` | `npm-production` | `npm publish`  |
+| `@wesflo/lockxy-panel`       | `release-alpha.yml`      | `npm-alpha`      | `npm publish`  |
 
-The owner is `wesflo` and the repository is `vite-plugin-local-mock-api`. Workflow filenames and environment names are case-sensitive.
+The owner is `wesflo` and the repository is `lockxy`. Workflow filenames and environment names are case-sensitive.
 
 Once OIDC publishing has been verified, configure each npm package to require two-factor authentication and disallow traditional publish tokens.
 

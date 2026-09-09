@@ -8,7 +8,7 @@
             "path": "./apps/playground"
         },
         {
-            "path": "./packages/vite-plugin-local-mock-api"
+            "path": "./packages/vite-plugin-lockxy"
         },
         {
             "path": "./packages/local-mock-api-ui"
@@ -17,7 +17,7 @@
             "path": "./packages/local-mock-api-utils"
         },
         {
-            "path": "./packages/wf-vite-mock-proxy"
+            "path": "./packages/lockxy-panel"
         }
     ]
 }

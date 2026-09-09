@@ -1,5 +1,5 @@
 {
-    "name": "@wesflo/local-mock-api-demo",
+    "name": "@wesflo/lockxy-demo",
     "version": "0.0.1",
     "private": true,
     "description": "",
@@ -24,7 +24,7 @@
     "dependencies": {
         "@wesflo/local-mock-api-ui": "workspace:*",
         "@wesflo/local-mock-api-utils": "workspace:*",
-        "@wesflo/vite-plugin-local-mock-api": "workspace:*"
+        "@wesflo/vite-plugin-lockxy": "workspace:*"
     },
     "devDependencies": {
         "@eslint/js": "^9.23.0",
@@ -49,7 +49,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/wesflo/vite-plugin-local-mock-api.git"
+        "url": "git+https://github.com/wesflo/lockxy.git"
     },
     "keywords": [
         "empty",
@@ -61,7 +61,7 @@
         "dist"
     ],
     "bugs": {
-        "url": "https://github.com/wesflo/vite-plugin-local-mock-api/issues"
+        "url": "https://github.com/wesflo/lockxy/issues"
     },
-    "homepage": "https://github.com/wesflo/vite-plugin-local-mock-api#readme"
+    "homepage": "https://github.com/wesflo/lockxy#readme"
 }

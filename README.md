@@ -23,18 +23,18 @@ This project is intended exclusively for local development. Do not deploy the mo
 In a Vite-powered micro frontend, register the Web Component and place it directly in the HTML:
 
 ```html
-<wf-vite-mock-proxy></wf-vite-mock-proxy>
+<wf-lockxy-panel></wf-lockxy-panel>
 
 <script type="module">
-    import '@wesflo/wf-vite-mock-proxy';
+    import '@wesflo/lockxy-panel';
 </script>
 ```
 
 For a direct browser integration without a module loader, use the self-contained UMD build:
 
 ```html
-<wf-vite-mock-proxy></wf-vite-mock-proxy>
-<script src="./node_modules/@wesflo/wf-vite-mock-proxy/dist/wf-vite-mock-proxy.umd.cjs"></script>
+<wf-lockxy-panel></wf-lockxy-panel>
+<script src="./node_modules/@wesflo/lockxy-panel/dist/wf-lockxy-panel.umd.cjs"></script>
 ```
 
 The panel loads the manifest from the fixed `/_local-mock-api/manifest` route. A click on the floating button opens or closes the panel; `Escape` closes it as well. Hold Ctrl or Cmd while dragging the button to move it. Its position is saved in local storage and restored on the next visit.
@@ -87,11 +87,11 @@ The Astro documentation application lives in `apps/docs`:
 pnpm dev:docs
 ```
 
-It is configured for `https://wesflo.github.io/vite-plugin-local-mock-api/` and deployed manually from `main` through the production release workflow.
+It is configured for `https://wesflo.github.io/lockxy/` and deployed manually from `main` through the production release workflow.
 
 ## Security
 
-Please report vulnerabilities through [GitHub private vulnerability reporting](https://github.com/wesflo/vite-plugin-local-mock-api/security/advisories/new), not through public issues. See the [security policy](./.github/SECURITY.md) for details.
+Please report vulnerabilities through [GitHub private vulnerability reporting](https://github.com/wesflo/lockxy/security/advisories/new), not through public issues. See the [security policy](./.github/SECURITY.md) for details.
 
 Maintainer release setup is documented in the [release guide](./.github/RELEASING.md).
 

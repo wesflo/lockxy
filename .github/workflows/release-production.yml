@@ -68,9 +68,9 @@ jobs:
         secrets: inherit
         uses: ./.github/workflows/release-package.yml
         with:
-            package_path: packages/vite-plugin-local-mock-api
-            package_name: '@wesflo/vite-plugin-local-mock-api'
-            tag_prefix: plugin
+            package_path: packages/vite-plugin-lockxy
+            package_name: '@wesflo/vite-plugin-lockxy'
+            tag_prefix: vite-plugin-lockxy
             prerelease: false
             version_bump: ${{ inputs.version_bump }}
             branch: main
@@ -90,9 +90,9 @@ jobs:
         secrets: inherit
         uses: ./.github/workflows/release-package.yml
         with:
-            package_path: packages/wf-vite-mock-proxy
-            package_name: '@wesflo/wf-vite-mock-proxy'
-            tag_prefix: panel
+            package_path: packages/lockxy-panel
+            package_name: '@wesflo/lockxy-panel'
+            tag_prefix: lockxy-panel
             prerelease: false
             version_bump: ${{ inputs.version_bump }}
             branch: main

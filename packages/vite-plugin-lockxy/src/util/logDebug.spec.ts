@@ -8,6 +8,6 @@ describe('logDebug', () => {
         logDebug(false, 'hidden');
         logDebug(true, 'Manifest valid');
         expect(debug).toHaveBeenCalledOnce();
-        expect(debug).toHaveBeenCalledWith('[local-mock-api] Manifest valid');
+        expect(debug).toHaveBeenCalledWith('[lockxy] Manifest valid');
     });
 });

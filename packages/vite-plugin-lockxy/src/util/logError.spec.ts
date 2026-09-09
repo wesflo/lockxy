@@ -8,8 +8,8 @@ describe('logError', () => {
         const cause = new Error('disk failed');
         logError(true, 'Manifest failed');
         logError(true, 'Manifest failed', cause);
-        expect(error).toHaveBeenNthCalledWith(1, '[local-mock-api] Manifest failed');
-        expect(error).toHaveBeenNthCalledWith(2, '[local-mock-api] Manifest failed', cause);
+        expect(error).toHaveBeenNthCalledWith(1, '[lockxy] Manifest failed');
+        expect(error).toHaveBeenNthCalledWith(2, '[lockxy] Manifest failed', cause);
         error.mockRestore();
     });
 

@@ -3,13 +3,13 @@ import Callout from '../components/Callout.astro';
 import Code from '../components/Code.astro';
 import DocsLayout from '../layouts/DocsLayout.astro';
 
-const moduleUsage = `<wf-vite-mock-proxy></wf-vite-mock-proxy>
+const moduleUsage = `<wf-lockxy-panel></wf-lockxy-panel>
 <script type="module">
-  import '@wesflo/wf-vite-mock-proxy';
+  import '@wesflo/lockxy-panel';
 </script>`;
 
-const scriptUsage = `<wf-vite-mock-proxy></wf-vite-mock-proxy>
-<script src="./node_modules/@wesflo/wf-vite-mock-proxy/dist/wf-vite-mock-proxy.umd.cjs"></script>`;
+const scriptUsage = `<wf-lockxy-panel></wf-lockxy-panel>
+<script src="./node_modules/@wesflo/lockxy-panel/dist/wf-lockxy-panel.umd.cjs"></script>`;
 ---
 
 <DocsLayout title="Proxy panel" description="Embed and operate the optional Lockxy proxy panel." activePath="/proxy-panel/">

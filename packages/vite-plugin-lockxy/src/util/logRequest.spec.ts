@@ -11,7 +11,7 @@ describe('logRequest', () => {
     it('logs every request field in one line when enabled', () => {
         const info = vi.spyOn(console, 'info').mockImplementation(() => undefined);
         logRequest(true, { method: 'GET', url: '/api/users', delay: 250, status: 200, source: 'manifest' });
-        expect(info).toHaveBeenCalledWith('[local-mock-api] GET /api/users -> 200; delay=250ms; Manifest');
+        expect(info).toHaveBeenCalledWith('[lockxy] GET /api/users -> 200; delay=250ms; Manifest');
     });
 
     it('colors the method, status, delay, and source while leaving the URL and separators unchanged', () => {
@@ -19,7 +19,7 @@ describe('logRequest', () => {
         logRequest(true, { method: 'POST', url: '/api/users', delay: 250, status: 201, source: 'convention' }, true);
 
         expect(info).toHaveBeenCalledWith(
-            `[local-mock-api] ${LOG_COLORS.success}POST${LOG_COLORS.reset} /api/users -> ` +
+            `[lockxy] ${LOG_COLORS.success}POST${LOG_COLORS.reset} /api/users -> ` +
                 `${LOG_COLORS.success}201${LOG_COLORS.reset}; ` +
                 `${LOG_COLORS.warning}delay=250ms${LOG_COLORS.reset}; ` +
                 `${LOG_COLORS.primary}Convention${LOG_COLORS.reset}`
