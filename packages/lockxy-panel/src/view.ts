@@ -28,6 +28,7 @@ const renderContent = (model: MockProxyViewModel, actions: MockProxyViewActions)
                   @onQueryChange=${(event: CustomEvent<{ query: string }>) =>
                       actions.handleQueryChange(event.detail.query)}
                   @onRetryManifest=${actions.retryManifest}
+                  @onResetSettings=${actions.resetSettings}
               ></wf-lockxy-panel-endpoints>
           `
         : html`

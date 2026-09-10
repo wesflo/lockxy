@@ -4,7 +4,7 @@ import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 
 import { MOCK_PROXY_SETTINGS_TAG_NAME } from '../../constant.js';
-import { ON_RESET_SETTINGS_EVENT, ON_SETTING_CHANGE_EVENT } from './constant.js';
+import { ON_SETTING_CHANGE_EVENT } from './constant.js';
 import type { SettingChangeDetail, SettingName } from './interface.js';
 import { settingsStyle } from './style.js';
 
@@ -25,7 +25,7 @@ export class MockProxySettings extends LitElement {
     };
 
     private reset = (): void => {
-        this.dispatchEvent(new CustomEvent(ON_RESET_SETTINGS_EVENT));
+        this.dispatchEvent(new CustomEvent('onResetSettings'));
     };
 
     render = () => html`
@@ -42,6 +42,17 @@ export class MockProxySettings extends LitElement {
                 <p>The proxy is enabled by default.</p>
             </div>
         </div>
+        ${this.canSaveSelections
+            ? null
+            : html`
+                  <div class="storage-notice" role="note">
+                      <strong>Project storage is unavailable</strong>
+                      <p>
+                          Add a root-level <code>id</code> to <code>mock.manifest.json</code> to save selections for
+                          this project.
+                      </p>
+                  </div>
+              `}
         <div class="setting">
             <wf-switch
                 .checked=${this.saveSelections}
@@ -55,7 +66,7 @@ export class MockProxySettings extends LitElement {
                 <p>
                     ${this.canSaveSelections
                         ? 'Endpoint and scenario choices are preserved for this manifest.'
-                        : 'Add a root manifest ID to enable project-specific storage.'}
+                        : 'A manifest ID is required for project-specific storage.'}
                 </p>
             </div>
         </div>

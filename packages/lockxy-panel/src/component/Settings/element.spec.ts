@@ -3,7 +3,7 @@
 import type { WfSwitch } from '@wesflo/local-mock-api-ui';
 import { describe, expect, it, vi } from 'vitest';
 
-import { ON_RESET_SETTINGS_EVENT, ON_SETTING_CHANGE_EVENT } from './constant.js';
+import { ON_SETTING_CHANGE_EVENT } from './constant.js';
 import './element.js';
 import type { MockProxySettings } from './element.js';
 
@@ -26,7 +26,7 @@ describe('wf-lockxy-panel-settings', () => {
         expect(switches?.[1].checked).toBe(false);
         expect(switches?.[1].disabled).toBe(true);
         expect(element.shadowRoot?.textContent).toContain('Enable proxy on load');
-        expect(element.shadowRoot?.textContent).toContain('Add a root manifest ID');
+        expect(element.shadowRoot?.querySelector('[role="note"]')?.textContent).toContain('Add a root-level id');
     });
 
     it('identifies each changed setting in its event detail', async () => {
@@ -56,12 +56,13 @@ describe('wf-lockxy-panel-settings', () => {
 
         expect(saveSelections?.disabled).toBe(false);
         expect(element.shadowRoot?.textContent).toContain('preserved for this manifest');
+        expect(element.shadowRoot?.querySelector('[role="note"]')).toBeNull();
     });
 
     it('emits a reset event from the reset button', async () => {
         const element = await createSettings();
         const listener = vi.fn();
-        element.addEventListener(ON_RESET_SETTINGS_EVENT, listener);
+        element.addEventListener('onResetSettings', listener);
 
         element.shadowRoot?.querySelector<HTMLButtonElement>('.reset')?.click();
 

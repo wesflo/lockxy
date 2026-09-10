@@ -164,5 +164,30 @@ export const endpointsStyle = [
             background: var(--wf-white);
             cursor: pointer;
         }
+
+        .footer {
+            display: flex;
+            margin-top: var(--wf-gap-l);
+            gap: var(--wf-gap-m);
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .footer a {
+            color: var(--wf-muted);
+            font-size: var(--wf-font-size-xs);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: var(--wf-primary-dark);
+            text-decoration: underline;
+        }
+
+        .footer a:focus-visible {
+            border-radius: var(--wf-radius-s);
+            outline: 2px solid var(--wf-focus);
+            outline-offset: 2px;
+        }
     `,
 ];

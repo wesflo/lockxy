@@ -48,6 +48,8 @@ Valid bypass and scenario cookies survive page reloads and initialize the panel 
 }
 ```
 
+Without a root `id`, the settings tab shows that project-specific storage is unavailable. Endpoints with zero or one scenario render a read-only description instead of a select because no choice is necessary. The endpoint footer can reset all Lockxy cookies and settings to their defaults and links directly to the documentation.
+
 The panel is intended exclusively for local development and must not be included in production applications. Its cookies configure mock behavior and are not a security boundary.
 
 See the [proxy panel documentation](https://wesflo.github.io/lockxy/proxy-panel/) for the complete integration and usage guide.

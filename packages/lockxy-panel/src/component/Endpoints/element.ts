@@ -4,8 +4,8 @@ import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 import { ref } from 'lit/directives/ref.js';
 
-import { MOCK_PROXY_ENDPOINTS_TAG_NAME } from '../../constant.js';
-import type { BypassSelection, MockEndpoint } from '../../interface.js';
+import { DOCUMENTATION_URL, MOCK_PROXY_ENDPOINTS_TAG_NAME } from '../../constant.js';
+import type { BypassSelection, MockEndpoint, MockScenario } from '../../interface.js';
 import {
     ON_ENDPOINT_CHANGE_EVENT,
     ON_PROXY_CHANGE_EVENT,
@@ -57,6 +57,21 @@ export class MockProxyEndpoints extends LitElement {
 
     private displayPath = (path: string): string => path.replace(/^\/api(?=\/|$)/, '') || '/';
 
+    private formatId = (id: string): string =>
+        id
+            .replace(/[-_]+/g, ' ')
+            .trim()
+            .replace(/\b\p{L}/gu, (character) => character.toLocaleUpperCase());
+
+    private scenarioLabel = (endpoint: MockEndpoint, scenario?: MockScenario): string =>
+        scenario?.label?.trim() ||
+        (scenario?.id ? this.formatId(scenario.id) : '') ||
+        scenario?.file?.trim() ||
+        endpoint.label?.trim() ||
+        (endpoint.id ? this.formatId(endpoint.id) : '') ||
+        endpoint.file?.trim() ||
+        'Default file resolution';
+
     private setScenarioValue = (element: Element | undefined, value: string): void => {
         if (!(element instanceof HTMLSelectElement)) {
             return;
@@ -82,11 +97,9 @@ export class MockProxyEndpoints extends LitElement {
                     <span class="path" title=${endpoint.path}>${this.displayPath(endpoint.path)}</span>
                 </div>
                 <div class="endpoint-control">
-                    ${scenarios.length === 1
+                    ${scenarios.length <= 1
                         ? html`
-                              <span class="scenario-value">
-                                  ${scenarios[0]?.label ?? scenarios[0]?.id ?? 'Default file resolution'}
-                              </span>
+                              <span class="scenario-value">${this.scenarioLabel(endpoint, scenarios[0])}</span>
                           `
                         : html`
                               <label>
@@ -175,6 +188,13 @@ export class MockProxyEndpoints extends LitElement {
                     : html`
                           <div class="empty">No matching endpoints found.</div>
                       `}
+            <footer class="footer">
+                <wf-button @onClick=${() => this.emit('onResetSettings')}>
+                    <wf-icon name="refresh" size="m"></wf-icon>
+                    Reset Lockxy to defaults
+                </wf-button>
+                <a href=${DOCUMENTATION_URL} target="_blank" rel="noopener noreferrer">Lockxy documentation</a>
+            </footer>
         `;
     };
 }

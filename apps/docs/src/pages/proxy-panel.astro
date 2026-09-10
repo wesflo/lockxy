@@ -61,9 +61,9 @@ const scriptUsage = `<wf-lockxy-panel></wf-lockxy-panel>
             <strong>Save selections in local storage</strong> is disabled by default. When enabled, individual endpoint
             bypasses and scenario choices are stored below the manifest's root <code>id</code> and by normalized HTTP method
             and path, for example <code>checkout → GET /api/orders</code>. The setting is unavailable without a root ID, so
-            unrelated micro frontends cannot accidentally share these values. The panel maps stored values back to the
-            current endpoint IDs after loading. If a selected scenario no longer exists, the first configured scenario is
-            used as a fallback.
+            unrelated micro frontends cannot accidentally share these values. A visible notice explains how to enable the
+            setting when the ID is missing. The panel maps stored values back to the current endpoint IDs after loading. If
+            a selected scenario no longer exists, the first configured scenario is used as a fallback.
         </p>
         <Callout title="Shared-origin limitation">
             <p>
@@ -75,10 +75,11 @@ const scriptUsage = `<wf-lockxy-panel></wf-lockxy-panel>
 
         <Callout title="Cookies survive reloads">
             <p>
-                Mounting the panel preserves valid bypass and scenario cookies and initializes every scenario select from
-                the cookie. After a project switch, entries that do not exist in the current manifest are removed; a stale
-                scenario falls back to that endpoint's first scenario. Explicitly resetting the panel still clears all
-                Lockxy state.
+                Mounting the panel preserves valid bypass and scenario cookies and initializes scenario controls from the
+                cookie. Endpoints with zero or one scenario show a read-only description instead of a select; the single
+                scenario is applied automatically. After a project switch, entries that do not exist in the current
+                manifest are removed; a stale scenario falls back to that endpoint's first scenario. The endpoint footer
+                provides both a full reset and a direct link to this documentation.
             </p>
         </Callout>
 
