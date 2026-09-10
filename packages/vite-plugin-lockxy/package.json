@@ -1,6 +1,6 @@
 {
     "name": "@wesflo/vite-plugin-lockxy",
-    "version": "0.0.1",
+    "version": "0.0.2-alpha.0",
     "description": "The Lockxy Vite plugin for serving a local mock API.",
     "author": {
         "name": "Florian Wessner",

@@ -1,6 +1,6 @@
 {
     "name": "@wesflo/lockxy-panel",
-    "version": "0.0.1",
+    "version": "0.0.2-alpha.0",
     "description": "The embeddable Lockxy UI for configuring @wesflo/vite-plugin-lockxy in the browser.",
     "author": {
         "name": "Florian Wessner",
