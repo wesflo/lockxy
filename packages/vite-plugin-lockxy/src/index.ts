@@ -9,14 +9,7 @@ import {
 import { handleMockRequest } from './app/handleMockRequest/index.js';
 import { handleScenarioRequest } from './app/handleScenarioRequest/index.js';
 import { readMockManifest } from './app/handleScenarioRequest/util/readMockManifest.js';
-import {
-    CONTENT_TYPES,
-    EXTENSIONS,
-    DEBUG,
-    REQUEST_PREFIXES,
-    MANIFEST_FILE_NAME,
-    LOGGING,
-} from './constant.js';
+import { CONTENT_TYPES, EXTENSIONS, DEBUG, REQUEST_PREFIXES, MANIFEST_FILE_NAME, LOGGING } from './constant.js';
 import type { MockApiPluginOptions, MockApiRuntimeOptions, ResolvedMockApiPluginOptions } from './interface.js';
 import { buildMockFileIndex } from './util/buildMockFileIndex.js';
 import { logError } from './util/logError.js';

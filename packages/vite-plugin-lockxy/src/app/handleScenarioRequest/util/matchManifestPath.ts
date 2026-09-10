@@ -12,16 +12,20 @@ export const matchManifestPath = (manifestPath: string, requestPath: string): bo
 
         const manifestPart = manifestParts[manifestIndex]!;
         if (isOptionalParameter(manifestPart)) {
-            return matches(manifestIndex + 1, requestIndex) ||
-                (requestIndex < requestParts.length && matches(manifestIndex + 1, requestIndex + 1));
+            return (
+                matches(manifestIndex + 1, requestIndex) ||
+                (requestIndex < requestParts.length && matches(manifestIndex + 1, requestIndex + 1))
+            );
         }
 
         if (requestIndex >= requestParts.length) {
             return false;
         }
 
-        return (isParameter(manifestPart) || manifestPart === requestParts[requestIndex]) &&
-            matches(manifestIndex + 1, requestIndex + 1);
+        return (
+            (isParameter(manifestPart) || manifestPart === requestParts[requestIndex]) &&
+            matches(manifestIndex + 1, requestIndex + 1)
+        );
     };
 
     return matches(0, 0);

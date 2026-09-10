@@ -48,8 +48,11 @@ export class MockProxySettings extends LitElement {
                   <div class="storage-notice" role="note">
                       <strong>Project storage is unavailable</strong>
                       <p>
-                          Add a root-level <code>id</code> to <code>mock.manifest.json</code> to save selections for
-                          this project.
+                          Add a root-level
+                          <code>id</code>
+                          to
+                          <code>mock.manifest.json</code>
+                          to save selections for this project.
                       </p>
                   </div>
               `}

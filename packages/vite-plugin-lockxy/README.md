@@ -83,10 +83,10 @@ mock/profile.json
 
 This means nested, method-specific files win first. Nesting and method prefixes are both optional. The same resolution is repeated in the configured extension order, followed by parent fallbacks for longer routes.
 
-| Request | Preferred file | Generic fallback |
-| --- | --- | --- |
-| `GET /api/users/profile` | `mock/users/GET_profile.json` | `mock/users/profile.json` |
-| `POST /api/users/profile` | `mock/users/POST_profile.json` | `mock/users/profile.json` |
+| Request                    | Preferred file                 | Generic fallback           |
+| -------------------------- | ------------------------------ | -------------------------- |
+| `GET /api/users/profile`   | `mock/users/GET_profile.json`  | `mock/users/profile.json`  |
+| `POST /api/users/profile`  | `mock/users/POST_profile.json` | `mock/users/profile.json`  |
 | `GET /api/reports/monthly` | `mock/reports/GET_monthly.pdf` | `mock/reports/monthly.pdf` |
 
 ### Multiple request prefixes

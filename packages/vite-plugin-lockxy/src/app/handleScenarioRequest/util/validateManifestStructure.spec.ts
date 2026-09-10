@@ -15,7 +15,10 @@ describe('validateManifestStructure', () => {
             { endpoints: [{ path: '/api/users', method: 42 }] },
             'mock.json.endpoints[0].method: must be a string or an array of strings',
         ],
-        [{ endpoints: [{ path: '/api/users', method: [] }] }, 'mock.json.endpoints[0].method: must contain at least one'],
+        [
+            { endpoints: [{ path: '/api/users', method: [] }] },
+            'mock.json.endpoints[0].method: must contain at least one',
+        ],
         [
             { endpoints: [{ path: '/api/users', method: ['GET', 42] }] },
             'mock.json.endpoints[0].method[1]: must be a string',

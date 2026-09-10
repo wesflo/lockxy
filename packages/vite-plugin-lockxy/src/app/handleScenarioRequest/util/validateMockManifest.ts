@@ -141,8 +141,7 @@ export const validateMockManifest = async (manifest: MockManifest, fileName: str
                 path,
             };
             const conflict = routes.find(
-                (current) =>
-                    routesOverlap(current.parts, route.parts) && methodsOverlap(current.methods, route.methods)
+                (current) => routesOverlap(current.parts, route.parts) && methodsOverlap(current.methods, route.methods)
             );
             if (conflict) {
                 issues.push(`${path}: route conflicts with ${conflict.path}`);

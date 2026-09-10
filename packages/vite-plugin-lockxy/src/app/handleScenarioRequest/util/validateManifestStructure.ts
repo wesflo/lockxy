@@ -24,11 +24,7 @@ export const validateManifestStructure = (value: unknown, fileName: string): Moc
         if (typeof endpoint.path !== 'string' || !endpoint.path.startsWith('/')) {
             throw new TypeError(`${path}.path: must be a string beginning with /`);
         }
-        if (
-            endpoint.method !== undefined &&
-            typeof endpoint.method !== 'string' &&
-            !Array.isArray(endpoint.method)
-        ) {
+        if (endpoint.method !== undefined && typeof endpoint.method !== 'string' && !Array.isArray(endpoint.method)) {
             throw new TypeError(`${path}.method: must be a string or an array of strings`);
         }
         if (Array.isArray(endpoint.method)) {
