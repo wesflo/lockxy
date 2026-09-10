@@ -1,3 +1,5 @@
+import { toMethodArray } from '@wesflo/local-mock-api-utils';
+
 import type { MockEndpoint, MockManifest } from '../../../interface.js';
 import { matchManifestPath } from './matchManifestPath.js';
 
@@ -13,7 +15,8 @@ export const findMockEndpoint = (
             return false;
         }
 
-        if (endpoint.method && endpoint.method.toUpperCase() !== normalizedMethod) {
+        const methods = toMethodArray(endpoint.method).map((value) => value.toUpperCase());
+        if (methods.length > 0 && !methods.includes(normalizedMethod ?? '')) {
             return false;
         }
 

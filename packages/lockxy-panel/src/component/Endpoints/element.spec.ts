@@ -68,6 +68,19 @@ describe('mock proxy endpoints', () => {
         expect(documentation?.target).toBe('_blank');
     });
 
+    it('renders and searches every method from a method array', async () => {
+        const element = await createElement();
+        element.endpoints = [{ id: 'write-profile', method: ['POST', 'PUT'], path: '/api/profile' }];
+        element.query = 'put';
+        await element.updateComplete;
+
+        const methods = Array.from(element.shadowRoot?.querySelectorAll('.method') ?? []).map((item) =>
+            item.textContent?.trim()
+        );
+        expect(methods).toEqual(['POST', 'PUT']);
+        expect(element.shadowRoot?.querySelector('.endpoint')).not.toBeNull();
+    });
+
     it('emits endpoint changes without crossing its shadow boundary', async () => {
         const element = await createElement();
         const listener = vi.fn();

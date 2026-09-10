@@ -1,3 +1,4 @@
+import { toMethodArray } from '@wesflo/local-mock-api-utils';
 import { resetStyles, wfElement } from '@wesflo/local-mock-api-ui';
 import type { SwitchChangeDetail } from '@wesflo/local-mock-api-ui';
 import { html, LitElement } from 'lit';
@@ -43,7 +44,7 @@ export class MockProxyEndpoints extends LitElement {
             [
                 endpoint.id,
                 endpoint.label,
-                endpoint.method,
+                ...toMethodArray(endpoint.method),
                 endpoint.path,
                 ...(endpoint.scenarios ?? []).map(({ label }) => label),
             ]
@@ -86,14 +87,22 @@ export class MockProxyEndpoints extends LitElement {
         const active = this.isEndpointActive(endpoint);
         const unavailable = endpoint.active === false;
         const disabled = unavailable || this.bypass.all;
-        const method = endpoint.method ?? 'ANY';
+        const methods = toMethodArray(endpoint.method);
+        const displayMethods = methods.length > 0 ? methods : ['ANY'];
+        const methodLabel = displayMethods.join(', ');
         const scenarios = endpoint.scenarios ?? [];
         const selectedScenarioId = this.scenarios.get(endpoint.id ?? '') ?? '';
 
         return html`
             <article class=${`endpoint ${unavailable ? 'inactive' : ''}`}>
                 <div class="endpoint-heading">
-                    <span class=${`method ${method.toLocaleLowerCase()}`}>${method.toUpperCase()}</span>
+                    <span class="methods">
+                        ${displayMethods.map(
+                            (method) => html`
+                                <span class=${`method ${method.toLocaleLowerCase()}`}>${method.toUpperCase()}</span>
+                            `
+                        )}
+                    </span>
                     <span class="path" title=${endpoint.path}>${this.displayPath(endpoint.path)}</span>
                 </div>
                 <div class="endpoint-control">
@@ -103,7 +112,7 @@ export class MockProxyEndpoints extends LitElement {
                           `
                         : html`
                               <label>
-                                  <span class="sr-only">Scenario for ${method} ${endpoint.path}</span>
+                                  <span class="sr-only">Scenario for ${methodLabel} ${endpoint.path}</span>
                                   <select
                                       ${ref((element) => this.setScenarioValue(element, selectedScenarioId))}
                                       ?disabled=${disabled || !active}
@@ -129,7 +138,7 @@ export class MockProxyEndpoints extends LitElement {
                     <wf-switch
                         .checked=${active}
                         .disabled=${disabled}
-                        .label=${`Mock for ${method} ${endpoint.path} active`}
+                        .label=${`Mock for ${methodLabel} ${endpoint.path} active`}
                         @onSwitchChange=${(event: CustomEvent<SwitchChangeDetail>) =>
                             this.emit<EndpointChangeDetail>(ON_ENDPOINT_CHANGE_EVENT, {
                                 endpoint,

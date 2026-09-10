@@ -10,12 +10,13 @@ export interface MockManifest {
 }
 
 export type MockDelay = number | readonly [number, number];
+export type MockMethod = string | readonly string[];
 
 export interface MockEndpoint {
     id?: string;
     label?: string;
     active?: boolean;
-    method?: string;
+    method?: MockMethod;
     path: string;
     status?: number;
     file?: string;

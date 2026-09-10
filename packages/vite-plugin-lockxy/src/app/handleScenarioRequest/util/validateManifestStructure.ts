@@ -24,8 +24,22 @@ export const validateManifestStructure = (value: unknown, fileName: string): Moc
         if (typeof endpoint.path !== 'string' || !endpoint.path.startsWith('/')) {
             throw new TypeError(`${path}.path: must be a string beginning with /`);
         }
-        if (endpoint.method !== undefined && typeof endpoint.method !== 'string') {
-            throw new TypeError(`${path}.method: must be a string`);
+        if (
+            endpoint.method !== undefined &&
+            typeof endpoint.method !== 'string' &&
+            !Array.isArray(endpoint.method)
+        ) {
+            throw new TypeError(`${path}.method: must be a string or an array of strings`);
+        }
+        if (Array.isArray(endpoint.method)) {
+            if (endpoint.method.length === 0) {
+                throw new TypeError(`${path}.method: must contain at least one method`);
+            }
+            endpoint.method.forEach((method, methodIndex) => {
+                if (typeof method !== 'string') {
+                    throw new TypeError(`${path}.method[${methodIndex}]: must be a string`);
+                }
+            });
         }
         if (endpoint.scenarios !== undefined && !Array.isArray(endpoint.scenarios)) {
             throw new TypeError(`${path}.scenarios: must be an array`);

@@ -35,7 +35,7 @@ const completeManifest = `{
     {
       "id": "user-profile",
       "label": "User profile",
-      "method": "GET",
+      "method": ["POST", "PUT"],
       "path": "/api/users/:id",
       "active": true,
       "status": 200,
@@ -136,7 +136,7 @@ lockxy({
             <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
             <tbody>
                 <tr><td><code>path</code></td><td>Yes</td><td>Absolute request path. Segments beginning with <code>:</code> match one dynamic value.</td></tr>
-                <tr><td><code>method</code></td><td>No</td><td>Case-insensitive HTTP method. When omitted, the endpoint matches every method.</td></tr>
+                <tr><td><code>method</code></td><td>No</td><td>One case-insensitive HTTP method or an array of methods. When omitted, the endpoint matches every method.</td></tr>
                 <tr><td><code>id</code></td><td>No</td><td>Stable identifier used by panel settings and cookies. Generated from method and path when omitted.</td></tr>
                 <tr><td><code>label</code></td><td>No</td><td>Human-readable name shown in the proxy panel.</td></tr>
                 <tr><td><code>active</code></td><td>No</td><td>Set to <code>false</code> to skip this manifest endpoint. Defaults to active.</td></tr>
@@ -150,6 +150,11 @@ lockxy({
             Required paths match by segment count. A dynamic segment matches exactly one value, so
             <code>/api/users/:id</code> matches <code>/api/users/42</code> but not <code>/api/users/42/orders</code>. Query
             parameters do not participate in endpoint matching. The first active endpoint matching method and path wins.
+        </p>
+        <p>
+            Use an array such as <code>["POST", "PUT"]</code> when several methods should share the same response behavior,
+            file, and scenarios. Duplicate methods are invalid, while the array order does not affect generated endpoint
+            IDs or persisted panel selections.
         </p>
         <p>
             Add <code>?</code> to make a dynamic segment optional. For example,

@@ -79,9 +79,14 @@ export const endpointsStyle = [
             align-items: center;
         }
 
-        .method {
-            width: 48px;
+        .methods {
+            display: inline-flex;
+            min-width: 48px;
+            gap: var(--wf-gap-m);
             flex: 0 0 auto;
+        }
+
+        .method {
             font-size: var(--wf-font-size-xs);
             font-weight: 750;
         }
@@ -123,17 +128,6 @@ export const endpointsStyle = [
             width: 100%;
             height: 36px;
             padding: 0 var(--wf-gap-xl) 0 var(--wf-gap-m);
-            color: var(--wf-ink-soft);
-            border: 1px solid var(--wf-line);
-            border-radius: 8px;
-            background: var(--wf-white);
-        }
-
-        .scenario-value {
-            display: flex;
-            min-height: 36px;
-            padding: 0 var(--wf-gap-m);
-            align-items: center;
             color: var(--wf-ink-soft);
             border: 1px solid var(--wf-line);
             border-radius: 8px;

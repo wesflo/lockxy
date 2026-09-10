@@ -17,6 +17,14 @@ describe('findMockEndpoint', () => {
         expect(findMockEndpoint(manifest, 'post', '/api/profile')).toEqual(manifest.endpoints[0]);
     });
 
+    it('matches any method configured in an array', () => {
+        const manifest = { endpoints: [{ path: '/api/profile', method: ['POST', 'PUT'] }] };
+
+        expect(findMockEndpoint(manifest, 'POST', '/api/profile')).toEqual(manifest.endpoints[0]);
+        expect(findMockEndpoint(manifest, 'put', '/api/profile')).toEqual(manifest.endpoints[0]);
+        expect(findMockEndpoint(manifest, 'PATCH', '/api/profile')).toBeUndefined();
+    });
+
     it('matches optional manifest parameters when present or absent', () => {
         const endpoint = { path: '/_internal/webcomponent/shoppingCart/cart/:id?', method: 'GET' };
         const manifest = { endpoints: [endpoint] };

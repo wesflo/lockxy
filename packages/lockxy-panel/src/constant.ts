@@ -13,6 +13,6 @@ export const PROXY_ON_LOAD_STORAGE_KEY = 'wesflo-mock-api-proxy-on-load';
 export const SAVE_SELECTIONS_STORAGE_KEY = 'wesflo-mock-api-save-selections';
 
 export const ENDPOINT_SELECTIONS_STORAGE_KEY = 'wesflo-mock-api-endpoint-selections';
-export const LAUNCHER_SIZE = 56;
-export const VIEWPORT_GAP = 12;
+export const LAUNCHER_SIZE = 40;
+export const VIEWPORT_GAP = 0;
 export const RESIZE_DEBOUNCE = 200;

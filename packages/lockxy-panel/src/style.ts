@@ -70,8 +70,8 @@ export const mockProxyStyle = [
 
         .launcher img {
             display: block;
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
         }
 
         .panel {

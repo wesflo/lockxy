@@ -1,5 +1,5 @@
 import { stat } from 'node:fs/promises';
-import { ENDPOINT_ID_PATTERN } from '@wesflo/local-mock-api-utils';
+import { ENDPOINT_ID_PATTERN, toMethodArray } from '@wesflo/local-mock-api-utils';
 
 import type { MockManifest, MockResponseConfig } from '../../../interface.js';
 import { toMockUrl } from '../../../util/toMockUrl.js';
@@ -67,6 +67,28 @@ const validateOptionalId = (value: unknown, path: string, issues: string[]): voi
     }
 };
 
+const validateMethods = (value: string | readonly string[] | undefined, path: string, issues: string[]): void => {
+    const methods = toMethodArray(value);
+    const normalizedMethods = new Set<string>();
+
+    if (Array.isArray(value) && value.length === 0) {
+        issues.push(`${path}: must contain at least one method`);
+    }
+
+    methods.forEach((method, index) => {
+        const methodPath = Array.isArray(value) ? `${path}[${index}]` : path;
+        validateOptionalText(method, methodPath, issues);
+        const normalizedMethod = method.toUpperCase();
+        if (normalizedMethods.has(normalizedMethod)) {
+            issues.push(`${methodPath}: duplicate method "${method}"`);
+        }
+        normalizedMethods.add(normalizedMethod);
+    });
+};
+
+const methodsOverlap = (left: readonly string[], right: readonly string[]): boolean =>
+    left.length === 0 || right.length === 0 || left.some((method) => right.includes(method));
+
 const validateReferencedFile = async (
     file: string | undefined,
     path: string,
@@ -90,7 +112,7 @@ const validateReferencedFile = async (
 export const validateMockManifest = async (manifest: MockManifest, fileName: string, mockRoot: URL): Promise<void> => {
     const issues: string[] = [];
     const endpointIds = new Set<string>();
-    const routes: { method?: string; parts: string[]; path: string }[] = [];
+    const routes: { methods: readonly string[]; parts: string[]; path: string }[] = [];
 
     validateResponse(manifest, fileName, issues);
     validateOptionalText(manifest.$schema, `${fileName}.$schema`, issues);
@@ -103,7 +125,7 @@ export const validateMockManifest = async (manifest: MockManifest, fileName: str
         validateResponse(endpoint, path, issues);
         validateOptionalId(endpoint.id, `${path}.id`, issues);
         validateOptionalText(endpoint.label, `${path}.label`, issues);
-        validateOptionalText(endpoint.method, `${path}.method`, issues);
+        validateMethods(endpoint.method, `${path}.method`, issues);
         if (endpoint.active !== undefined && typeof endpoint.active !== 'boolean') {
             issues.push(`${path}.active: must be a boolean`);
         }
@@ -113,11 +135,14 @@ export const validateMockManifest = async (manifest: MockManifest, fileName: str
         endpointIds.add(id);
 
         if (endpoint.active !== false) {
-            const route = { method: endpoint.method?.toUpperCase(), parts: routeParts(endpoint.path), path };
+            const route = {
+                methods: toMethodArray(endpoint.method).map((method) => method.toUpperCase()),
+                parts: routeParts(endpoint.path),
+                path,
+            };
             const conflict = routes.find(
                 (current) =>
-                    routesOverlap(current.parts, route.parts) &&
-                    (!current.method || !route.method || current.method === route.method)
+                    routesOverlap(current.parts, route.parts) && methodsOverlap(current.methods, route.methods)
             );
             if (conflict) {
                 issues.push(`${path}: route conflicts with ${conflict.path}`);

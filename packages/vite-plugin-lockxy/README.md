@@ -136,7 +136,7 @@ Endpoint entries require only `path`. `method`, `id`, `label`, `active`, `file`,
         {
             "id": "user-profile",
             "label": "User profile",
-            "method": "GET",
+            "method": ["POST", "PUT"],
             "path": "/api/users/:id",
             "scenarios": [
                 {
@@ -159,7 +159,7 @@ Endpoint entries require only `path`. `method`, `id`, `label`, `active`, `file`,
 
 The optional root `id` namespaces panel selections in local storage. Define a stable ID when a project uses the panel's “Save selections” setting.
 
-An omitted endpoint `method` matches every method. An omitted `file` falls back to naming conventions. Required dynamic segments use `:id`; append `?`, as in `/api/cart/:id?`, to match the segment both when present and absent. A single scenario is selected automatically; multiple scenarios can be selected through the optional panel or scenario cookie. Selected scenario values override endpoint values, endpoint values override the root delay, and remaining file lookup follows naming conventions. Responses with status `204` or `304`, as well as all `HEAD` responses, never include a body.
+An endpoint `method` can be a string or an array such as `["POST", "PUT"]` when multiple methods share one response configuration. An omitted `method` matches every method. An omitted `file` falls back to naming conventions. Required dynamic segments use `:id`; append `?`, as in `/api/cart/:id?`, to match the segment both when present and absent. A single scenario is selected automatically; multiple scenarios can be selected through the optional panel or scenario cookie. Selected scenario values override endpoint values, endpoint values override the root delay, and remaining file lookup follows naming conventions. Responses with status `204` or `304`, as well as all `HEAD` responses, never include a body.
 
 Set `debug: true` while authoring a manifest to report exact invalid fields, malformed routes, duplicate IDs, invalid status codes or delays, route conflicts, unsafe paths, and missing referenced files. Request logging remains enabled independently by default.
 
