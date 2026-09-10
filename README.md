@@ -88,6 +88,8 @@ lockxy({
 | `debug` | `boolean` | `false` | Enables detailed manifest and referenced-file validation. |
 | `logging` | `boolean` | `true` | Logs requests and runtime errors. |
 
+Every response produced by Lockxy includes the `x-lockxy: true` header, making mocked traffic easy to identify in the browser network panel.
+
 ## Optional manifest
 
 Naming conventions work without a manifest. Add `mock/mock.manifest.json` only for exceptional behavior such as statuses, delays, explicit files, dynamic paths, or selectable scenarios:
@@ -141,7 +143,7 @@ For a direct browser integration without a module loader, use the self-contained
 <script src="./node_modules/@wesflo/lockxy-panel/dist/wf-lockxy-panel.umd.cjs"></script>
 ```
 
-The panel loads the manifest from the fixed `/_local-mock-api/manifest` route. A click on the floating button opens or closes the panel; `Escape` closes it as well. Hold Ctrl or Cmd while dragging the button to move it. Its position is saved in local storage and restored on the next visit.
+The panel loads the manifest from the fixed `/_lockxy/manifest` route. A click on the floating button opens or closes the panel; `Escape` closes it as well. Hold Ctrl or Cmd while dragging the button to move it. Its position is saved in local storage and restored on the next visit.
 
 ## Multiple request prefixes and development APIs
 
@@ -163,16 +165,16 @@ The application can use a local path such as `/development-api/users`, while Vit
 
 The plugin can pass requests through unchanged to the next Vite middleware, for example a configured development API proxy. This does not require removing the plugin from the Vite configuration.
 
-Set the `wesflo-mock-api-bypass` cookie to `*` to bypass all requests matching the configured `requestPrefixes`:
+Set the `lockxy-bypass` cookie to `*` to bypass all requests matching the configured `requestPrefixes`:
 
 ```js
-document.cookie = 'wesflo-mock-api-bypass=*; Path=/; SameSite=Lax';
+document.cookie = 'lockxy-bypass=*; Path=/; SameSite=Lax';
 ```
 
 To bypass only selected endpoints, set the cookie to their manifest IDs separated by `|`:
 
 ```js
-document.cookie = 'wesflo-mock-api-bypass=orders|user-details; Path=/; SameSite=Lax';
+document.cookie = 'lockxy-bypass=orders|user-details; Path=/; SameSite=Lax';
 ```
 
 Selective bypasses use the endpoint `id` from `mock.manifest.json`, while matching the current request by HTTP method and path. When an ID is omitted, the manifest response generates one from method and path. All other endpoints continue to use their selected scenario or their local fallback file. The manifest route remains available even while global bypass is on.
@@ -180,7 +182,7 @@ Selective bypasses use the endpoint `id` from `mock.manifest.json`, while matchi
 Remove the bypass by expiring the cookie:
 
 ```js
-document.cookie = 'wesflo-mock-api-bypass=; Max-Age=0; Path=/; SameSite=Lax';
+document.cookie = 'lockxy-bypass=; Max-Age=0; Path=/; SameSite=Lax';
 ```
 
 The cookie name and global marker are exported as `BYPASS_COOKIE_NAME` and `BYPASS_ALL_VALUE`.

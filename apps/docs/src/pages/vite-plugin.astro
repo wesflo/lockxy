@@ -94,8 +94,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         </p>
         <Callout title="Fixed manifest route">
             <p>
-                The development-only <code>/_local-mock-api/manifest</code> route is intentionally fixed and cannot be
-                overridden through plugin options.
+                The development-only <code>/_lockxy/manifest</code> route is intentionally fixed and cannot be
+                overridden through plugin options. Every response produced by Lockxy includes
+                <code>x-lockxy: true</code>, so mocked traffic is immediately recognizable in the browser network panel.
             </p>
         </Callout>
 

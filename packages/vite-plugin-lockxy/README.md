@@ -68,7 +68,7 @@ lockxy({
 | `debug` | `boolean` | `false` | Enables detailed manifest, route, status, delay, ID, and referenced-file validation. |
 | `logging` | `boolean` | `true` | Logs handled requests and runtime errors. |
 
-The manifest HTTP route is intentionally fixed at `/_local-mock-api/manifest` and cannot be changed through plugin options.
+The manifest HTTP route is intentionally fixed at `/_lockxy/manifest` and cannot be changed through plugin options. Every response produced by Lockxy includes the `x-lockxy: true` header, making mocked traffic easy to identify in the browser network panel.
 
 ### Naming conventions and precedence
 
@@ -168,19 +168,19 @@ Set `debug: true` while authoring a manifest to report exact invalid fields, mal
 Lockxy can bypass all matching mocks and continue to the next Vite middleware, such as `server.proxy`:
 
 ```js
-document.cookie = 'wesflo-mock-api-bypass=*; Path=/; SameSite=Lax';
+document.cookie = 'lockxy-bypass=*; Path=/; SameSite=Lax';
 ```
 
 Manifest endpoints can be bypassed individually by joining their IDs with `|`:
 
 ```js
-document.cookie = 'wesflo-mock-api-bypass=orders|user-profile; Path=/; SameSite=Lax';
+document.cookie = 'lockxy-bypass=orders|user-profile; Path=/; SameSite=Lax';
 ```
 
 Remove the cookie to enable all mocks again:
 
 ```js
-document.cookie = 'wesflo-mock-api-bypass=; Max-Age=0; Path=/; SameSite=Lax';
+document.cookie = 'lockxy-bypass=; Max-Age=0; Path=/; SameSite=Lax';
 ```
 
 The optional [`@wesflo/lockxy-panel`](https://www.npmjs.com/package/@wesflo/lockxy-panel) provides browser controls for the same scenario and bypass behavior.

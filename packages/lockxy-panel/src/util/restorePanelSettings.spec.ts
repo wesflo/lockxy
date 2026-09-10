@@ -10,8 +10,8 @@ describe('restorePanelSettings', () => {
         });
 
         const values = new Map([
-            ['wesflo-mock-api-proxy-on-load', 'false'],
-            ['wesflo-mock-api-save-selections:checkout', 'true'],
+            ['lockxy-proxy-on-load', 'false'],
+            ['lockxy-save-selections:checkout', 'true'],
         ]);
         expect(
             restorePanelSettings(
@@ -27,7 +27,7 @@ describe('restorePanelSettings', () => {
 
     it('does not restore unscoped selections without a manifest ID', () => {
         const storage = {
-            getItem: (key: string) => (key === 'wesflo-mock-api-save-selections' ? 'true' : null),
+            getItem: (key: string) => (key === 'lockxy-save-selections' ? 'true' : null),
             setItem: vi.fn(),
             removeItem: vi.fn(),
         };

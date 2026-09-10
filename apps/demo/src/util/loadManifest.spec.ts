@@ -7,7 +7,7 @@ describe('loadManifest', () => {
         const manifest = { endpoints: [] };
         const request = vi.fn().mockResolvedValue({ ok: true, json: async () => manifest });
         await expect(loadManifest(request)).resolves.toEqual(manifest);
-        expect(request).toHaveBeenCalledWith('/_local-mock-api/manifest');
+        expect(request).toHaveBeenCalledWith('/_lockxy/manifest');
     });
 
     it('reports unsuccessful requests', async () => {

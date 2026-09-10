@@ -1,6 +1,6 @@
 import type { DemoCase } from './interface';
 
-export const DEMO_TAG_NAME = 'wesflo-local-mock-api-demo';
+export const DEMO_TAG_NAME = 'lockxy-demo';
 
 export const DEMO_CASES: readonly DemoCase[] = [
     {
@@ -80,7 +80,7 @@ export const DEMO_CASES: readonly DemoCase[] = [
         path: '/api/demo/pdf',
         responseKind: 'blob',
         expectedStatus: 200,
-        downloadName: 'local-mock-api-demo.pdf',
+        downloadName: 'lockxy-demo.pdf',
     },
     {
         id: 'bad-request',

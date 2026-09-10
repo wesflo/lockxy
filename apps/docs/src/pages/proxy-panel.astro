@@ -39,9 +39,9 @@ const scriptUsage = `<wf-lockxy-panel></wf-lockxy-panel>
         </ul>
 
         <h2 id="bypass-cookie">Bypass cookie</h2>
-        <Code code={`document.cookie = 'wesflo-mock-api-bypass=*; Path=/; SameSite=Lax';`} label="bypass all mocks" />
+        <Code code={`document.cookie = 'lockxy-bypass=*; Path=/; SameSite=Lax';`} label="bypass all mocks" />
         <Code
-            code={`document.cookie = 'wesflo-mock-api-bypass=orders|user-profile; Path=/; SameSite=Lax';`}
+            code={`document.cookie = 'lockxy-bypass=orders|user-profile; Path=/; SameSite=Lax';`}
             label="bypass selected endpoint IDs"
         />
         <Callout title="Passthrough behavior">
@@ -85,7 +85,7 @@ const scriptUsage = `<wf-lockxy-panel></wf-lockxy-panel>
 
         <h2 id="scenario-cookie">Scenario cookie</h2>
         <p>
-            Scenario selections use <code>wesflo-mock-api-scenarios</code>. Entries are encoded as
+            Scenario selections use <code>lockxy-scenarios</code>. Entries are encoded as
             <code>endpoint-id:scenario-id</code> and separated with <code>|</code>. Prefer the panel or the exported utility
             helpers over constructing this value manually. If a stored scenario no longer exists after the manifest is
             changed, the endpoint automatically uses its first configured scenario.

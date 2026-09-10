@@ -13,7 +13,7 @@
         {
             "id": "endpoint-defaults",
             "label": "Direct endpoint configuration",
-            "method": "GET",
+            "method": ["GET", "POST"],
             "path": "/api/demo/endpoint-defaults",
             "file": "scenarios/endpoint-defaults.json",
             "status": 202,
