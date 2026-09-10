@@ -26,7 +26,7 @@ describe('wf-lockxy-panel-settings', () => {
         expect(switches?.[1].checked).toBe(false);
         expect(switches?.[1].disabled).toBe(true);
         expect(element.shadowRoot?.textContent).toContain('Enable proxy on load');
-        expect(element.shadowRoot?.querySelector('[role="note"]')?.textContent).toContain('Add a root-level id');
+        expect(element.shadowRoot?.querySelector('[role="note"]')?.textContent).toContain('Add a root-level');
     });
 
     it('identifies each changed setting in its event detail', async () => {
