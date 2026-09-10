@@ -48,10 +48,7 @@ export const handleMockRequest = async (
         return;
     }
 
-    logError(
-        options.logging,
-        `No local mock file found for ${req.method ?? 'GET'} ${req.url ?? ''}. Tried: ${candidatePaths.join(', ')}.`
-    );
+    logError(options.logging, `No indexed local mock matched ${req.method ?? 'GET'} ${req.url ?? ''}.`);
     sendJson(
         res,
         404,

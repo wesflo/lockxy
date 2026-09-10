@@ -17,6 +17,7 @@ import './element.js';
 import type { WfLockxyPanel } from './element.js';
 
 const manifest = {
+    id: 'playground',
     endpoints: [
         {
             id: 'orders',
@@ -98,14 +99,43 @@ describe('wf-lockxy-panel', () => {
         expect(element.shadowRoot?.activeElement).toBe(launcher);
     });
 
-    it('starts with an active proxy and no persisted selections by default', async () => {
+    it('preserves valid cookies and restores the selected scenario on reload', async () => {
         document.cookie = `${BYPASS_COOKIE_NAME}=${encodeURIComponent('*')}; Path=/`;
         document.cookie = `${SCENARIO_COOKIE_NAME}=orders%3Aerror; Path=/`;
+
+        const element = await createElement();
+        const endpoints = getEndpoints(element);
+        await endpoints.updateComplete;
+
+        expect(getCookieValue(BYPASS_COOKIE_NAME)).toBe('*');
+        expect(getCookieValue(SCENARIO_COOKIE_NAME)).toBe('orders:error');
+        expect(endpoints.shadowRoot?.querySelector<HTMLSelectElement>('.endpoint select')?.value).toBe('error');
+    });
+
+    it('cleans selections from another manifest and repairs a removed scenario', async () => {
+        document.cookie = `${BYPASS_COOKIE_NAME}=other; Path=/`;
+        document.cookie = `${SCENARIO_COOKIE_NAME}=orders%3Aremoved%7Cother%3Afailure; Path=/`;
 
         await createElement();
 
         expect(getCookieValue(BYPASS_COOKIE_NAME)).toBe('');
-        expect(getCookieValue(SCENARIO_COOKIE_NAME)).toBe('');
+        expect(getCookieValue(SCENARIO_COOKIE_NAME)).toBe('orders:success');
+    });
+
+    it('disables local selection storage when the manifest has no root ID', async () => {
+        vi.mocked(fetch).mockResolvedValue(
+            new Response(JSON.stringify({ endpoints: manifest.endpoints }), {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+            })
+        );
+        const element = await createElement();
+        const settings = await getSettings(element);
+        const saveSelections = settings.shadowRoot?.querySelectorAll<WfSwitch>('wf-switch')[1];
+        await saveSelections?.updateComplete;
+
+        expect(settings.canSaveSelections).toBe(false);
+        expect(saveSelections?.disabled).toBe(true);
     });
 
     it('does not render when the manifest has no configurable endpoints', async () => {
@@ -183,8 +213,8 @@ describe('wf-lockxy-panel', () => {
         const endpointSwitch = endpoints.shadowRoot?.querySelectorAll<WfSwitch>('wf-switch')[1];
         await clickSwitch(endpointSwitch!);
 
-        expect(localStorage.getItem(SAVE_SELECTIONS_STORAGE_KEY)).toBe('true');
-        expect(JSON.parse(localStorage.getItem(ENDPOINT_SELECTIONS_STORAGE_KEY) ?? '')).toEqual([
+        expect(localStorage.getItem(`${SAVE_SELECTIONS_STORAGE_KEY}:playground`)).toBe('true');
+        expect(JSON.parse(localStorage.getItem(`${ENDPOINT_SELECTIONS_STORAGE_KEY}:playground`) ?? '')).toEqual([
             ['GET /api/orders', { active: false, scenarioId: 'error' }],
         ]);
 
@@ -193,6 +223,7 @@ describe('wf-lockxy-panel', () => {
             async () =>
                 new Response(
                     JSON.stringify({
+                        id: 'playground',
                         endpoints: [{ ...manifest.endpoints[0], id: 'orders-v2' }],
                     }),
                     {
@@ -208,9 +239,9 @@ describe('wf-lockxy-panel', () => {
     });
 
     it('falls back to the first scenario when a stored scenario no longer exists', async () => {
-        localStorage.setItem(SAVE_SELECTIONS_STORAGE_KEY, 'true');
+        localStorage.setItem(`${SAVE_SELECTIONS_STORAGE_KEY}:playground`, 'true');
         localStorage.setItem(
-            ENDPOINT_SELECTIONS_STORAGE_KEY,
+            `${ENDPOINT_SELECTIONS_STORAGE_KEY}:playground`,
             JSON.stringify([['GET /api/orders', { scenarioId: 'removed' }]])
         );
 
@@ -221,8 +252,8 @@ describe('wf-lockxy-panel', () => {
 
     it('reset removes all panel storage and restores the defaults', async () => {
         localStorage.setItem(PROXY_ON_LOAD_STORAGE_KEY, 'false');
-        localStorage.setItem(SAVE_SELECTIONS_STORAGE_KEY, 'true');
-        localStorage.setItem(ENDPOINT_SELECTIONS_STORAGE_KEY, '[]');
+        localStorage.setItem(`${SAVE_SELECTIONS_STORAGE_KEY}:playground`, 'true');
+        localStorage.setItem(`${ENDPOINT_SELECTIONS_STORAGE_KEY}:playground`, '[]');
         localStorage.setItem(POSITION_STORAGE_KEY, '{"x":20,"y":20}');
         const element = await createElement();
         const settings = await getSettings(element);
@@ -233,6 +264,8 @@ describe('wf-lockxy-panel', () => {
         expect(localStorage.getItem(PROXY_ON_LOAD_STORAGE_KEY)).toBeNull();
         expect(localStorage.getItem(SAVE_SELECTIONS_STORAGE_KEY)).toBeNull();
         expect(localStorage.getItem(ENDPOINT_SELECTIONS_STORAGE_KEY)).toBeNull();
+        expect(localStorage.getItem(`${SAVE_SELECTIONS_STORAGE_KEY}:playground`)).toBeNull();
+        expect(localStorage.getItem(`${ENDPOINT_SELECTIONS_STORAGE_KEY}:playground`)).toBeNull();
         expect(localStorage.getItem(POSITION_STORAGE_KEY)).toBeNull();
         expect(getCookieValue(BYPASS_COOKIE_NAME)).toBe('');
         expect(getCookieValue(SCENARIO_COOKIE_NAME)).toBe('');

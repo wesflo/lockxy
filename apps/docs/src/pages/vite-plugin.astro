@@ -1,0 +1,149 @@
+---
+import Callout from '../components/Callout.astro';
+import Code from '../components/Code.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+
+const fullConfig = `import { defineConfig } from 'vite';
+import lockxy from '@wesflo/vite-plugin-lockxy';
+
+export default defineConfig(({ command }) => ({
+  plugins: command === 'serve' ? [
+    lockxy({
+      mockRoot: new URL('./mock/', import.meta.url),
+      requestPrefixes: ['/api/'],
+      extensions: ['.xml'],
+      contentTypes: {
+        '.xml': 'application/xml; charset=utf-8',
+      },
+      manifestFileName: 'mock.manifest.json',
+      debug: false,
+      logging: true,
+    }),
+  ] : [],
+}));`;
+
+const multiplePrefixesConfig = `import { defineConfig } from 'vite';
+import lockxy from '@wesflo/vite-plugin-lockxy';
+
+export default defineConfig(({ command }) => ({
+  plugins: command === 'serve' ? [
+    lockxy({
+      requestPrefixes: ['/api/', '/development-api/'],
+    }),
+  ] : [],
+  server: {
+    proxy: {
+      '/development-api': {
+        target: 'https://api.v1.supertoll.domain.de',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\\/development-api/, ''),
+      },
+    },
+  },
+}));`;
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<DocsLayout title="Vite Plugin" description="Configure Lockxy's Vite plugin and file resolution." activePath="/vite-plugin/">
+    <article>
+        <p class="kicker">Convention before configuration</p>
+        <h1>Configure the Vite plugin.</h1>
+        <p class="lead">
+            Lockxy intercepts matching requests in Vite's development server and resolves local files by URL and method.
+            The defaults are enough for most projects; every option below is optional.
+        </p>
+
+        <h2 id="file-naming-conventions">File naming conventions</h2>
+        <p>
+            The matched request prefix is removed and the remaining URL becomes a path below <code>mockRoot</code>. For
+            every candidate, the uppercased method-specific filename is checked before the generic filename.
+        </p>
+        <table>
+            <thead><tr><th>Request</th><th>Preferred file</th><th>Generic fallback</th></tr></thead>
+            <tbody>
+                <tr><td><code>GET /api/users/profile</code></td><td><code>users/GET_profile.json</code></td><td><code>users/profile.json</code></td></tr>
+                <tr><td><code>POST /api/users/profile</code></td><td><code>users/POST_profile.json</code></td><td><code>users/profile.json</code></td></tr>
+                <tr><td><code>GET /api/reports/monthly</code></td><td><code>reports/GET_monthly.pdf</code></td><td><code>reports/monthly.pdf</code></td></tr>
+            </tbody>
+        </table>
+        <p>
+            More specific route candidates win before suffix and parent fallbacks. Looking only at JSON,
+            <code>PUT /api/users/profile</code> checks <code>users/PUT_profile.json</code>,
+            <code>users/profile.json</code>, <code>PUT_profile.json</code>, and <code>profile.json</code> in that order.
+            The same process is repeated in the configured extension order.
+        </p>
+
+        <h2 id="plugin-options">Plugin options</h2>
+        <Code code={fullConfig} label="vite.config.ts" />
+        <table>
+            <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>mockRoot</code></td><td><code>URL</code></td><td><code>&lt;Vite root&gt;/mock/</code></td><td>Directory containing mock files and the manifest.</td></tr>
+                <tr><td><code>requestPrefixes</code></td><td><code>string | readonly string[]</code></td><td><code>['/api/']</code></td><td>One or more local URL namespaces handled by Lockxy.</td></tr>
+                <tr><td><code>extensions</code></td><td><code>readonly string[]</code></td><td><code>[]</code></td><td>Additional file extensions appended to the built-in candidates.</td></tr>
+                <tr><td><code>contentTypes</code></td><td><code>Readonly&lt;Record&lt;string, string&gt;&gt;</code></td><td><code>{}</code></td><td>Additional or overridden content types by extension.</td></tr>
+                <tr><td><code>manifestFileName</code></td><td><code>string</code></td><td><code>mock.manifest.json</code></td><td>Manifest filename inside <code>mockRoot</code>.</td></tr>
+                <tr><td><code>debug</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Enables detailed manifest and referenced-file validation.</td></tr>
+                <tr><td><code>logging</code></td><td><code>boolean</code></td><td><code>true</code></td><td>Logs method, URL, delay, status, source, and runtime errors.</td></tr>
+            </tbody>
+        </table>
+        <p>
+            Additional extensions are appended after JSON, PDF, CSV, text, JPEG, PNG, and WebP. Unknown extensions use
+            <code>application/octet-stream</code> unless a matching <code>contentTypes</code> entry is configured.
+        </p>
+        <Callout title="Fixed manifest route">
+            <p>
+                The development-only <code>/_local-mock-api/manifest</code> route is intentionally fixed and cannot be
+                overridden through plugin options.
+            </p>
+        </Callout>
+
+        <h3 id="multiple-request-prefixes">Multiple request prefixes and development APIs</h3>
+        <p>
+            Pass a string for one namespace or an array for several. If prefixes overlap, the longest matching value wins
+            regardless of configuration order.
+        </p>
+        <Code code={multiplePrefixesConfig} label="vite.config.ts" />
+        <p>
+            Lockxy runs before Vite's proxy. A matching local mock is returned immediately; an explicitly bypassed request
+            continues to the configured development API. This local prefix approach also supports remote domains with any
+            subdomain depth without teaching the mock resolver about external hosts.
+        </p>
+        <Callout title="Missing mocks stay visible">
+            <p>
+                A matching prefix without a local file returns Lockxy's <code>404</code>. It does not silently fall through
+                to the remote API. Use endpoint or global bypass when passthrough is intentional.
+            </p>
+        </Callout>
+
+        <h3 id="runtime-file-cache">Runtime file index and manifest cache</h3>
+        <p>
+            Lockxy recursively indexes paths below <code>mockRoot</code> and loads the optional manifest once when Vite
+            starts. Candidate resolution checks this in-memory index and reads only the selected response file instead of
+            probing every possible filename on disk.
+        </p>
+        <ul>
+            <li>The mock directory is watched even when it is outside <code>src</code>.</li>
+            <li>Adding or removing files rebuilds the path index.</li>
+            <li>Creating, replacing, or editing the manifest reloads its cached configuration.</li>
+            <li>Response contents are not cached, so file edits are visible immediately.</li>
+            <li>All runtime indexes start from scratch with each Vite server start.</li>
+        </ul>
+
+        <h2 id="optional-manifest">Next: optional response behavior</h2>
+        <p>
+            Plugin options define where and how Lockxy resolves requests. Use the separate
+            <a href={`${base}/manifest/`}>Manifest guide</a> when selected calls need statuses, delays, explicit files,
+            dynamic paths, or multiple scenarios. A manifest remains completely optional.
+        </p>
+
+        <Callout title="Development only">
+            <p>
+                Include Lockxy only for Vite's serve command. The plugin refuses to register mock middleware for a
+                production build or production mode and prints a prominent warning. Mock files should contain synthetic
+                data only.
+            </p>
+        </Callout>
+    </article>
+</DocsLayout>

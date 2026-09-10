@@ -19,8 +19,6 @@ export const CONTENT_TYPES: Readonly<Record<string, string>> = {
  */
 export const REQUEST_PREFIXES = ['/api/'] as const;
 
-export const DEFAULT_MOCK_ROOT = new URL('../../../../../../mock/', import.meta.url);
-
 export const MANIFEST_FILE_NAME = 'mock.manifest.json';
 
 export const DEBUG = false;

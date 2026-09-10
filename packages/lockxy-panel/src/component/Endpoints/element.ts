@@ -1,10 +1,12 @@
+import { toMethodArray } from '@wesflo/local-mock-api-utils';
 import { resetStyles, wfElement } from '@wesflo/local-mock-api-ui';
 import type { SwitchChangeDetail } from '@wesflo/local-mock-api-ui';
 import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
+import { ref } from 'lit/directives/ref.js';
 
-import { MOCK_PROXY_ENDPOINTS_TAG_NAME } from '../../constant.js';
-import type { BypassSelection, MockEndpoint } from '../../interface.js';
+import { DOCUMENTATION_URL, MOCK_PROXY_ENDPOINTS_TAG_NAME } from '../../constant.js';
+import type { BypassSelection, MockEndpoint, MockScenario } from '../../interface.js';
 import {
     ON_ENDPOINT_CHANGE_EVENT,
     ON_PROXY_CHANGE_EVENT,
@@ -42,7 +44,7 @@ export class MockProxyEndpoints extends LitElement {
             [
                 endpoint.id,
                 endpoint.label,
-                endpoint.method,
+                ...toMethodArray(endpoint.method),
                 endpoint.path,
                 ...(endpoint.scenarios ?? []).map(({ label }) => label),
             ]
@@ -56,31 +58,63 @@ export class MockProxyEndpoints extends LitElement {
 
     private displayPath = (path: string): string => path.replace(/^\/api(?=\/|$)/, '') || '/';
 
+    private formatId = (id: string): string =>
+        id
+            .replace(/[-_]+/g, ' ')
+            .trim()
+            .replace(/\b\p{L}/gu, (character) => character.toLocaleUpperCase());
+
+    private scenarioLabel = (endpoint: MockEndpoint, scenario?: MockScenario): string =>
+        scenario?.label?.trim() ||
+        (scenario?.id ? this.formatId(scenario.id) : '') ||
+        scenario?.file?.trim() ||
+        endpoint.label?.trim() ||
+        (endpoint.id ? this.formatId(endpoint.id) : '') ||
+        endpoint.file?.trim() ||
+        'Default file resolution';
+
+    private setScenarioValue = (element: Element | undefined, value: string): void => {
+        if (!(element instanceof HTMLSelectElement)) {
+            return;
+        }
+
+        queueMicrotask(() => {
+            element.value = value;
+        });
+    };
+
     private renderEndpoint = (endpoint: MockEndpoint) => {
         const active = this.isEndpointActive(endpoint);
         const unavailable = endpoint.active === false;
         const disabled = unavailable || this.bypass.all;
-        const method = endpoint.method ?? 'ANY';
+        const methods = toMethodArray(endpoint.method);
+        const displayMethods = methods.length > 0 ? methods : ['ANY'];
+        const methodLabel = displayMethods.join(', ');
         const scenarios = endpoint.scenarios ?? [];
+        const selectedScenarioId = this.scenarios.get(endpoint.id ?? '') ?? '';
 
         return html`
             <article class=${`endpoint ${unavailable ? 'inactive' : ''}`}>
                 <div class="endpoint-heading">
-                    <span class=${`method ${method.toLocaleLowerCase()}`}>${method.toUpperCase()}</span>
+                    <span class="methods">
+                        ${displayMethods.map(
+                            (method) => html`
+                                <span class=${`method ${method.toLocaleLowerCase()}`}>${method.toUpperCase()}</span>
+                            `
+                        )}
+                    </span>
                     <span class="path" title=${endpoint.path}>${this.displayPath(endpoint.path)}</span>
                 </div>
                 <div class="endpoint-control">
-                    ${scenarios.length === 1
+                    ${scenarios.length <= 1
                         ? html`
-                              <span class="scenario-value">
-                                  ${scenarios[0]?.label ?? scenarios[0]?.id ?? 'Default file resolution'}
-                              </span>
+                              <span class="scenario-value">${this.scenarioLabel(endpoint, scenarios[0])}</span>
                           `
                         : html`
                               <label>
-                                  <span class="sr-only">Scenario for ${method} ${endpoint.path}</span>
+                                  <span class="sr-only">Scenario for ${methodLabel} ${endpoint.path}</span>
                                   <select
-                                      .value=${this.scenarios.get(endpoint.id ?? '') ?? ''}
+                                      ${ref((element) => this.setScenarioValue(element, selectedScenarioId))}
                                       ?disabled=${disabled || !active}
                                       @change=${(event: Event) =>
                                           this.emit<ScenarioChangeDetail>(ON_SCENARIO_CHANGE_EVENT, {
@@ -104,7 +138,7 @@ export class MockProxyEndpoints extends LitElement {
                     <wf-switch
                         .checked=${active}
                         .disabled=${disabled}
-                        .label=${`Mock for ${method} ${endpoint.path} active`}
+                        .label=${`Mock for ${methodLabel} ${endpoint.path} active`}
                         @onSwitchChange=${(event: CustomEvent<SwitchChangeDetail>) =>
                             this.emit<EndpointChangeDetail>(ON_ENDPOINT_CHANGE_EVENT, {
                                 endpoint,
@@ -163,6 +197,13 @@ export class MockProxyEndpoints extends LitElement {
                     : html`
                           <div class="empty">No matching endpoints found.</div>
                       `}
+            <footer class="footer">
+                <wf-button @onClick=${() => this.emit('onResetSettings')}>
+                    <wf-icon name="refresh" size="m"></wf-icon>
+                    Reset Lockxy to defaults
+                </wf-button>
+                <a href=${DOCUMENTATION_URL} target="_blank" rel="noopener noreferrer">Lockxy documentation</a>
+            </footer>
         `;
     };
 }

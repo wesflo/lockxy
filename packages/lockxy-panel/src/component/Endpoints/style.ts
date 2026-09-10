@@ -79,9 +79,14 @@ export const endpointsStyle = [
             align-items: center;
         }
 
-        .method {
-            width: 48px;
+        .methods {
+            display: inline-flex;
+            min-width: 48px;
+            gap: var(--wf-gap-m);
             flex: 0 0 auto;
+        }
+
+        .method {
             font-size: var(--wf-font-size-xs);
             font-weight: 750;
         }
@@ -129,17 +134,6 @@ export const endpointsStyle = [
             background: var(--wf-white);
         }
 
-        .scenario-value {
-            display: flex;
-            min-height: 36px;
-            padding: 0 var(--wf-gap-m);
-            align-items: center;
-            color: var(--wf-ink-soft);
-            border: 1px solid var(--wf-line);
-            border-radius: 8px;
-            background: var(--wf-white);
-        }
-
         select:disabled {
             color: var(--wf-muted-light);
             background: var(--wf-surface-soft);
@@ -163,6 +157,31 @@ export const endpointsStyle = [
             border-radius: 8px;
             background: var(--wf-white);
             cursor: pointer;
+        }
+
+        .footer {
+            display: flex;
+            margin-top: var(--wf-gap-l);
+            gap: var(--wf-gap-m);
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .footer a {
+            color: var(--wf-muted);
+            font-size: var(--wf-font-size-xs);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: var(--wf-primary-dark);
+            text-decoration: underline;
+        }
+
+        .footer a:focus-visible {
+            border-radius: var(--wf-radius-s);
+            outline: 2px solid var(--wf-focus);
+            outline-offset: 2px;
         }
     `,
 ];

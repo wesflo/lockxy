@@ -54,20 +54,32 @@ const scriptUsage = `<wf-lockxy-panel></wf-lockxy-panel>
         <h2 id="settings-and-persistence">Settings and persistence</h2>
         <p>
             <strong>Enable proxy on load</strong> is enabled by default and stored in local storage. When disabled, mounting
-            the panel sets the global bypass cookie immediately, so requests continue to the next Vite middleware. Enabling
-            it again activates the proxy immediately and for future page loads.
+            the panel creates a global bypass only when no bypass cookie exists yet. Existing cookie state always wins on a
+            reload. Changing the setting still updates the current cookie immediately.
         </p>
         <p>
             <strong>Save selections in local storage</strong> is disabled by default. When enabled, individual endpoint
-            bypasses and scenario choices are stored by normalized HTTP method and manifest path, for example
-            <code>GET /api/orders</code>. The panel maps those values back to the current manifest endpoint IDs after loading.
-            If a selected scenario no longer exists, the first configured scenario is used as a fallback.
+            bypasses and scenario choices are stored below the manifest's root <code>id</code> and by normalized HTTP method
+            and path, for example <code>checkout → GET /api/orders</code>. The setting is unavailable without a root ID, so
+            unrelated micro frontends cannot accidentally share these values. A visible notice explains how to enable the
+            setting when the ID is missing. The panel maps stored values back to the current endpoint IDs after loading. If
+            a selected scenario no longer exists, the first configured scenario is used as a fallback.
         </p>
         <Callout title="Shared-origin limitation">
             <p>
-                Local storage is shared by applications on the same origin. Two micro frontends defining the same method and
-                path can therefore inherit the same saved selection. Use <strong>Reset all settings</strong> to remove all
-                panel-owned preferences, endpoint selections, cookies, and the saved launcher position.
+                Local storage is shared by applications on the same origin, which is why Lockxy requires a manifest root ID
+                before storing selections. Use <strong>Reset all settings</strong> to remove all panel-owned project
+                selections, preferences, cookies, and the saved launcher position.
+            </p>
+        </Callout>
+
+        <Callout title="Cookies survive reloads">
+            <p>
+                Mounting the panel preserves valid bypass and scenario cookies and initializes scenario controls from the
+                cookie. Endpoints with zero or one scenario show a read-only description instead of a select; the single
+                scenario is applied automatically. After a project switch, entries that do not exist in the current
+                manifest are removed; a stale scenario falls back to that endpoint's first scenario. The endpoint footer
+                provides both a full reset and a direct link to this documentation.
             </p>
         </Callout>
 

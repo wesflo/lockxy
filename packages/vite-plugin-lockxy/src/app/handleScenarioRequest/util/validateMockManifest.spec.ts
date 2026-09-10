@@ -30,6 +30,7 @@ describe('validateMockManifest', () => {
 
     it('accepts an empty or delay-only manifest', async () => {
         await expect(validate({})).resolves.toBeUndefined();
+        await expect(validate({ id: 'checkout' })).resolves.toBeUndefined();
         await expect(validate({ delay: 0 })).resolves.toBeUndefined();
         await expect(validate({ delay: [200, 600] })).resolves.toBeUndefined();
     });
@@ -170,6 +171,10 @@ describe('validateMockManifest', () => {
             { method: 'GET', path: '/api/users/:id' },
             { method: 'GET', path: '/api/users/current' },
         ],
+        [
+            { method: 'GET', path: '/api/users/:id?' },
+            { method: 'GET', path: '/api/users' },
+        ],
         [{ path: '/api/users' }, { method: 'POST', path: '/api/users' }],
     ])('detects routes that can handle the same request %#', async (first, second) => {
         await expect(validate({ endpoints: [first, second] })).rejects.toThrow(
@@ -190,9 +195,37 @@ describe('validateMockManifest', () => {
         ).resolves.toBeUndefined();
     });
 
+    it('detects conflicts across method arrays and allows disjoint arrays', async () => {
+        await expect(
+            validate({
+                endpoints: [
+                    { method: ['POST', 'PUT'], path: '/api/users' },
+                    { method: 'PUT', path: '/api/users' },
+                ],
+            })
+        ).rejects.toThrow(/endpoints\[1\]: route conflicts with mock\.manifest\.json\.endpoints\[0\]/);
+
+        await expect(
+            validate({
+                endpoints: [
+                    { method: ['POST', 'PUT'], path: '/api/users' },
+                    { method: ['GET', 'DELETE'], path: '/api/users' },
+                ],
+            })
+        ).resolves.toBeUndefined();
+    });
+
+    it('reports empty and duplicate methods at their exact array location', async () => {
+        const result = validate({ endpoints: [{ method: ['POST', '', 'post'], path: '/api/users' }] });
+
+        await expect(result).rejects.toThrow(/endpoints\[0\]\.method\[1\]: must be a non-empty string/);
+        await expect(result).rejects.toThrow(/endpoints\[0\]\.method\[2\]: duplicate method "post"/);
+    });
+
     it('reports invalid metadata fields without throwing an implementation error', async () => {
         const manifest = {
             $schema: '',
+            id: 'invalid project',
             endpoints: [
                 {
                     id: '',
@@ -206,6 +239,7 @@ describe('validateMockManifest', () => {
         } as unknown as MockManifest;
 
         await expect(validate(manifest)).rejects.toThrow(/mock\.manifest\.json\.\$schema: must be a non-empty string/);
+        await expect(validate(manifest)).rejects.toThrow(/mock\.manifest\.json\.id: may contain only letters/);
         await expect(validate(manifest)).rejects.toThrow(/endpoints\[0\]\.active: must be a boolean/);
         await expect(validate(manifest)).rejects.toThrow(/scenarios\[0\]\.label: must be a non-empty string/);
     });

@@ -35,6 +35,29 @@ export const settingsStyle = [
             font-size: var(--wf-font-size-xs);
         }
 
+        .storage-notice {
+            margin-bottom: var(--wf-gap-l);
+            padding: var(--wf-gap-m) var(--wf-gap-l);
+            color: var(--wf-ink-soft);
+            border: 1px solid var(--wf-primary);
+            border-radius: var(--wf-radius-s);
+            background: var(--wf-primary-soft);
+            font-size: var(--wf-font-size-xs);
+        }
+
+        .storage-notice strong {
+            display: block;
+            margin-bottom: var(--wf-gap-s);
+        }
+
+        .storage-notice p {
+            margin: 0;
+        }
+
+        .storage-notice code {
+            font-family: var(--wf-font-family-mono);
+        }
+
         .divider {
             height: 1px;
             margin: var(--wf-gap-xl) 0;

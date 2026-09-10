@@ -5,6 +5,7 @@ import { getEndpointSelectionKey } from './getEndpointSelectionKey.js';
 describe('getEndpointSelectionKey', () => {
     it('normalizes the method and represents a wildcard method', () => {
         expect(getEndpointSelectionKey({ method: 'get', path: '/api/users' })).toBe('GET /api/users');
+        expect(getEndpointSelectionKey({ method: ['put', 'post'], path: '/api/users' })).toBe('POST|PUT /api/users');
         expect(getEndpointSelectionKey({ path: '/api/users' })).toBe('* /api/users');
     });
 });

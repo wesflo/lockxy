@@ -1,0 +1,241 @@
+---
+import Callout from '../components/Callout.astro';
+import Code from '../components/Code.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+
+const schemaManifest = `{
+  "$schema": "../node_modules/@wesflo/vite-plugin-lockxy/mock.manifest.schema.json",
+  "id": "checkout",
+  "delay": 400
+}`;
+
+const minimalFile = `{
+  "endpoints": [
+    {
+      "path": "/api/demo/json",
+      "file": "scenarios/explicit.json"
+    }
+  ]
+}`;
+
+const minimalStatus = `{
+  "endpoints": [
+    {
+      "path": "/api/demo/empty",
+      "status": 204
+    }
+  ]
+}`;
+
+const completeManifest = `{
+  "$schema": "../node_modules/@wesflo/vite-plugin-lockxy/mock.manifest.schema.json",
+  "id": "shop-frontend",
+  "delay": [100, 300],
+  "endpoints": [
+    {
+      "id": "user-profile",
+      "label": "User profile",
+      "method": ["POST", "PUT"],
+      "path": "/api/users/:id",
+      "active": true,
+      "status": 200,
+      "delay": 150,
+      "file": "scenarios/user-default.json",
+      "scenarios": [
+        {
+          "id": "success",
+          "label": "Successful response",
+          "file": "scenarios/user-success.json"
+        },
+        {
+          "id": "not-found",
+          "label": "404 Not Found",
+          "status": 404,
+          "delay": [200, 600],
+          "file": "scenarios/user-not-found.json"
+        }
+      ]
+    }
+  ]
+}`;
+
+const debugConfig = `import lockxy from '@wesflo/vite-plugin-lockxy';
+
+lockxy({
+  debug: true,
+  logging: true,
+});`;
+---
+
+<DocsLayout title="Manifest" description="Configure optional Lockxy response behavior with a manifest." activePath="/manifest/">
+    <article>
+        <p class="kicker">Optional behavior overrides</p>
+        <h1>Use a manifest only where conventions are not enough.</h1>
+        <p class="lead">
+            Naming conventions remain Lockxy's primary workflow. A manifest adds targeted status codes, delays, explicit
+            response files, dynamic paths, and selectable scenarios without turning the rest of the project into a
+            configuration exercise.
+        </p>
+
+        <h2 id="when-to-use-a-manifest">When to use a manifest</h2>
+        <p>Create <code>mock.manifest.json</code> inside <code>mockRoot</code> when a request needs behavior such as:</p>
+        <ul>
+            <li>a real <code>204</code>, <code>304</code>, <code>400</code>, or <code>500</code> response;</li>
+            <li>a fixed delay or random delay range for loading and timeout testing;</li>
+            <li>an explicit response file that does not follow the naming convention;</li>
+            <li>a dynamic route such as <code>/api/users/:id</code>;</li>
+            <li>multiple response scenarios selectable through the proxy panel.</li>
+        </ul>
+        <Callout title="A manifest is never required">
+            <p>
+                A missing manifest is valid and produces no warning. Convention-only projects remain plug and play. If a
+                manifest exists but is malformed, Lockxy reports the error while convention-based requests can still be
+                resolved.
+            </p>
+        </Callout>
+
+        <h2 id="location-and-schema">Location and JSON Schema</h2>
+        <p>
+            The default filename is <code>mock.manifest.json</code> and can be changed with the plugin's
+            <code>manifestFileName</code> option. The file always lives directly inside <code>mockRoot</code>. Add the schema
+            shipped with the npm package for autocomplete and inline validation:
+        </p>
+        <Code code={schemaManifest} label="mock/mock.manifest.json" />
+        <p>
+            Alternatively, use the hosted schema at
+            <a href="https://wesflo.github.io/lockxy/schema/mock.manifest.schema.json">
+                <code>https://wesflo.github.io/lockxy/schema/mock.manifest.schema.json</code>
+            </a>.
+        </p>
+
+        <h2 id="minimal-manifests">Minimal manifests</h2>
+        <p>
+            The manifest root is an object. Both <code>delay</code> and <code>endpoints</code> are optional. A global delay is
+            therefore already a complete useful manifest:
+        </p>
+        <Code code={`{
+  "delay": 400
+}`} label="delay every mocked request" />
+        <p>An endpoint requires only <code>path</code>. Add just the behavior that differs from normal file resolution:</p>
+        <Code code={minimalFile} label="explicit response file" />
+        <Code code={minimalStatus} label="bodyless status response" />
+
+        <h2 id="root-fields">Root fields</h2>
+        <table>
+            <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>$schema</code></td><td>No</td><td>Schema URL used by the editor; ignored during response handling.</td></tr>
+                <tr><td><code>id</code></td><td>No</td><td>Stable project ID that enables manifest-scoped panel storage.</td></tr>
+                <tr><td><code>delay</code></td><td>No</td><td>Default delay for all mocked requests, in milliseconds or as an inclusive range.</td></tr>
+                <tr><td><code>endpoints</code></td><td>No</td><td>Targeted behavior definitions for selected method and path combinations.</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="endpoint-fields">Endpoint fields</h2>
+        <table>
+            <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>path</code></td><td>Yes</td><td>Absolute request path. Segments beginning with <code>:</code> match one dynamic value.</td></tr>
+                <tr><td><code>method</code></td><td>No</td><td>One case-insensitive HTTP method or an array of methods. When omitted, the endpoint matches every method.</td></tr>
+                <tr><td><code>id</code></td><td>No</td><td>Stable identifier used by panel settings and cookies. Generated from method and path when omitted.</td></tr>
+                <tr><td><code>label</code></td><td>No</td><td>Human-readable name shown in the proxy panel.</td></tr>
+                <tr><td><code>active</code></td><td>No</td><td>Set to <code>false</code> to skip this manifest endpoint. Defaults to active.</td></tr>
+                <tr><td><code>file</code></td><td>No</td><td>Response file relative to <code>mockRoot</code>.</td></tr>
+                <tr><td><code>status</code></td><td>No</td><td>HTTP response status from <code>100</code> through <code>599</code>. Defaults to <code>200</code>.</td></tr>
+                <tr><td><code>delay</code></td><td>No</td><td>Fixed milliseconds or an inclusive <code>[minimum, maximum]</code> range.</td></tr>
+                <tr><td><code>scenarios</code></td><td>No</td><td>One automatic or multiple selectable response variants.</td></tr>
+            </tbody>
+        </table>
+        <p>
+            Required paths match by segment count. A dynamic segment matches exactly one value, so
+            <code>/api/users/:id</code> matches <code>/api/users/42</code> but not <code>/api/users/42/orders</code>. Query
+            parameters do not participate in endpoint matching. The first active endpoint matching method and path wins.
+        </p>
+        <p>
+            Use an array such as <code>["POST", "PUT"]</code> when several methods should share the same response behavior,
+            file, and scenarios. Duplicate methods are invalid, while the array order does not affect generated endpoint
+            IDs or persisted panel selections.
+        </p>
+        <p>
+            Add <code>?</code> to make a dynamic segment optional. For example,
+            <code>/_internal/webcomponent/shoppingCart/cart/:id?</code> matches both the cart collection path and a path
+            ending in a concrete cart ID.
+        </p>
+
+        <h2 id="scenario-fields">Scenario fields</h2>
+        <p>
+            A scenario accepts <code>id</code>, <code>label</code>, <code>file</code>, <code>status</code>, and
+            <code>delay</code>. All are technically optional: Lockxy can generate the ID and label and can fall back to
+            convention-based file resolution. In practice, explicit IDs and labels are recommended whenever scenarios are
+            displayed or persisted by the panel.
+        </p>
+        <Code code={completeManifest} label="complete manifest example" />
+        <ul>
+            <li>Exactly one scenario is applied automatically without a panel or cookie.</li>
+            <li>With multiple scenarios, endpoint-level behavior is used until a selection exists.</li>
+            <li>If a stored scenario no longer exists, the first configured scenario is used as a safe fallback.</li>
+            <li>Generated scenario IDs include their array position and can change when scenarios are reordered.</li>
+        </ul>
+
+        <h2 id="response-precedence">Response precedence</h2>
+        <ol>
+            <li>A selected—or automatically selected single—scenario provides <code>file</code>, <code>status</code>, and <code>delay</code>.</li>
+            <li>Missing scenario values fall back to the matching endpoint.</li>
+            <li>Missing endpoint delay falls back to the root-level delay.</li>
+            <li>If no explicit file is present, the normal method-specific and generic naming conventions resolve it.</li>
+            <li>Status defaults to <code>200</code> and delay defaults to zero.</li>
+        </ol>
+        <Callout title="Empty responses stay valid">
+            <p>
+                Status <code>204</code> and <code>304</code> responses never contain a body, even when a file is configured.
+                Lockxy also removes the body from every <code>HEAD</code> response.
+            </p>
+        </Callout>
+
+        <h2 id="delays-and-statuses">Delays and statuses</h2>
+        <p>
+            A numeric delay is a fixed number of milliseconds. A two-number array chooses a new inclusive random integer
+            for each request. The minimum must not exceed the maximum:
+        </p>
+        <Code code={`{
+  "delay": [200, 600]
+}`} label="random delay" />
+        <p>
+            Use status codes to exercise real application branches rather than encoding an error inside a successful JSON
+            response. A file is optional for bodyless responses and useful for realistic validation or server errors.
+        </p>
+
+        <h2 id="validation">Validation and diagnostics</h2>
+        <p>
+            JSON syntax and the minimum structure needed for safe request handling are always checked. Enable
+            <code>debug</code> while creating or changing a manifest for more expensive semantic checks:
+        </p>
+        <Code code={debugConfig} label="vite.config.ts" />
+        <ul>
+            <li>invalid fields with their exact object path;</li>
+            <li>JSON syntax errors with line and column;</li>
+            <li>missing or unsafe response files;</li>
+            <li>duplicate endpoint and scenario IDs;</li>
+            <li>invalid status codes and delay ranges;</li>
+            <li>active routes whose method and path shapes conflict.</li>
+        </ul>
+        <p>
+            General request and runtime logging is controlled separately through <code>logging</code> and defaults to
+            <code>true</code>. Manifest changes and referenced mock files are watched outside <code>src</code>, so restarting
+            Vite is not required.
+        </p>
+
+        <h2 id="best-practices">Best practices</h2>
+        <ul>
+            <li><strong>Start with conventions.</strong> Add manifest entries only for behavior that files alone cannot express clearly.</li>
+            <li><strong>Keep endpoints narrow.</strong> Set <code>method</code> unless the same behavior intentionally applies to every method.</li>
+            <li><strong>Use stable IDs.</strong> Define explicit endpoint and scenario IDs when cookies or panel persistence matter.</li>
+            <li><strong>Identify each project.</strong> Add a stable root <code>id</code> before enabling local-storage persistence in the panel.</li>
+            <li><strong>Use descriptive labels.</strong> Describe the behavior—such as “Timeout” or “Validation error”—rather than the filename.</li>
+            <li><strong>Prefer realistic HTTP behavior.</strong> Model failures with status codes and valid response bodies, and use real bodyless statuses.</li>
+            <li><strong>Keep files inside <code>mockRoot</code>.</strong> Use relative paths and never reference secrets or production data.</li>
+            <li><strong>Use global delay deliberately.</strong> Prefer endpoint delays when only specific calls need latency.</li>
+            <li><strong>Enable debug while editing.</strong> Turn it off once the manifest is stable if startup validation cost matters.</li>
+        </ul>
+    </article>
+</DocsLayout>

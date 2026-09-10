@@ -1,11 +1,13 @@
+import { toMethodArray } from '@wesflo/local-mock-api-utils';
+
 import type { MockEndpoint, MockManifest } from '../../../interface.js';
+import { matchManifestPath } from './matchManifestPath.js';
 
 export const findMockEndpoint = (
     manifest: MockManifest,
     method: string | undefined,
     pathname: string
 ): MockEndpoint | undefined => {
-    const requestParts = pathname.split('/').filter(Boolean);
     const normalizedMethod = method?.toUpperCase();
 
     return manifest.endpoints?.find((endpoint) => {
@@ -13,16 +15,11 @@ export const findMockEndpoint = (
             return false;
         }
 
-        if (endpoint.method && endpoint.method.toUpperCase() !== normalizedMethod) {
+        const methods = toMethodArray(endpoint.method).map((value) => value.toUpperCase());
+        if (methods.length > 0 && !methods.includes(normalizedMethod ?? '')) {
             return false;
         }
 
-        const endpointParts = endpoint.path.split('/').filter(Boolean);
-
-        if (endpointParts.length !== requestParts.length) {
-            return false;
-        }
-
-        return endpointParts.every((part, index) => part.startsWith(':') || part === requestParts[index]);
+        return matchManifestPath(endpoint.path, pathname);
     });
 };

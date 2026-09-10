@@ -9,15 +9,7 @@ import {
 import { handleMockRequest } from './app/handleMockRequest/index.js';
 import { handleScenarioRequest } from './app/handleScenarioRequest/index.js';
 import { readMockManifest } from './app/handleScenarioRequest/util/readMockManifest.js';
-import {
-    CONTENT_TYPES,
-    DEFAULT_MOCK_ROOT,
-    EXTENSIONS,
-    DEBUG,
-    REQUEST_PREFIXES,
-    MANIFEST_FILE_NAME,
-    LOGGING,
-} from './constant.js';
+import { CONTENT_TYPES, EXTENSIONS, DEBUG, REQUEST_PREFIXES, MANIFEST_FILE_NAME, LOGGING } from './constant.js';
 import type { MockApiPluginOptions, MockApiRuntimeOptions, ResolvedMockApiPluginOptions } from './interface.js';
 import { buildMockFileIndex } from './util/buildMockFileIndex.js';
 import { logError } from './util/logError.js';
@@ -33,8 +25,8 @@ export const BYPASS_COOKIE_NAME = BYPASS_COOKIE;
 export const MANIFEST_ROUTE = MANIFEST_PATH;
 export const SCENARIO_COOKIE_NAME = SCENARIO_COOKIE;
 
-export const mockApiPlugin = ({
-    mockRoot = DEFAULT_MOCK_ROOT,
+export const lockxy = ({
+    mockRoot,
     requestPrefixes = REQUEST_PREFIXES,
     extensions = [],
     contentTypes = {},
@@ -58,6 +50,9 @@ export const mockApiPlugin = ({
 
         configResolved: (config) => {
             developmentServer = config.command === 'serve' && config.mode !== 'production';
+            if (!mockRoot) {
+                options.mockRoot = normalizeMockRoot(undefined, config.root);
+            }
             if (!developmentServer) {
                 console.warn(
                     '[lockxy] SAFETY WARNING: the mock API plugin was included in a production build or mode. ' +
@@ -122,3 +117,5 @@ export const mockApiPlugin = ({
         },
     };
 };
+
+export default lockxy;

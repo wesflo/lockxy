@@ -1,4 +1,4 @@
-import { mockApiPlugin } from '@wesflo/vite-plugin-lockxy';
+import lockxy from '@wesflo/vite-plugin-lockxy';
 import { defineConfig } from 'vite';
 
 const apiTarget = process.env.PLAYGROUND_API_TARGET;
@@ -7,7 +7,7 @@ export default defineConfig(({ command }) => ({
     plugins:
         command === 'serve'
             ? [
-                  mockApiPlugin({
+                  lockxy({
                       mockRoot: new URL('./mock/', import.meta.url),
                       requestPrefixes: ['/api/'],
                   }),

@@ -127,15 +127,16 @@ jobs:
                       exit 1
                   fi
 
-            - name: Publish production package
-              if: inputs.prerelease == false
+            - name: Publish package
+              env:
+                  IS_PRERELEASE: ${{ inputs.prerelease }}
               working-directory: ${{ inputs.package_path }}
-              run: npm publish --access public
-
-            - name: Publish alpha package
-              if: inputs.prerelease == true
-              working-directory: ${{ inputs.package_path }}
-              run: npm publish --access public --tag alpha
+              run: |
+                  if [[ "$IS_PRERELEASE" == "true" ]]; then
+                      npm publish --access public --tag alpha
+                  else
+                      npm publish --access public
+                  fi
 
             - name: Commit and tag released version
               env:
@@ -178,3 +179,27 @@ jobs:
                   git remote set-url origin "git@github.com:$GITHUB_REPOSITORY.git"
                   GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$RUNNER_TEMP/lockxy-release-ssh/known_hosts" \
                   git push --atomic origin "HEAD:$RELEASE_BRANCH" "refs/tags/$tag"
+
+            - name: Write release summary
+              env:
+                  IS_PRERELEASE: ${{ inputs.prerelease }}
+                  VERSION: ${{ steps.version.outputs.version }}
+              run: |
+                  if [[ "$IS_PRERELEASE" == "true" ]]; then
+                      release_type="Alpha"
+                      dist_tag="alpha"
+                  else
+                      release_type="Production"
+                      dist_tag="latest"
+                  fi
+
+                  {
+                      echo "## $release_type package published"
+                      echo
+                      echo "### $PACKAGE_NAME@$VERSION"
+                      echo
+                      echo "npm dist-tag: $dist_tag"
+                      echo
+                      printf -- '- npm: `%s`\n' "npm install $PACKAGE_NAME@$VERSION"
+                      printf -- '- pnpm: `%s`\n' "pnpm add $PACKAGE_NAME@$VERSION"
+                  } >> "$GITHUB_STEP_SUMMARY"

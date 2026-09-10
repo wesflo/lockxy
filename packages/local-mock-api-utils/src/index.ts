@@ -16,5 +16,6 @@ export { getCookieValue } from './getCookieValue.js';
 export { parseBypassCookie } from './parseBypassCookie.js';
 export { parseScenarioCookie } from './parseScenarioCookie.js';
 export { setCookieValue } from './setCookieValue.js';
+export { toMethodArray } from './toMethodArray.js';
 export { updateBypassCookie } from './updateBypassCookie.js';
 export { updateScenarioCookie } from './updateScenarioCookie.js';

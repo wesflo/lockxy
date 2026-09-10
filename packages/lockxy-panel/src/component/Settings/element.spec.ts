@@ -3,7 +3,7 @@
 import type { WfSwitch } from '@wesflo/local-mock-api-ui';
 import { describe, expect, it, vi } from 'vitest';
 
-import { ON_RESET_SETTINGS_EVENT, ON_SETTING_CHANGE_EVENT } from './constant.js';
+import { ON_SETTING_CHANGE_EVENT } from './constant.js';
 import './element.js';
 import type { MockProxySettings } from './element.js';
 
@@ -18,22 +18,25 @@ describe('wf-lockxy-panel-settings', () => {
     it('renders the documented defaults', async () => {
         const element = await createSettings();
         const switches = element.shadowRoot?.querySelectorAll<WfSwitch>('wf-switch');
-        await Promise.all([...switches!].map((item) => item.updateComplete));
+        await Promise.all(Array.from(switches!).map((item) => item.updateComplete));
 
         expect(element.proxyOnLoad).toBe(true);
         expect(element.saveSelections).toBe(false);
         expect(switches?.[0].checked).toBe(true);
         expect(switches?.[1].checked).toBe(false);
+        expect(switches?.[1].disabled).toBe(true);
         expect(element.shadowRoot?.textContent).toContain('Enable proxy on load');
-        expect(element.shadowRoot?.textContent).toContain('Endpoint and scenario choices are preserved.');
+        expect(element.shadowRoot?.querySelector('[role="note"]')?.textContent).toContain('Add a root-level id');
     });
 
     it('identifies each changed setting in its event detail', async () => {
         const element = await createSettings();
+        element.canSaveSelections = true;
+        await element.updateComplete;
         const listener = vi.fn();
         element.addEventListener(ON_SETTING_CHANGE_EVENT, listener);
         const switches = element.shadowRoot?.querySelectorAll<WfSwitch>('wf-switch');
-        await Promise.all([...switches!].map((item) => item.updateComplete));
+        await Promise.all(Array.from(switches!).map((item) => item.updateComplete));
 
         switches?.[0].shadowRoot?.querySelector('input')?.click();
         switches?.[1].shadowRoot?.querySelector('input')?.click();
@@ -44,10 +47,22 @@ describe('wf-lockxy-panel-settings', () => {
         ]);
     });
 
+    it('enables project-specific storage when the manifest has a root ID', async () => {
+        const element = await createSettings();
+        element.canSaveSelections = true;
+        await element.updateComplete;
+        const saveSelections = element.shadowRoot?.querySelectorAll<WfSwitch>('wf-switch')[1];
+        await saveSelections?.updateComplete;
+
+        expect(saveSelections?.disabled).toBe(false);
+        expect(element.shadowRoot?.textContent).toContain('preserved for this manifest');
+        expect(element.shadowRoot?.querySelector('[role="note"]')).toBeNull();
+    });
+
     it('emits a reset event from the reset button', async () => {
         const element = await createSettings();
         const listener = vi.fn();
-        element.addEventListener(ON_RESET_SETTINGS_EVENT, listener);
+        element.addEventListener('onResetSettings', listener);
 
         element.shadowRoot?.querySelector<HTMLButtonElement>('.reset')?.click();
 

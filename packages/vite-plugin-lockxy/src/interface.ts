@@ -31,9 +31,11 @@ export type ResponseBody = string | Buffer;
 export type ResponseHeaders = Record<string, string | number | readonly string[]>;
 
 export type MockDelay = number | readonly [number, number];
+export type MockMethod = string | readonly string[];
 
 export interface MockManifest {
     $schema?: string;
+    id?: string;
     delay?: MockDelay;
     endpoints?: MockEndpoint[];
 }
@@ -48,7 +50,7 @@ export interface MockEndpoint extends MockResponseConfig {
     id?: string;
     label?: string;
     active?: boolean;
-    method?: string;
+    method?: MockMethod;
     path: string;
     scenarios?: MockScenario[];
 }

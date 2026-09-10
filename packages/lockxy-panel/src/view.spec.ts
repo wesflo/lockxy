@@ -10,6 +10,7 @@ import { renderMockProxy } from './view.js';
 const model: MockProxyViewModel = {
     activeTab: ENDPOINTS_TAB,
     bypass: { all: false, endpointIds: new Set() },
+    canSaveSelections: true,
     dragging: false,
     endpoints: [{ id: 'users', method: 'GET', path: '/api/users' }],
     error: '',
@@ -63,10 +64,12 @@ describe('renderMockProxy', () => {
         container.querySelector<HTMLButtonElement>('.launcher')?.click();
         container.querySelector<HTMLButtonElement>('.close')?.click();
         container.querySelector<HTMLButtonElement>('#tab-settings')?.click();
+        container.querySelector('wf-lockxy-panel-endpoints')?.dispatchEvent(new CustomEvent('onResetSettings'));
 
         expect(actions.togglePanel).toHaveBeenCalledOnce();
         expect(actions.closePanel).toHaveBeenCalledOnce();
         expect(actions.selectTab).toHaveBeenCalledWith(SETTINGS_TAB);
+        expect(actions.resetSettings).toHaveBeenCalledOnce();
     });
 
     it('renders settings and forwards setting events', () => {
