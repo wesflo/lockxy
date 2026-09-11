@@ -78,15 +78,17 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
         <Callout title="No manifest required">
             <p>
-                The default file resolver is the primary workflow. Add <code>mock.manifest.json</code> only when selected
-                calls need custom status codes, delays, failures, or multiple response variants.
+                The default file resolver is the primary workflow. Add <code>mock.manifest.json</code>,
+                <code>mock.manifest.yaml</code>, or <code>mock.manifest.yml</code> only when selected calls need custom status
+                codes, delays, failures, or multiple response variants.
             </p>
         </Callout>
 
         <h2 id="optional-add-a-manifest">Optional: add a manifest</h2>
         <p>
-            Create <code>mock/mock.manifest.json</code> only when a call needs behavior beyond naming conventions. For
-            example, this endpoint keeps using a local response file while adding a fixed delay:
+            Create one of the supported manifests in <code>mock/</code> only when a call needs behavior beyond naming
+            conventions. JSON has priority when several formats exist. For example, this endpoint keeps using a local
+            response file while adding a fixed delay:
         </p>
         <Code code={manifest} label="mock/mock.manifest.json" />
         <p>

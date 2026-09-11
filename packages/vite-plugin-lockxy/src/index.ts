@@ -9,6 +9,7 @@ import {
 import { handleMockRequest } from './app/handleMockRequest/index.js';
 import { handleScenarioRequest } from './app/handleScenarioRequest/index.js';
 import { readMockManifest } from './app/handleScenarioRequest/util/readMockManifest.js';
+import { resolveManifestFileName } from './app/handleScenarioRequest/util/resolveManifestFileName.js';
 import { CONTENT_TYPES, EXTENSIONS, DEBUG, REQUEST_PREFIXES, MANIFEST_FILE_NAME, LOGGING } from './constant.js';
 import type { MockApiPluginOptions, MockApiRuntimeOptions, ResolvedMockApiPluginOptions } from './interface.js';
 import { buildMockFileIndex } from './util/buildMockFileIndex.js';
@@ -66,10 +67,12 @@ export const lockxy = ({
                 return;
             }
 
+            const fileIndex = await buildMockFileIndex(options.mockRoot);
+            const manifestFileName = resolveManifestFileName(options.manifestFileName, fileIndex);
             const runtimeOptions: MockApiRuntimeOptions = {
                 ...options,
-                fileIndex: await buildMockFileIndex(options.mockRoot),
-                manifestResult: await readMockManifest(options.mockRoot, options.manifestFileName, options.debug),
+                fileIndex,
+                manifestResult: await readMockManifest(options.mockRoot, manifestFileName, options.debug),
             };
             registerMockWatcher(server.watcher, runtimeOptions);
 

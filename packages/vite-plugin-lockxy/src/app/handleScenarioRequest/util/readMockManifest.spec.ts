@@ -13,10 +13,10 @@ describe('readMockManifest', () => {
         await Promise.all(temporaryDirectories.splice(0).map((directory) => rm(directory, { recursive: true })));
     });
 
-    const writeManifest = async (content: string): Promise<URL> => {
+    const writeManifest = async (content: string, fileName = 'mock.manifest.json'): Promise<URL> => {
         const directory = await mkdtemp(join(tmpdir(), 'local-mock-api-manifest-'));
         temporaryDirectories.push(directory);
-        await writeFile(join(directory, 'mock.manifest.json'), content);
+        await writeFile(join(directory, fileName), content);
         return new URL('./', pathToFileURL(join(directory, 'placeholder')));
     };
 
@@ -27,6 +27,39 @@ describe('readMockManifest', () => {
             status: 'valid',
             manifest: { delay: 400 },
         });
+    });
+
+    it('accepts and normalizes a YAML manifest', async () => {
+        const mockRoot = await writeManifest(
+            'id: checkout\ndelay: [200, 600]\nendpoints:\n  - path: /api/cart/:id?\n    status: 204',
+            'mock.manifest.yaml'
+        );
+
+        await expect(readMockManifest(mockRoot, 'mock.manifest.yaml')).resolves.toEqual({
+            status: 'valid',
+            manifest: {
+                id: 'checkout',
+                delay: [200, 600],
+                endpoints: [
+                    {
+                        id: 'any_api_cart_id',
+                        path: '/api/cart/:id?',
+                        scenarios: undefined,
+                        status: 204,
+                    },
+                ],
+            },
+        });
+    });
+
+    it('reports YAML syntax errors with the source location', async () => {
+        const mockRoot = await writeManifest('delay: [200, 600\n', 'mock.manifest.yml');
+        const result = await readMockManifest(mockRoot, 'mock.manifest.yml');
+
+        expect(result.status).toBe('invalid');
+        if (result.status === 'invalid') {
+            expect(result.error.message).toMatch(/mock\.manifest\.yml: Invalid YAML:.*line 2, column 1/si);
+        }
     });
 
     it('keeps a missing manifest valid in debug mode', async () => {

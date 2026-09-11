@@ -15,7 +15,7 @@ export default defineConfig(({ command }) => ({
       contentTypes: {
         '.xml': 'application/xml; charset=utf-8',
       },
-      manifestFileName: 'mock.manifest.json',
+      manifestFileName: 'mock.manifest',
       debug: false,
       logging: true,
     }),
@@ -83,7 +83,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
                 <tr><td><code>requestPrefixes</code></td><td><code>string | readonly string[]</code></td><td><code>['/api/']</code></td><td>One or more local URL namespaces handled by Lockxy.</td></tr>
                 <tr><td><code>extensions</code></td><td><code>readonly string[]</code></td><td><code>[]</code></td><td>Additional file extensions appended to the built-in candidates.</td></tr>
                 <tr><td><code>contentTypes</code></td><td><code>Readonly&lt;Record&lt;string, string&gt;&gt;</code></td><td><code>{}</code></td><td>Additional or overridden content types by extension.</td></tr>
-                <tr><td><code>manifestFileName</code></td><td><code>string</code></td><td><code>mock.manifest.json</code></td><td>Manifest filename inside <code>mockRoot</code>.</td></tr>
+                <tr><td><code>manifestFileName</code></td><td><code>string</code></td><td><code>mock.manifest</code></td><td>Manifest basename or explicit <code>.json</code>, <code>.yaml</code>, or <code>.yml</code> filename inside <code>mockRoot</code>.</td></tr>
                 <tr><td><code>debug</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Enables detailed manifest and referenced-file validation.</td></tr>
                 <tr><td><code>logging</code></td><td><code>boolean</code></td><td><code>true</code></td><td>Logs method, URL, delay, status, source, and runtime errors.</td></tr>
             </tbody>

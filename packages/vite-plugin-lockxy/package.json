@@ -30,6 +30,9 @@
         "README.md",
         "LICENSE"
     ],
+    "dependencies": {
+        "yaml": "2.9.0"
+    },
     "scripts": {
         "build": "rm -rf ./dist && vite build && tsc -p tsconfig.build.json",
         "bundle:local": "pnpm run build && pnpm pack",

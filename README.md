@@ -72,7 +72,7 @@ lockxy({
     contentTypes: {
         '.xml': 'application/xml; charset=utf-8',
     },
-    manifestFileName: 'mock.manifest.json',
+    manifestFileName: 'mock.manifest',
     debug: false,
     logging: true,
 });
@@ -84,7 +84,7 @@ lockxy({
 | `requestPrefixes` | `string \| readonly string[]` | `'/api/'` | One or more local URL namespaces handled by Lockxy. |
 | `extensions` | `readonly string[]` | `[]` | Adds file extensions after the built-in JSON, PDF, CSV, text, JPEG, PNG, and WebP candidates. |
 | `contentTypes` | `Readonly<Record<string, string>>` | `{}` | Adds or overrides extension-to-content-type mappings. |
-| `manifestFileName` | `string` | `'mock.manifest.json'` | Manifest filename inside `mockRoot`. |
+| `manifestFileName` | `string` | `'mock.manifest'` | Manifest basename or explicit `.json`, `.yaml`, or `.yml` filename inside `mockRoot`. |
 | `debug` | `boolean` | `false` | Enables detailed manifest and referenced-file validation. |
 | `logging` | `boolean` | `true` | Logs requests and runtime errors. |
 
@@ -92,7 +92,7 @@ Every response produced by Lockxy includes the `x-lockxy: true` header, making m
 
 ## Optional manifest
 
-Naming conventions work without a manifest. Add `mock/mock.manifest.json` only for exceptional behavior such as statuses, delays, explicit files, dynamic paths, or selectable scenarios:
+Naming conventions work without a manifest. Add `mock/mock.manifest.json`, `mock/mock.manifest.yaml`, or `mock/mock.manifest.yml` only for exceptional behavior such as statuses, delays, explicit files, dynamic paths, or selectable scenarios. When more than one default manifest exists, Lockxy prefers JSON, then YAML, then YML:
 
 ```json
 {
@@ -177,7 +177,7 @@ To bypass only selected endpoints, set the cookie to their manifest IDs separate
 document.cookie = 'lockxy-bypass=orders|user-details; Path=/; SameSite=Lax';
 ```
 
-Selective bypasses use the endpoint `id` from `mock.manifest.json`, while matching the current request by HTTP method and path. When an ID is omitted, the manifest response generates one from method and path. All other endpoints continue to use their selected scenario or their local fallback file. The manifest route remains available even while global bypass is on.
+Selective bypasses use the endpoint `id` from the active manifest, while matching the current request by HTTP method and path. When an ID is omitted, the manifest response generates one from method and path. All other endpoints continue to use their selected scenario or their local fallback file. The manifest route remains available even while global bypass is on.
 
 Remove the bypass by expiring the cookie:
 

@@ -9,7 +9,7 @@ export default defineConfig({
             fileName: () => 'index.js',
         },
         rollupOptions: {
-            external: [/^node:/],
+            external: [/^node:/, /^yaml(?:\/|$)/],
         },
         sourcemap: true,
     },

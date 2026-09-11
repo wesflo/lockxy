@@ -73,6 +73,28 @@ describe('registerMockWatcher', () => {
         expect(mocks.readMockManifest).toHaveBeenCalledWith(runtime.mockRoot, 'mock.manifest.json', true);
     });
 
+    it('selects a newly added JSON manifest before an existing YAML manifest', async () => {
+        runtime.manifestFileName = 'mock.manifest';
+        runtime.fileIndex = new Set(['mock.manifest.yaml']);
+        mocks.buildMockFileIndex.mockResolvedValue(new Set(['mock.manifest.yaml', 'mock.manifest.json']));
+        registerMockWatcher(watcher, runtime);
+
+        await onAll('add', '/tmp/outside-src/mock/mock.manifest.json');
+
+        expect(mocks.readMockManifest).toHaveBeenCalledWith(runtime.mockRoot, 'mock.manifest.json', true);
+    });
+
+    it('falls back to YAML when the preferred JSON manifest is removed', async () => {
+        runtime.manifestFileName = 'mock.manifest';
+        runtime.fileIndex = new Set(['mock.manifest.json', 'mock.manifest.yaml']);
+        mocks.buildMockFileIndex.mockResolvedValue(new Set(['mock.manifest.yaml']));
+        registerMockWatcher(watcher, runtime);
+
+        await onAll('unlink', '/tmp/outside-src/mock/mock.manifest.json');
+
+        expect(mocks.readMockManifest).toHaveBeenCalledWith(runtime.mockRoot, 'mock.manifest.yaml', true);
+    });
+
     it('ignores content changes because file contents are not cached', async () => {
         registerMockWatcher(watcher, runtime);
 

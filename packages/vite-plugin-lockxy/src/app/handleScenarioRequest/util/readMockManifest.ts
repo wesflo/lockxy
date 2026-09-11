@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import type { ManifestReadResult, MockManifest } from '../../../interface.js';
 import { toMockUrl } from '../../../util/toMockUrl.js';
 import { normalizeMockManifest } from './normalizeMockManifest.js';
-import { formatJsonError } from './formatJsonError.js';
+import { parseManifestContent } from './parseManifestContent.js';
 import { validateManifestStructure } from './validateManifestStructure.js';
 import { validateMockManifest } from './validateMockManifest.js';
 
@@ -14,12 +14,7 @@ export const readMockManifest = async (
 ): Promise<ManifestReadResult> => {
     try {
         const content = await readFile(toMockUrl(manifestFileName, mockRoot), 'utf8');
-        let parsed: unknown;
-        try {
-            parsed = JSON.parse(content);
-        } catch (error) {
-            throw formatJsonError(manifestFileName, content, error);
-        }
+        const parsed = parseManifestContent(manifestFileName, content);
 
         const manifest: MockManifest = validateManifestStructure(parsed, manifestFileName);
         if (debug) {

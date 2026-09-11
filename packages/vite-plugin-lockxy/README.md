@@ -52,7 +52,7 @@ lockxy({
     contentTypes: {
         '.xml': 'application/xml; charset=utf-8',
     },
-    manifestFileName: 'mock.manifest.json',
+    manifestFileName: 'mock.manifest',
     debug: false,
     logging: true,
 });
@@ -64,7 +64,7 @@ lockxy({
 | `requestPrefixes` | `string \| readonly string[]` | `'/api/'` | Local URL namespaces handled by Lockxy. |
 | `extensions` | `readonly string[]` | `[]` | Adds file extensions after the built-in JSON, PDF, CSV, text, JPEG, PNG, and WebP candidates. |
 | `contentTypes` | `Readonly<Record<string, string>>` | `{}` | Adds or overrides extension-to-content-type mappings. |
-| `manifestFileName` | `string` | `'mock.manifest.json'` | Manifest filename inside `mockRoot`. |
+| `manifestFileName` | `string` | `'mock.manifest'` | Manifest basename or explicit `.json`, `.yaml`, or `.yml` filename inside `mockRoot`. |
 | `debug` | `boolean` | `false` | Enables detailed manifest, route, status, delay, ID, and referenced-file validation. |
 | `logging` | `boolean` | `true` | Logs handled requests and runtime errors. |
 
@@ -105,7 +105,7 @@ The matched prefix is removed before file resolution, so `/development-api/users
 
 ## Optional manifest
 
-`mock.manifest.json` is not required. Convention-only projects remain fully functional when it is missing. Add it only for calls that need an explicit file, status, delay, failure, dynamic route, or multiple selectable scenarios; every other request continues to use naming conventions.
+No manifest is required. Convention-only projects remain fully functional when `mock.manifest.json`, `mock.manifest.yaml`, and `mock.manifest.yml` are missing. Add one only for calls that need an explicit file, status, delay, failure, dynamic route, or multiple selectable scenarios; every other request continues to use naming conventions. If several default manifests exist, Lockxy uses `.json`, then `.yaml`, then `.yml`.
 
 The package includes a JSON Schema for editor autocomplete and inline validation:
 
@@ -118,6 +118,21 @@ The package includes a JSON Schema for editor autocomplete and inline validation
 ```
 
 A root-level delay is already a complete manifest and applies to all mocked requests. Use `[200, 600]` instead of `400` to choose a new inclusive random delay for every request.
+
+The same configuration can be written as YAML:
+
+```yaml
+# yaml-language-server: $schema=../node_modules/@wesflo/vite-plugin-lockxy/mock.manifest.schema.json
+id: shop-frontend
+delay: [200, 600]
+endpoints:
+    - path: /api/health
+      status: 204
+    - method: [POST, PUT]
+      path: /api/users/:id
+      file: scenarios/user.json
+      delay: 250
+```
 
 Endpoint entries require only `path`. `method`, `id`, `label`, `active`, `file`, `status`, `delay`, and `scenarios` are optional:
 

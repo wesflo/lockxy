@@ -9,6 +9,17 @@ const schemaManifest = `{
   "delay": 400
 }`;
 
+const yamlManifest = `# yaml-language-server: $schema=../node_modules/@wesflo/vite-plugin-lockxy/mock.manifest.schema.json
+id: shop-frontend
+delay: [100, 300]
+endpoints:
+  - method: [POST, PUT]
+    path: /api/users/:id
+    file: scenarios/user.json
+    delay: 150
+  - path: /api/health
+    status: 204`;
+
 const minimalFile = `{
   "endpoints": [
     {
@@ -78,7 +89,7 @@ lockxy({
         </p>
 
         <h2 id="when-to-use-a-manifest">When to use a manifest</h2>
-        <p>Create <code>mock.manifest.json</code> inside <code>mockRoot</code> when a request needs behavior such as:</p>
+        <p>Create <code>mock.manifest.json</code>, <code>mock.manifest.yaml</code>, or <code>mock.manifest.yml</code> inside <code>mockRoot</code> when a request needs behavior such as:</p>
         <ul>
             <li>a real <code>204</code>, <code>304</code>, <code>400</code>, or <code>500</code> response;</li>
             <li>a fixed delay or random delay range for loading and timeout testing;</li>
@@ -94,10 +105,11 @@ lockxy({
             </p>
         </Callout>
 
-        <h2 id="location-and-schema">Location and JSON Schema</h2>
+        <h2 id="location-and-schema">Location, format, and schema</h2>
         <p>
-            The default filename is <code>mock.manifest.json</code> and can be changed with the plugin's
-            <code>manifestFileName</code> option. The file always lives directly inside <code>mockRoot</code>. Add the schema
+            The default basename is <code>mock.manifest</code>. Lockxy discovers <code>.json</code>, <code>.yaml</code>, and
+            <code>.yml</code> files at the root of <code>mockRoot</code>. If several formats exist, JSON wins before YAML and
+            YML. Set <code>manifestFileName</code> to an explicit filename when a project uses another name. Add the schema
             shipped with the npm package for autocomplete and inline validation:
         </p>
         <Code code={schemaManifest} label="mock/mock.manifest.json" />
@@ -106,6 +118,18 @@ lockxy({
             <a href="https://wesflo.github.io/lockxy/schema/mock.manifest.schema.json">
                 <code>https://wesflo.github.io/lockxy/schema/mock.manifest.schema.json</code>
             </a>.
+        </p>
+
+        <h2 id="yaml-manifests">YAML manifests</h2>
+        <p>
+            YAML provides the same fields, validation, normalization, and runtime behavior as JSON. The optional
+            <code>yaml-language-server</code> comment associates the published JSON Schema with editors that support the
+            YAML language server:
+        </p>
+        <Code code={yamlManifest} label="mock/mock.manifest.yaml" />
+        <p>
+            JSON remains the preferred format when both are present. Keep only one manifest format in a project so the
+            active configuration is immediately obvious to every contributor.
         </p>
 
         <h2 id="minimal-manifests">Minimal manifests</h2>

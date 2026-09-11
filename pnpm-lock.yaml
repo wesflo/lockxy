@@ -143,6 +143,10 @@ importers:
         version: 4.1.11(@types/node@22.20.1)(@vitest/coverage-v8@4.1.11)(happy-dom@20.13.2)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(yaml@2.9.0))
 
   packages/vite-plugin-lockxy:
+    dependencies:
+      yaml:
+        specifier: 2.9.0
+        version: 2.9.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.23.0

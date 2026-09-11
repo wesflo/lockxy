@@ -29,7 +29,8 @@ vi.mock('./constant.js', () => ({
     EXTENSIONS: ['.json'],
     DEBUG: false,
     REQUEST_PREFIXES: ['/api/'],
-    MANIFEST_FILE_NAME: 'mock.manifest.json',
+    MANIFEST_FILE_NAME: 'mock.manifest',
+    MANIFEST_FILE_EXTENSIONS: ['.json', '.yaml', '.yml'],
     LOGGING: true,
 }));
 
@@ -145,12 +146,24 @@ describe('lockxy', () => {
             requestPrefixes: ['/api/'],
             extensions: ['.json'],
             contentTypes: { '.json': 'application/json' },
-            manifestFileName: 'mock.manifest.json',
+            manifestFileName: 'mock.manifest',
             debug: false,
             logging: true,
             fileIndex: new Set(['orders.json']),
             manifestResult: { status: 'missing' },
         });
+    });
+
+    it('discovers the highest-priority indexed manifest from the default basename', async () => {
+        mocks.buildMockFileIndex.mockResolvedValue(
+            new Set(['mock.manifest.yml', 'mock.manifest.yaml', 'mock.manifest.json'])
+        );
+        const plugin = lockxy();
+        const configureServer = plugin.configureServer as (server: ViteDevServer) => Promise<void>;
+
+        await configureServer({ middlewares: { use: vi.fn() } } as unknown as ViteDevServer);
+
+        expect(mocks.readMockManifest).toHaveBeenCalledWith(normalizedMockRoot, 'mock.manifest.json', false);
     });
 
     it('passes bypassed requests directly to the next middleware', async () => {
