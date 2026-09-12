@@ -50,7 +50,7 @@ export const previewStyle = css`
         min-height: 248px;
         max-height: 330px;
         margin-bottom: var(--wf-gap-m);
-        padding: var(--wf-gap-l) var(--wf-gap-l);
+        padding: var(--wf-gap-l) var(--wf-gap-m)  var(--wf-gap-l) 50px;
         overflow: auto;
         color: var(--wf-primary-dark);
         border: 1px solid var(--wf-line);
