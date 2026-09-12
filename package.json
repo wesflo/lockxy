@@ -41,7 +41,7 @@
     },
     "devDependencies": {
         "axe-core": "^4.13.0",
-        "cypress": "^16.0.0",
+        "cypress": "^15.21.1",
         "cypress-axe": "^1.7.0",
         "prettier": "3.8.1",
         "start-server-and-test": "^3.0.12",

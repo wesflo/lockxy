@@ -12,11 +12,11 @@ importers:
         specifier: ^4.13.0
         version: 4.13.0
       cypress:
-        specifier: ^16.0.0
-        version: 16.0.0
+        specifier: ^15.21.1
+        version: 15.21.1
       cypress-axe:
         specifier: ^1.7.0
-        version: 1.7.0(axe-core@4.13.0)(cypress@16.0.0)
+        version: 1.7.0(axe-core@4.13.0)(cypress@15.21.1)
       prettier:
         specifier: 3.8.1
         version: 3.8.1
@@ -1557,9 +1557,9 @@ packages:
       axe-core: ^3 || ^4
       cypress: ^10 || ^11 || ^12 || ^13 || ^14 || ^15
 
-  cypress@16.0.0:
-    resolution: {integrity: sha512-/H3zsayGwIGboFIiLWaXxy6ADmCdWy5QjjDBZgslCvjIgYAf1DkZerwAM7wXMPSpfpQ4w+lGjFlmwneRBpg27g==}
-    engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
+  cypress@15.21.1:
+    resolution: {integrity: sha512-ogHpHMj0XNlZA5MGzjg8SWHf0eMw9lTwVQRKjpcT1GzNTxNUjwnHA8YCG6nOJ8ThU+XZaUxJgpMYZnJ//8aDaw==}
+    engines: {node: ^20.1.0 || ^22.0.0 || >=24.0.0}
     hasBin: true
 
   dashdash@1.14.1:
@@ -4833,12 +4833,12 @@ snapshots:
     dependencies:
       css-tree: 2.2.1
 
-  cypress-axe@1.7.0(axe-core@4.13.0)(cypress@16.0.0):
+  cypress-axe@1.7.0(axe-core@4.13.0)(cypress@15.21.1):
     dependencies:
       axe-core: 4.13.0
-      cypress: 16.0.0
+      cypress: 15.21.1
 
-  cypress@16.0.0:
+  cypress@15.21.1:
     dependencies:
       '@cypress/request': 4.0.1
       '@cypress/xvfb': 1.2.4(supports-color@8.1.1)
