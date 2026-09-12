@@ -1,7 +1,16 @@
 import type { MockManifest, MockResponseSource } from './interface.js';
 
 export const EMPTY_MANIFEST: MockManifest = {};
-export const EXTENSIONS = ['.json', '.pdf', '.csv', '.txt', '.jpg', '.jpeg', '.png', '.webp'];
+export const EXTENSIONS = [
+    '.json', //
+    '.pdf',
+    '.csv',
+    '.txt',
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.webp',
+];
 
 export const CONTENT_TYPES: Readonly<Record<string, string>> = {
     '.json': 'application/json; charset=utf-8',
