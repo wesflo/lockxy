@@ -87,6 +87,8 @@ jobs:
             matrix:
                 check:
                     - Test
+                    - Integration
+                    - Browser
                     - Lint
                     - Build
         env:
@@ -114,6 +116,14 @@ jobs:
             - name: Test
               if: matrix.check == 'Test'
               run: pnpm test
+
+            - name: Integration test
+              if: matrix.check == 'Integration'
+              run: pnpm test:integration
+
+            - name: Browser test
+              if: matrix.check == 'Browser'
+              run: pnpm test:browser
 
             - name: Lint
               if: matrix.check == 'Lint'

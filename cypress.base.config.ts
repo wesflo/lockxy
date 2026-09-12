@@ -1,4 +1,5 @@
 export const sharedCypressConfig = {
+    allowCypressEnv: false,
     video: false,
     e2e: {
         includeShadowDom: true,
