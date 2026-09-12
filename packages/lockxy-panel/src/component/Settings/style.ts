@@ -10,7 +10,7 @@ export const settingsStyle = [
             padding: var(--wf-gap-l) var(--wf-gap-l);
         }
 
-        h3 {
+        h2 {
             margin: 0 0 var(--wf-gap-l);
             font-size: var(--wf-font-size-m);
         }

@@ -201,12 +201,12 @@ export class WfLockxyPanel extends MockProxyInteractionElement {
     };
 
     render = () =>
-        this.manifest
+        this.manifest || this.error
             ? renderMockProxy(
                   {
                       activeTab: this.activeTab,
                       bypass: this.bypass,
-                      canSaveSelections: Boolean(this.manifest.id),
+                      canSaveSelections: Boolean(this.manifest?.id),
                       dragging: Boolean(this.dragState),
                       endpoints: this.manifest?.endpoints ?? [],
                       error: this.error,

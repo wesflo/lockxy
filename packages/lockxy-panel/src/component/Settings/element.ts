@@ -29,7 +29,7 @@ export class MockProxySettings extends LitElement {
     };
 
     render = () => html`
-        <h3>General</h3>
+        <h2>General</h2>
         <div class="setting">
             <wf-switch
                 .checked=${this.proxyOnLoad}
