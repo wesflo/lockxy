@@ -11,4 +11,11 @@ describe('formatValue', () => {
         expect(formatValue(new Error('failed'))).toBe('failed');
         expect(formatValue(undefined)).toBe('');
     });
+
+    it('preserves strings and formats arrays, booleans and numbers', () => {
+        expect(formatValue('plain text')).toBe('plain text');
+        expect(formatValue(['one', 2])).toBe('[\n  "one",\n  2\n]');
+        expect(formatValue(false)).toBe('false');
+        expect(formatValue(0)).toBe('0');
+    });
 });
