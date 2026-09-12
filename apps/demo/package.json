@@ -20,7 +20,7 @@
         "test:browser:open": "start-server-and-test test:browser:dev http://127.0.0.1:5173 'cypress open --project .'",
         "lint": "eslint .",
         "lint:fix": "eslint --ext .js,.ts  --fix",
-        "check-types": "tsc --noEmit -p tsconfig.json",
+        "check-types": "tsc --noEmit -p tsconfig.json && tsc -p tsconfig.test.json",
         "prettier": "prettier -c --config ../../prettier.config.mjs ./src",
         "prettier:w": "prettier -w --config ../../prettier.config.mjs ./src"
     },

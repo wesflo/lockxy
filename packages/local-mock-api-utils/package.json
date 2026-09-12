@@ -12,7 +12,7 @@
     "scripts": {
         "build": "tsc -p tsconfig.json",
         "test": "vitest run src",
-        "check-types": "tsc --noEmit -p tsconfig.json"
+        "check-types": "tsc --noEmit -p tsconfig.json && tsc -p tsconfig.test.json"
     },
     "devDependencies": {
         "typescript": "^5.8.2",
