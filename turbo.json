@@ -21,6 +21,21 @@
             "cache": false,
             "persistent": true
         },
+        "test:integration": {
+            "dependsOn": ["^build"],
+            "cache": false,
+            "outputs": []
+        },
+        "test:browser": {
+            "dependsOn": ["^build"],
+            "cache": false,
+            "outputs": ["test-results/**"]
+        },
+        "test:browser:open": {
+            "dependsOn": ["^build"],
+            "cache": false,
+            "persistent": true
+        },
         "lint": {
             "outputs": []
         },

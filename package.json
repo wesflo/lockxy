@@ -16,6 +16,15 @@
         "test:watch:app": "turbo run test:watch --filter=@wesflo/lockxy-demo",
         "test:watch:package": "turbo run test:watch --filter=@wesflo/vite-plugin-lockxy",
         "test:ui:app": "turbo run test:ui --filter=@wesflo/lockxy-demo",
+        "test:integration": "turbo run test:integration",
+        "test:integration:plugin": "turbo run test:integration --filter=@wesflo/vite-plugin-lockxy",
+        "test:browser": "turbo run test:browser --concurrency=1",
+        "test:browser:demo": "turbo run test:browser --filter=@wesflo/lockxy-demo",
+        "test:browser:playground": "turbo run test:browser --filter=@wesflo/lockxy-playground",
+        "test:browser:panel": "turbo run test:browser --filter=@wesflo/lockxy-panel",
+        "test:browser:open:demo": "turbo run test:browser:open --filter=@wesflo/lockxy-demo",
+        "test:browser:open:playground": "turbo run test:browser:open --filter=@wesflo/lockxy-playground",
+        "test:browser:open:panel": "turbo run test:browser:open --filter=@wesflo/lockxy-panel",
         "lint": "turbo run lint",
         "lint:fix": "turbo run lint:fix",
         "prettier": "prettier -c --config ./prettier.config.mjs --ignore-path ./.prettierignore .",
@@ -31,7 +40,11 @@
         "bundle:local": "turbo run bundle:local --filter=@wesflo/vite-plugin-lockxy"
     },
     "devDependencies": {
+        "axe-core": "^4.13.0",
+        "cypress": "^16.0.0",
+        "cypress-axe": "^1.7.0",
         "prettier": "3.8.1",
+        "start-server-and-test": "^3.0.12",
         "turbo": "2.10.11"
     }
 }

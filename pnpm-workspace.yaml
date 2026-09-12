@@ -2,6 +2,7 @@ packages:
     - 'apps/*'
     - 'packages/*'
 allowBuilds:
+    cypress: true
     esbuild: true
 minimumReleaseAgeExclude:
     - happy-dom@20.13.1
