@@ -34,6 +34,8 @@ describe('registerMockWatcher', () => {
 
     beforeEach(() => {
         vi.resetAllMocks();
+        runtime.manifestFileName = 'mock.manifest.json';
+        runtime.loadManifestModule = undefined;
         runtime.fileIndex = new Set(['users.json']);
         runtime.manifestResult = { status: 'missing' };
         watcher = {
@@ -70,7 +72,7 @@ describe('registerMockWatcher', () => {
         await onAll('change', '/tmp/outside-src/mock/mock.manifest.json');
 
         expect(mocks.buildMockFileIndex).not.toHaveBeenCalled();
-        expect(mocks.readMockManifest).toHaveBeenCalledWith(runtime.mockRoot, 'mock.manifest.json', true);
+        expect(mocks.readMockManifest).toHaveBeenCalledWith(runtime.mockRoot, 'mock.manifest.json', true, undefined);
     });
 
     it('selects a newly added JSON manifest before an existing YAML manifest', async () => {
@@ -81,7 +83,7 @@ describe('registerMockWatcher', () => {
 
         await onAll('add', '/tmp/outside-src/mock/mock.manifest.json');
 
-        expect(mocks.readMockManifest).toHaveBeenCalledWith(runtime.mockRoot, 'mock.manifest.json', true);
+        expect(mocks.readMockManifest).toHaveBeenCalledWith(runtime.mockRoot, 'mock.manifest.json', true, undefined);
     });
 
     it('falls back to YAML when the preferred JSON manifest is removed', async () => {
@@ -92,7 +94,24 @@ describe('registerMockWatcher', () => {
 
         await onAll('unlink', '/tmp/outside-src/mock/mock.manifest.json');
 
-        expect(mocks.readMockManifest).toHaveBeenCalledWith(runtime.mockRoot, 'mock.manifest.yaml', true);
+        expect(mocks.readMockManifest).toHaveBeenCalledWith(runtime.mockRoot, 'mock.manifest.yaml', true, undefined);
+    });
+
+    it('reloads a dynamic manifest when a local TypeScript dependency changes', async () => {
+        const loadManifestModule = vi.fn();
+        runtime.manifestFileName = 'mock.manifest';
+        runtime.loadManifestModule = loadManifestModule;
+        runtime.fileIndex = new Set(['mock.manifest.ts', 'generators/user.ts']);
+        registerMockWatcher(watcher, runtime);
+
+        await onAll('change', '/tmp/outside-src/mock/generators/user.ts');
+
+        expect(mocks.readMockManifest).toHaveBeenCalledWith(
+            runtime.mockRoot,
+            'mock.manifest.ts',
+            true,
+            loadManifestModule
+        );
     });
 
     it('ignores content changes because file contents are not cached', async () => {

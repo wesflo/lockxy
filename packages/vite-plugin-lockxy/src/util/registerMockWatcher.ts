@@ -1,4 +1,4 @@
-import { isAbsolute, relative, resolve } from 'node:path';
+import { extname, isAbsolute, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { ViteDevServer } from 'vite';
 
@@ -22,8 +22,12 @@ export const registerMockWatcher = (watcher: ViteDevServer['watcher'], runtime: 
         const currentManifestFileName = resolveManifestFileName(runtime.manifestFileName, runtime.fileIndex);
         const manifestPath = resolve(mockRootPath, currentManifestFileName);
         const manifestChanged = absoluteChangedPath === manifestPath;
+        const dynamicDependencyChanged =
+            eventName === 'change' &&
+            ['.js', '.ts'].includes(extname(currentManifestFileName).toLowerCase()) &&
+            ['.js', '.ts'].includes(extname(relativePath).toLowerCase());
 
-        if (!isInsideMockRoot || (!fileIndexChanged && !manifestChanged)) {
+        if (!isInsideMockRoot || (!fileIndexChanged && !manifestChanged && !dynamicDependencyChanged)) {
             return;
         }
 
@@ -37,7 +41,8 @@ export const registerMockWatcher = (watcher: ViteDevServer['watcher'], runtime: 
                 runtime.manifestResult = await readMockManifest(
                     runtime.mockRoot,
                     manifestFileName,
-                    runtime.debug
+                    runtime.debug,
+                    runtime.loadManifestModule
                 );
             })
             .catch((error) => logError(runtime.logging, 'Failed to refresh the mock runtime state.', error));

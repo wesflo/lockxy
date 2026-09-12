@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
     findSelectedScenario: vi.fn(),
     getCandidatePaths: vi.fn(),
     getRequestRouteParts: vi.fn(),
+    handleDynamicEndpoint: vi.fn(),
     logRequest: vi.fn(),
     parseScenarioSelections: vi.fn(),
     readExistingFile: vi.fn(),
@@ -27,6 +28,7 @@ vi.mock('../../util/send.js', () => ({ send: mocks.send }));
 vi.mock('../../util/sendJson.js', () => ({ sendJson: mocks.sendJson }));
 vi.mock('./util/findMockEndpoint.js', () => ({ findMockEndpoint: mocks.findMockEndpoint }));
 vi.mock('./util/findSelectedScenario.js', () => ({ findSelectedScenario: mocks.findSelectedScenario }));
+vi.mock('./util/handleDynamicEndpoint.js', () => ({ handleDynamicEndpoint: mocks.handleDynamicEndpoint }));
 vi.mock('./util/parseScenarioSelections.js', () => ({ parseScenarioSelections: mocks.parseScenarioSelections }));
 vi.mock('./util/wait.js', () => ({ wait: mocks.wait }));
 
@@ -122,6 +124,17 @@ describe('handleScenarioRequest', () => {
             mockFile.content,
             'GET'
         );
+    });
+
+    it('delegates a matched dynamic endpoint to its handler', async () => {
+        const endpoint = { id: 'profile', path: '/api/profile', dynamic: true, handler: vi.fn() };
+        options.manifestResult = { status: 'valid', manifest: { endpoints: [endpoint] } };
+        mocks.findMockEndpoint.mockReturnValue(endpoint);
+
+        await expect(handleScenarioRequest(request, response, options)).resolves.toBe(true);
+
+        expect(mocks.handleDynamicEndpoint).toHaveBeenCalledWith(request, response, endpoint, options, '/api/profile');
+        expect(mocks.findMockFile).not.toHaveBeenCalled();
     });
 
     it('rejects a missing manifest file from the index without accessing the file system', async () => {

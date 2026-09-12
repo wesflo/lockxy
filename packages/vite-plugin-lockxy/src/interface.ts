@@ -16,6 +16,7 @@ export interface ResolvedMockApiPluginOptions extends Omit<Required<MockApiPlugi
 
 export interface MockApiRuntimeOptions extends ResolvedMockApiPluginOptions {
     fileIndex: ReadonlySet<string>;
+    loadManifestModule?: ManifestModuleLoader;
     manifestResult: ManifestReadResult;
 }
 
@@ -53,12 +54,44 @@ export interface MockEndpoint extends MockResponseConfig {
     method?: MockMethod;
     path: string;
     scenarios?: MockScenario[];
+    dynamic?: boolean;
+    handler?: DynamicEndpointHandler;
 }
 
 export interface MockScenario extends MockResponseConfig {
     id?: string;
     label?: string;
 }
+
+export interface DynamicEndpointContext {
+    request: Request;
+    params: Readonly<Record<string, string>>;
+    searchParams: URLSearchParams;
+    method: string;
+    pathname: string;
+}
+
+export interface DynamicResponse {
+    status?: number;
+    delay?: MockDelay;
+    headers?: Readonly<Record<string, string>>;
+    body?: unknown;
+}
+
+export type DynamicEndpointHandler = (
+    context: DynamicEndpointContext
+) => DynamicResponse | Promise<DynamicResponse>;
+
+export interface DynamicMockEndpoint extends Omit<MockEndpoint, 'delay' | 'file' | 'handler' | 'scenarios' | 'status'> {
+    handler: DynamicEndpointHandler;
+}
+
+export interface DynamicMockManifest {
+    id?: string;
+    endpoints: DynamicMockEndpoint[];
+}
+
+export type ManifestModuleLoader = (fileName: string) => Promise<unknown>;
 
 export interface NormalizedMockManifest extends Omit<MockManifest, 'endpoints'> {
     endpoints?: NormalizedMockEndpoint[];

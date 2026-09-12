@@ -1,22 +1,34 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 
-import type { ManifestReadResult, MockManifest } from '../../../interface.js';
+import type { ManifestModuleLoader, ManifestReadResult, MockManifest } from '../../../interface.js';
 import { toMockUrl } from '../../../util/toMockUrl.js';
 import { normalizeMockManifest } from './normalizeMockManifest.js';
 import { parseManifestContent } from './parseManifestContent.js';
+import { validateDynamicManifestStructure } from './validateDynamicManifestStructure.js';
 import { validateManifestStructure } from './validateManifestStructure.js';
 import { validateMockManifest } from './validateMockManifest.js';
 
 export const readMockManifest = async (
     mockRoot: URL,
     manifestFileName: string,
-    debug = false
+    debug = false,
+    loadManifestModule?: ManifestModuleLoader
 ): Promise<ManifestReadResult> => {
     try {
-        const content = await readFile(toMockUrl(manifestFileName, mockRoot), 'utf8');
-        const parsed = parseManifestContent(manifestFileName, content);
-
-        const manifest: MockManifest = validateManifestStructure(parsed, manifestFileName);
+        const isDynamic = /\.[jt]s$/i.test(manifestFileName);
+        let manifest: MockManifest;
+        if (isDynamic) {
+            await stat(toMockUrl(manifestFileName, mockRoot));
+            if (!loadManifestModule) {
+                throw new TypeError(`${manifestFileName}: dynamic manifests require the Vite development server`);
+            }
+            const loaded = await loadManifestModule(manifestFileName);
+            const exported = (loaded as { default?: unknown })?.default;
+            manifest = validateDynamicManifestStructure(exported, manifestFileName);
+        } else {
+            const content = await readFile(toMockUrl(manifestFileName, mockRoot), 'utf8');
+            manifest = validateManifestStructure(parseManifestContent(manifestFileName, content), manifestFileName);
+        }
         if (debug) {
             await validateMockManifest(manifest, manifestFileName, mockRoot);
         }

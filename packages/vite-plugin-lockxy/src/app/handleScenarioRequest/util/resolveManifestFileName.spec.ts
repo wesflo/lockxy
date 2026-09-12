@@ -13,6 +13,12 @@ describe('resolveManifestFileName', () => {
         expect(resolveManifestFileName('mock.manifest', new Set(['mock.manifest.yml']))).toBe('mock.manifest.yml');
     });
 
+    it('selects TypeScript before JavaScript after declarative formats', () => {
+        expect(resolveManifestFileName('mock.manifest', new Set(['mock.manifest.js', 'mock.manifest.ts']))).toBe(
+            'mock.manifest.ts'
+        );
+    });
+
     it('keeps an explicitly configured supported filename', () => {
         expect(resolveManifestFileName('custom.yaml', new Set(['custom.json']))).toBe('custom.yaml');
     });

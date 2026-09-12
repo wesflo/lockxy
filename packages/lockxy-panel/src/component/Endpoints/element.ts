@@ -65,6 +65,7 @@ export class MockProxyEndpoints extends LitElement {
             .replace(/\b\p{L}/gu, (character) => character.toLocaleUpperCase());
 
     private scenarioLabel = (endpoint: MockEndpoint, scenario?: MockScenario): string =>
+        (endpoint.dynamic ? 'Dynamic response' : '') ||
         scenario?.label?.trim() ||
         (scenario?.id ? this.formatId(scenario.id) : '') ||
         scenario?.file?.trim() ||

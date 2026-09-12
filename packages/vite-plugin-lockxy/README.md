@@ -64,7 +64,7 @@ lockxy({
 | `requestPrefixes` | `string \| readonly string[]` | `'/api/'` | Local URL namespaces handled by Lockxy. |
 | `extensions` | `readonly string[]` | `[]` | Adds file extensions after the built-in JSON, PDF, CSV, text, JPEG, PNG, and WebP candidates. |
 | `contentTypes` | `Readonly<Record<string, string>>` | `{}` | Adds or overrides extension-to-content-type mappings. |
-| `manifestFileName` | `string` | `'mock.manifest'` | Manifest basename or explicit `.json`, `.yaml`, or `.yml` filename inside `mockRoot`. |
+| `manifestFileName` | `string` | `'mock.manifest'` | Manifest basename or explicit `.json`, `.yaml`, `.yml`, `.ts`, or `.js` filename inside `mockRoot`. |
 | `debug` | `boolean` | `false` | Enables detailed manifest, route, status, delay, ID, and referenced-file validation. |
 | `logging` | `boolean` | `true` | Logs handled requests and runtime errors. |
 
@@ -105,7 +105,7 @@ The matched prefix is removed before file resolution, so `/development-api/users
 
 ## Optional manifest
 
-No manifest is required. Convention-only projects remain fully functional when `mock.manifest.json`, `mock.manifest.yaml`, and `mock.manifest.yml` are missing. Add one only for calls that need an explicit file, status, delay, failure, dynamic route, or multiple selectable scenarios; every other request continues to use naming conventions. If several default manifests exist, Lockxy uses `.json`, then `.yaml`, then `.yml`.
+No manifest is required. Convention-only projects remain fully functional when no supported manifest exists. Add one only for calls that need an explicit file, status, delay, failure, dynamic route, or generated response; every other request continues to use naming conventions. If several default manifests exist, Lockxy uses `.json`, `.yaml`, `.yml`, `.ts`, then `.js`.
 
 The package includes a JSON Schema for editor autocomplete and inline validation:
 
@@ -133,6 +133,29 @@ endpoints:
       file: scenarios/user.json
       delay: 250
 ```
+
+### Dynamic responses
+
+Use `mock.manifest.ts` or `mock.manifest.js` when an endpoint must derive its response from request data:
+
+```ts
+import { defineDynamicManifest } from '@wesflo/vite-plugin-lockxy';
+
+export default defineDynamicManifest({
+    endpoints: [
+        {
+            method: 'GET',
+            path: '/api/users/:id',
+            handler: ({ params, searchParams }) => ({
+                status: 200,
+                body: { id: params.id, detailed: searchParams.has('details') },
+            }),
+        },
+    ],
+});
+```
+
+Every dynamic endpoint has one handler and no scenarios. Handlers may return `status`, `delay`, `headers`, and `body`. Declarative manifests retain priority during automatic discovery; explicitly set `manifestFileName: 'mock.manifest.ts'` if both formats exist. Read the [Dynamic responses guide](https://wesflo.github.io/lockxy/dynamic-responses/) for request bodies, response types, panel behavior, and best practices.
 
 Endpoint entries require only `path`. `method`, `id`, `label`, `active`, `file`, `status`, `delay`, and `scenarios` are optional:
 

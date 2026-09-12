@@ -84,7 +84,7 @@ lockxy({
 | `requestPrefixes` | `string \| readonly string[]` | `'/api/'` | One or more local URL namespaces handled by Lockxy. |
 | `extensions` | `readonly string[]` | `[]` | Adds file extensions after the built-in JSON, PDF, CSV, text, JPEG, PNG, and WebP candidates. |
 | `contentTypes` | `Readonly<Record<string, string>>` | `{}` | Adds or overrides extension-to-content-type mappings. |
-| `manifestFileName` | `string` | `'mock.manifest'` | Manifest basename or explicit `.json`, `.yaml`, or `.yml` filename inside `mockRoot`. |
+| `manifestFileName` | `string` | `'mock.manifest'` | Manifest basename or explicit `.json`, `.yaml`, `.yml`, `.ts`, or `.js` filename inside `mockRoot`. |
 | `debug` | `boolean` | `false` | Enables detailed manifest and referenced-file validation. |
 | `logging` | `boolean` | `true` | Logs requests and runtime errors. |
 
@@ -115,6 +115,28 @@ Naming conventions work without a manifest. Add `mock/mock.manifest.json`, `mock
 ```
 
 Only `path` is required for an endpoint. `method` accepts either one method or an array such as `["POST", "PUT"]` when several methods share the same behavior. Without `method`, every method matches; without `file`, normal naming conventions resolve the response. Use `:id?` for an optional dynamic path segment. The optional root `id` enables project-specific selection storage in the panel. Root delay applies to all calls, while endpoint and scenario values override it. A single scenario is automatic; multiple scenarios can be selected with the optional panel. Set `debug: true` for precise validation diagnostics.
+
+## Dynamic responses
+
+Use an explicitly selected `mock.manifest.ts` or `mock.manifest.js` when a response must depend on route parameters, query parameters, or a request body:
+
+```ts
+import { defineDynamicManifest } from '@wesflo/vite-plugin-lockxy';
+
+export default defineDynamicManifest({
+    endpoints: [
+        {
+            method: 'GET',
+            path: '/api/users/:id',
+            handler: ({ params }) => ({
+                body: { id: params.id },
+            }),
+        },
+    ],
+});
+```
+
+Each dynamic endpoint has exactly one handler and no scenarios. The handler can return `status`, `delay`, `headers`, and `body`. JSON, YAML, and YML keep priority during automatic discovery, so set `manifestFileName: 'mock.manifest.ts'` when another manifest format remains in the directory. See the [Dynamic responses guide](https://wesflo.github.io/lockxy/dynamic-responses/) for the complete API.
 
 ## Mock Proxy panel
 

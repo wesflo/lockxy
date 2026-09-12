@@ -30,7 +30,7 @@ vi.mock('./constant.js', () => ({
     DEBUG: false,
     REQUEST_PREFIXES: ['/api/'],
     MANIFEST_FILE_NAME: 'mock.manifest',
-    MANIFEST_FILE_EXTENSIONS: ['.json', '.yaml', '.yml'],
+    MANIFEST_FILE_EXTENSIONS: ['.json', '.yaml', '.yml', '.ts', '.js'],
     LOGGING: true,
 }));
 
@@ -50,7 +50,7 @@ vi.mock('./util/shouldBypassMockRequest.js', () => ({
     shouldBypassMockRequest: mocks.shouldBypassMockRequest,
 }));
 
-import lockxy, { lockxy as namedLockxy } from './index.js';
+import lockxy, { defineDynamicManifest, lockxy as namedLockxy } from './index.js';
 
 type Middleware = (request: IncomingMessage, response: ServerResponse, next: () => void) => Promise<void>;
 
@@ -68,6 +68,12 @@ describe('lockxy', () => {
 
     it('exports the plugin factory as both the default and named export', () => {
         expect(lockxy).toBe(namedLockxy);
+    });
+
+    it('keeps dynamic manifests unchanged for typed authoring', () => {
+        const manifest = { endpoints: [{ path: '/api/foo', handler: vi.fn() }] };
+
+        expect(defineDynamicManifest(manifest)).toBe(manifest);
     });
 
     it('creates the plugin and prepares the default mock root', () => {
@@ -150,6 +156,7 @@ describe('lockxy', () => {
             debug: false,
             logging: true,
             fileIndex: new Set(['orders.json']),
+            loadManifestModule: expect.any(Function),
             manifestResult: { status: 'missing' },
         });
     });
@@ -163,7 +170,12 @@ describe('lockxy', () => {
 
         await configureServer({ middlewares: { use: vi.fn() } } as unknown as ViteDevServer);
 
-        expect(mocks.readMockManifest).toHaveBeenCalledWith(normalizedMockRoot, 'mock.manifest.json', false);
+        expect(mocks.readMockManifest).toHaveBeenCalledWith(
+            normalizedMockRoot,
+            'mock.manifest.json',
+            false,
+            expect.any(Function)
+        );
     });
 
     it('passes bypassed requests directly to the next middleware', async () => {

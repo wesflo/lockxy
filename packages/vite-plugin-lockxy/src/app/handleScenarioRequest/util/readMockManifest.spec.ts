@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { readMockManifest } from './readMockManifest.js';
 
@@ -62,12 +62,41 @@ describe('readMockManifest', () => {
         }
     });
 
+    it.each(['ts', 'js'])('loads and normalizes a dynamic %s manifest default export', async (extension) => {
+        const handler = vi.fn();
+        const fileName = `mock.manifest.${extension}`;
+        const mockRoot = await writeManifest('', fileName);
+        const loadManifestModule = vi.fn().mockResolvedValue({
+            default: { endpoints: [{ id: 'dynamic-foo', method: 'GET', path: '/api/foo/:id', handler }] },
+        });
+
+        await expect(
+            readMockManifest(mockRoot, fileName, false, loadManifestModule)
+        ).resolves.toEqual({
+            status: 'valid',
+            manifest: {
+                endpoints: [
+                    {
+                        id: 'dynamic-foo',
+                        method: 'GET',
+                        path: '/api/foo/:id',
+                        handler,
+                        dynamic: true,
+                        scenarios: undefined,
+                    },
+                ],
+            },
+        });
+        expect(loadManifestModule).toHaveBeenCalledWith(fileName);
+    });
+
     it('keeps a missing manifest valid in debug mode', async () => {
         const directory = await mkdtemp(join(tmpdir(), 'local-mock-api-manifest-'));
         temporaryDirectories.push(directory);
         const mockRoot = new URL('./', pathToFileURL(join(directory, 'placeholder')));
 
         await expect(readMockManifest(mockRoot, 'mock.manifest.json', true)).resolves.toEqual({ status: 'missing' });
+        await expect(readMockManifest(mockRoot, 'mock.manifest.ts', true)).resolves.toEqual({ status: 'missing' });
     });
 
     it('rejects a non-array endpoints field', async () => {

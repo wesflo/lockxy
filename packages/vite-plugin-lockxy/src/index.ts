@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import {
     BYPASS_ALL_VALUE as BYPASS_ALL,
@@ -11,7 +12,12 @@ import { handleScenarioRequest } from './app/handleScenarioRequest/index.js';
 import { readMockManifest } from './app/handleScenarioRequest/util/readMockManifest.js';
 import { resolveManifestFileName } from './app/handleScenarioRequest/util/resolveManifestFileName.js';
 import { CONTENT_TYPES, EXTENSIONS, DEBUG, REQUEST_PREFIXES, MANIFEST_FILE_NAME, LOGGING } from './constant.js';
-import type { MockApiPluginOptions, MockApiRuntimeOptions, ResolvedMockApiPluginOptions } from './interface.js';
+import type {
+    DynamicMockManifest,
+    MockApiPluginOptions,
+    MockApiRuntimeOptions,
+    ResolvedMockApiPluginOptions,
+} from './interface.js';
 import { buildMockFileIndex } from './util/buildMockFileIndex.js';
 import { logError } from './util/logError.js';
 import { logRequest } from './util/logRequest.js';
@@ -20,11 +26,14 @@ import { normalizeRequestPrefixes } from './util/normalizeRequestPrefixes.js';
 import { registerMockWatcher } from './util/registerMockWatcher.js';
 import { sendJson } from './util/sendJson.js';
 import { shouldBypassMockRequest } from './util/shouldBypassMockRequest.js';
+import { toMockUrl } from './util/toMockUrl.js';
 
 export const BYPASS_ALL_VALUE = BYPASS_ALL;
 export const BYPASS_COOKIE_NAME = BYPASS_COOKIE;
 export const MANIFEST_ROUTE = MANIFEST_PATH;
 export const SCENARIO_COOKIE_NAME = SCENARIO_COOKIE;
+
+export const defineDynamicManifest = <T extends DynamicMockManifest>(manifest: T): T => manifest;
 
 export const lockxy = ({
     mockRoot,
@@ -69,10 +78,22 @@ export const lockxy = ({
 
             const fileIndex = await buildMockFileIndex(options.mockRoot);
             const manifestFileName = resolveManifestFileName(options.manifestFileName, fileIndex);
+            let moduleVersion = 0;
+            const loadManifestModule = (fileName: string): Promise<unknown> => {
+                const filePath = fileURLToPath(toMockUrl(fileName, options.mockRoot));
+                moduleVersion += 1;
+                return server.ssrLoadModule(`/@fs/${filePath}?lockxy=${moduleVersion}`);
+            };
             const runtimeOptions: MockApiRuntimeOptions = {
                 ...options,
                 fileIndex,
-                manifestResult: await readMockManifest(options.mockRoot, manifestFileName, options.debug),
+                loadManifestModule,
+                manifestResult: await readMockManifest(
+                    options.mockRoot,
+                    manifestFileName,
+                    options.debug,
+                    loadManifestModule
+                ),
             };
             registerMockWatcher(server.watcher, runtimeOptions);
 
@@ -122,3 +143,11 @@ export const lockxy = ({
 };
 
 export default lockxy;
+
+export type {
+    DynamicEndpointContext,
+    DynamicEndpointHandler,
+    DynamicMockEndpoint,
+    DynamicMockManifest,
+    DynamicResponse,
+} from './interface.js';

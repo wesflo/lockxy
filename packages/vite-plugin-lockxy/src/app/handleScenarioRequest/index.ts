@@ -15,6 +15,7 @@ import { send } from '../../util/send.js';
 import { sendJson } from '../../util/sendJson.js';
 import { findMockEndpoint } from './util/findMockEndpoint.js';
 import { findSelectedScenario } from './util/findSelectedScenario.js';
+import { handleDynamicEndpoint } from './util/handleDynamicEndpoint.js';
 import { isSafeScenarioFile } from './util/isSafeScenarioFile.js';
 import { parseScenarioSelections } from './util/parseScenarioSelections.js';
 import { resolveDelay } from './util/resolveDelay.js';
@@ -77,6 +78,11 @@ export const handleScenarioRequest = async (
 
     if (!endpoint && manifest.delay === undefined) {
         return false;
+    }
+
+    if (endpoint?.handler) {
+        await handleDynamicEndpoint(req, res, endpoint, options, pathname);
+        return true;
     }
 
     const selections = parseScenarioSelections(req.headers.cookie, (message) => logError(options.logging, message));

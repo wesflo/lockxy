@@ -1,0 +1,127 @@
+---
+import Callout from '../components/Callout.astro';
+import Code from '../components/Code.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+
+const manifest = `import { defineDynamicManifest } from '@wesflo/vite-plugin-lockxy';
+
+export default defineDynamicManifest({
+  id: 'foo-api',
+  endpoints: [
+    {
+      id: 'get-foo',
+      label: 'Get foo',
+      method: 'GET',
+      path: '/api/foo/:id',
+      handler: ({ params, searchParams }) => ({
+        status: 200,
+        body: {
+          id: params.id,
+          detailed: searchParams.get('details') === 'true',
+        },
+      }),
+    },
+    {
+      id: 'create-foo',
+      label: 'Create foo',
+      method: 'POST',
+      path: '/api/foo',
+      handler: async ({ request }) => ({
+        status: 201,
+        body: {
+          id: crypto.randomUUID(),
+          ...(await request.json()),
+        },
+      }),
+    },
+  ],
+});`;
+---
+
+<DocsLayout
+    title="Dynamic responses"
+    description="Generate request-aware local API responses with JavaScript or TypeScript handlers."
+    activePath="/dynamic-responses/"
+>
+    <article>
+        <p class="kicker">Advanced response handling</p>
+        <h1>Generate responses from request data.</h1>
+        <p class="lead">
+            JavaScript and TypeScript manifests add one handler per endpoint for cases where static files are not enough.
+            Use route parameters, query parameters, headers, or a request body to build the response locally.
+        </p>
+
+        <Callout title="Keep simple mocks simple">
+            <p>
+                Naming conventions and declarative JSON or YAML manifests remain the preferred workflow. Use dynamic
+                handlers only when the response genuinely depends on request data.
+            </p>
+        </Callout>
+
+        <h2 id="manifest-module">Manifest module</h2>
+        <p>
+            Create <code>mock/mock.manifest.ts</code> or <code>mock/mock.manifest.js</code> and default-export a dynamic
+            manifest. Every endpoint requires a <code>path</code> and a <code>handler</code>. IDs, labels, methods, and the
+            active flag use the same rules as declarative endpoints. Dynamic endpoints do not contain scenarios.
+        </p>
+        <Code code={manifest} label="mock/mock.manifest.ts" />
+
+        <h2 id="handler-context">Handler context</h2>
+        <table>
+            <thead><tr><th>Value</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>request</code></td><td>A standard Web Request. Read JSON, text, or form data with its normal methods.</td></tr>
+                <tr><td><code>params</code></td><td>Decoded values from required and optional <code>:parameters</code> in the matched path.</td></tr>
+                <tr><td><code>searchParams</code></td><td>The request URL's <code>URLSearchParams</code>.</td></tr>
+                <tr><td><code>method</code></td><td>The normalized HTTP method.</td></tr>
+                <tr><td><code>pathname</code></td><td>The request pathname without its query string.</td></tr>
+            </tbody>
+        </table>
+        <p>A request body is a stream and can be consumed only once. Call only one of <code>json()</code>, <code>text()</code>, or <code>formData()</code> for a request.</p>
+
+        <h2 id="handler-response">Handler response</h2>
+        <p>A handler may be synchronous or asynchronous and returns an object with these optional fields:</p>
+        <table>
+            <thead><tr><th>Field</th><th>Default</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>status</code></td><td><code>200</code></td><td>An HTTP status from 100 through 599.</td></tr>
+                <tr><td><code>delay</code></td><td><code>0</code></td><td>Fixed milliseconds or an inclusive random range.</td></tr>
+                <tr><td><code>headers</code></td><td>Inferred</td><td>Additional response headers. A supplied content type wins.</td></tr>
+                <tr><td><code>body</code></td><td>Empty</td><td>An object, array, string, Buffer, or empty value.</td></tr>
+            </tbody>
+        </table>
+        <p>
+            Objects and arrays are serialized as JSON, strings as plain text, and Buffers as binary data. Lockxy still
+            owns the final response, so logging, delays, the <code>x-lockxy</code> header, and bodyless
+            <code>HEAD</code>, <code>204</code>, and <code>304</code> responses remain consistent.
+        </p>
+
+        <h2 id="resolution-and-reload">Resolution and reload</h2>
+        <p>The default manifest priority is:</p>
+        <Code code={`mock.manifest.json
+mock.manifest.yaml
+mock.manifest.yml
+mock.manifest.ts
+mock.manifest.js`} label="highest to lowest priority" />
+        <p>
+            Set <code>manifestFileName: 'mock.manifest.ts'</code> to select the module explicitly. Vite compiles TypeScript;
+            Lockxy caches the loaded manifest at runtime and reloads it when the watched module changes.
+        </p>
+
+        <h2 id="panel-integration">Panel integration</h2>
+        <p>
+            The manifest route exposes only serializable endpoint metadata, never handler source code. The panel displays
+            <strong>Dynamic response</strong> instead of a scenario selector. Endpoint toggles and bypass cookies continue
+            to use the endpoint ID.
+        </p>
+
+        <h2 id="best-practices">Best practices</h2>
+        <ul>
+            <li>Use stable endpoint and manifest IDs when the proxy panel stores selections.</li>
+            <li>Keep handlers small and deterministic unless randomness is part of the behavior being tested.</li>
+            <li>Return synthetic data only; dynamic manifests execute locally as trusted development code.</li>
+            <li>Prefer static files for fixed responses so backend colleagues can inspect them without reading code.</li>
+            <li>Treat thrown handler errors as implementation failures. Lockxy logs them and responds with a controlled 500.</li>
+        </ul>
+    </article>
+</DocsLayout>

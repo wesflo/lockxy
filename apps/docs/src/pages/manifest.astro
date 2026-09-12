@@ -107,10 +107,11 @@ lockxy({
 
         <h2 id="location-and-schema">Location, format, and schema</h2>
         <p>
-            The default basename is <code>mock.manifest</code>. Lockxy discovers <code>.json</code>, <code>.yaml</code>, and
-            <code>.yml</code> files at the root of <code>mockRoot</code>. If several formats exist, JSON wins before YAML and
-            YML. Set <code>manifestFileName</code> to an explicit filename when a project uses another name. Add the schema
-            shipped with the npm package for autocomplete and inline validation:
+            The default basename is <code>mock.manifest</code>. Lockxy discovers declarative <code>.json</code>,
+            <code>.yaml</code>, and <code>.yml</code> files before dynamic <code>.ts</code> and <code>.js</code> modules at the
+            root of <code>mockRoot</code>. Set <code>manifestFileName</code> to an explicit filename when a project uses
+            another name or intentionally selects a lower-priority format. Add the schema shipped with the npm package for
+            autocomplete and inline validation:
         </p>
         <Code code={schemaManifest} label="mock/mock.manifest.json" />
         <p>
@@ -130,6 +131,10 @@ lockxy({
         <p>
             JSON remains the preferred format when both are present. Keep only one manifest format in a project so the
             active configuration is immediately obvious to every contributor.
+        </p>
+        <p>
+            For request-aware JavaScript or TypeScript handlers, use the separate
+            <a href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/dynamic-responses/`}>Dynamic responses guide</a>.
         </p>
 
         <h2 id="minimal-manifests">Minimal manifests</h2>

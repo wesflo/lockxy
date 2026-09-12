@@ -26,6 +26,15 @@ describe('mock proxy endpoints', () => {
         expect(element.shadowRoot?.querySelector('select')).toBeNull();
     });
 
+    it('identifies dynamic endpoints without rendering a scenario select', async () => {
+        const element = await createElement();
+        element.endpoints = [{ id: 'dynamic-foo', method: 'GET', path: '/api/foo/:id', dynamic: true }];
+        await element.updateComplete;
+
+        expect(element.shadowRoot?.querySelector('.scenario-value')?.textContent?.trim()).toBe('Dynamic response');
+        expect(element.shadowRoot?.querySelector('select')).toBeNull();
+    });
+
     it('renders zero or one scenario using the label, formatted ID or file', async () => {
         const element = await createElement();
         element.endpoints = [

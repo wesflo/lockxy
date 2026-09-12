@@ -22,6 +22,7 @@ const links = [
     { href: '/getting-started/', label: 'Getting started', icon: '→' },
     { href: '/vite-plugin/', label: 'Vite Plugin', icon: '◇' },
     { href: '/manifest/', label: 'Manifest', icon: '≡' },
+    { href: '/dynamic-responses/', label: 'Dynamic responses', icon: 'ƒ' },
     { href: '/proxy-panel/', label: 'Proxy panel', icon: '≋' },
     { href: '/playgrounds/', label: 'Playgrounds', icon: '✓' },
 ];
@@ -55,6 +56,14 @@ const pageSections: Record<string, Array<{ href: string; label: string }>> = {
         { href: '#response-precedence', label: 'Response precedence' },
         { href: '#delays-and-statuses', label: 'Delays and statuses' },
         { href: '#validation', label: 'Validation' },
+        { href: '#best-practices', label: 'Best practices' },
+    ],
+    '/dynamic-responses/': [
+        { href: '#manifest-module', label: 'Manifest module' },
+        { href: '#handler-context', label: 'Handler context' },
+        { href: '#handler-response', label: 'Handler response' },
+        { href: '#resolution-and-reload', label: 'Resolution and reload' },
+        { href: '#panel-integration', label: 'Panel integration' },
         { href: '#best-practices', label: 'Best practices' },
     ],
     '/proxy-panel/': [

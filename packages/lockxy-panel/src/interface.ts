@@ -22,6 +22,7 @@ export interface MockEndpoint {
     file?: string;
     delay?: MockDelay;
     scenarios?: MockScenario[];
+    dynamic?: boolean;
 }
 
 export interface MockScenario {

@@ -21,7 +21,7 @@ export const REQUEST_PREFIXES = ['/api/'] as const;
 
 export const MANIFEST_FILE_NAME = 'mock.manifest';
 
-export const MANIFEST_FILE_EXTENSIONS = ['.json', '.yaml', '.yml'] as const;
+export const MANIFEST_FILE_EXTENSIONS = ['.json', '.yaml', '.yml', '.ts', '.js'] as const;
 
 export const DEBUG = false;
 
