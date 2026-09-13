@@ -29,7 +29,8 @@
         "test:browser": {
             "dependsOn": ["^build"],
             "cache": false,
-            "outputs": ["test-results/**"]
+            "outputs": ["test-results/**"],
+            "passThroughEnv": ["CYPRESS_BROWSER"]
         },
         "test:browser:open": {
             "dependsOn": ["^build"],

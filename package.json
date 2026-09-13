@@ -19,6 +19,7 @@
         "test:integration": "turbo run test:integration",
         "test:integration:plugin": "turbo run test:integration --filter=@wesflo/vite-plugin-lockxy",
         "test:browser": "turbo run test:browser --concurrency=1",
+        "test:browser:extended": "CYPRESS_BROWSER=firefox turbo run test:browser --concurrency=1 && CYPRESS_BROWSER=edge turbo run test:browser --concurrency=1",
         "test:browser:demo": "turbo run test:browser --filter=@wesflo/lockxy-demo",
         "test:browser:playground": "turbo run test:browser --filter=@wesflo/lockxy-playground",
         "test:browser:panel": "turbo run test:browser --filter=@wesflo/lockxy-panel",
