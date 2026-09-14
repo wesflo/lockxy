@@ -114,7 +114,7 @@ Naming conventions work without a manifest. Add `mock/mock.manifest.json`, `mock
 }
 ```
 
-Only `path` is required for an endpoint. `method` accepts either one method or an array such as `["POST", "PUT"]` when several methods share the same behavior. Without `method`, every method matches; without `file`, normal naming conventions resolve the response. Use `:id?` for an optional dynamic path segment. The optional root `id` enables project-specific selection storage in the panel. Root delay applies to all calls, while endpoint and scenario values override it. A single scenario is automatic; multiple scenarios can be selected with the optional panel. Set `debug: true` for precise validation diagnostics.
+Only `path` is required for an endpoint. `method` accepts either one method or an array such as `["POST", "PUT"]` when several methods share the same behavior. Without `method`, every method matches; without `file`, normal naming conventions resolve the response. Use `:id?` for an optional dynamic path segment. When several endpoints match, literal paths win over dynamic paths, required parameters win over optional parameters, and method-specific entries win over method-agnostic entries. Manifest order breaks any remaining tie. Multiple active configurations for the same route are allowed and produce a console warning. The optional root `id` enables project-specific selection storage in the panel. Root delay applies to all calls, while endpoint and scenario values override it. A single scenario is automatic; multiple scenarios can be selected with the optional panel. Set `debug: true` for precise validation diagnostics.
 
 ## Mock Proxy panel
 

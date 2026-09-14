@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
     buildMockFileIndex: vi.fn(),
     handleMockRequest: vi.fn(),
     handleScenarioRequest: vi.fn(),
+    logManifestRouteWarnings: vi.fn(),
     normalizeMockRoot: vi.fn(),
     readMockManifest: vi.fn(),
     registerMockWatcher: vi.fn(),
@@ -44,6 +45,10 @@ vi.mock('./util/buildMockFileIndex.js', () => ({
 
 vi.mock('./util/registerMockWatcher.js', () => ({
     registerMockWatcher: mocks.registerMockWatcher,
+}));
+
+vi.mock('./util/logManifestRouteWarnings.js', () => ({
+    logManifestRouteWarnings: mocks.logManifestRouteWarnings,
 }));
 
 vi.mock('./util/shouldBypassMockRequest.js', () => ({
@@ -164,6 +169,11 @@ describe('lockxy', () => {
         await configureServer({ middlewares: { use: vi.fn() } } as unknown as ViteDevServer);
 
         expect(mocks.readMockManifest).toHaveBeenCalledWith(normalizedMockRoot, 'mock.manifest.json', false);
+        expect(mocks.logManifestRouteWarnings).toHaveBeenCalledWith(
+            true,
+            'mock.manifest.json',
+            expect.objectContaining({ status: 'missing' })
+        );
     });
 
     it('passes bypassed requests directly to the next middleware', async () => {

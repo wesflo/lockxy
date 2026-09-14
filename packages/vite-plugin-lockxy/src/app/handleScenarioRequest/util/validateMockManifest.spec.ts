@@ -120,7 +120,7 @@ describe('validateMockManifest', () => {
         );
     });
 
-    it('detects duplicate explicit and generated endpoint IDs', async () => {
+    it('detects duplicate explicit endpoint IDs', async () => {
         await expect(
             validate({
                 endpoints: [
@@ -129,7 +129,9 @@ describe('validateMockManifest', () => {
                 ],
             })
         ).rejects.toThrow(/endpoints\[1\]\.id: duplicate endpoint ID "users"/);
+    });
 
+    it('allows colliding generated endpoint IDs because normalization adds stable suffixes', async () => {
         await expect(
             validate({
                 endpoints: [
@@ -137,7 +139,7 @@ describe('validateMockManifest', () => {
                     { method: 'GET', path: '/api/users' },
                 ],
             })
-        ).rejects.toThrow(/endpoints\[1\]\.id: duplicate endpoint ID "get_api_users"/);
+        ).resolves.toBeUndefined();
     });
 
     it('detects duplicate scenario IDs only within their endpoint', async () => {
@@ -162,24 +164,15 @@ describe('validateMockManifest', () => {
         ).resolves.toBeUndefined();
     });
 
-    it.each([
-        [
-            { method: 'GET', path: '/api/users/:id' },
-            { method: 'GET', path: '/api/users/:name' },
-        ],
-        [
-            { method: 'GET', path: '/api/users/:id' },
-            { method: 'GET', path: '/api/users/current' },
-        ],
-        [
-            { method: 'GET', path: '/api/users/:id?' },
-            { method: 'GET', path: '/api/users' },
-        ],
-        [{ path: '/api/users' }, { method: 'POST', path: '/api/users' }],
-    ])('detects routes that can handle the same request %#', async (first, second) => {
-        await expect(validate({ endpoints: [first, second] })).rejects.toThrow(
-            /endpoints\[1\]: route conflicts with mock\.manifest\.json\.endpoints\[0\]/
-        );
+    it('allows overlapping routes because endpoint resolution ranks their specificity', async () => {
+        await expect(
+            validate({
+                endpoints: [
+                    { id: 'dynamic-cart', method: 'GET', path: '/api/cart/:id?' },
+                    { id: 'wishlist', method: 'GET', path: '/api/cart/wishlist' },
+                ],
+            })
+        ).resolves.toBeUndefined();
     });
 
     it('allows routes separated by method, segment count, or inactive state', async () => {
@@ -190,26 +183,6 @@ describe('validateMockManifest', () => {
                     { method: 'POST', path: '/api/users' },
                     { method: 'GET', path: '/api/users/:id' },
                     { id: 'inactive-users', method: 'GET', path: '/api/users', active: false },
-                ],
-            })
-        ).resolves.toBeUndefined();
-    });
-
-    it('detects conflicts across method arrays and allows disjoint arrays', async () => {
-        await expect(
-            validate({
-                endpoints: [
-                    { method: ['POST', 'PUT'], path: '/api/users' },
-                    { method: 'PUT', path: '/api/users' },
-                ],
-            })
-        ).rejects.toThrow(/endpoints\[1\]: route conflicts with mock\.manifest\.json\.endpoints\[0\]/);
-
-        await expect(
-            validate({
-                endpoints: [
-                    { method: ['POST', 'PUT'], path: '/api/users' },
-                    { method: ['GET', 'DELETE'], path: '/api/users' },
                 ],
             })
         ).resolves.toBeUndefined();

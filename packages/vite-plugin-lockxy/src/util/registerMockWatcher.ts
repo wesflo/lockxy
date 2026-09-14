@@ -8,6 +8,7 @@ import { readMockManifest } from '../app/handleScenarioRequest/util/readMockMani
 import { resolveManifestFileName } from '../app/handleScenarioRequest/util/resolveManifestFileName.js';
 import { buildMockFileIndex } from './buildMockFileIndex.js';
 import { logError } from './logError.js';
+import { logManifestRouteWarnings } from './logManifestRouteWarnings.js';
 
 export const registerMockWatcher = (watcher: ViteDevServer['watcher'], runtime: MockApiRuntimeOptions): void => {
     const mockRootPath = resolve(fileURLToPath(runtime.mockRoot));
@@ -34,11 +35,8 @@ export const registerMockWatcher = (watcher: ViteDevServer['watcher'], runtime: 
                 }
 
                 const manifestFileName = resolveManifestFileName(runtime.manifestFileName, runtime.fileIndex);
-                runtime.manifestResult = await readMockManifest(
-                    runtime.mockRoot,
-                    manifestFileName,
-                    runtime.debug
-                );
+                runtime.manifestResult = await readMockManifest(runtime.mockRoot, manifestFileName, runtime.debug);
+                logManifestRouteWarnings(runtime.logging, manifestFileName, runtime.manifestResult);
             })
             .catch((error) => logError(runtime.logging, 'Failed to refresh the mock runtime state.', error));
 

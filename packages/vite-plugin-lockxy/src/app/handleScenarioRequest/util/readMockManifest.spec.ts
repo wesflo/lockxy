@@ -58,7 +58,7 @@ describe('readMockManifest', () => {
 
         expect(result.status).toBe('invalid');
         if (result.status === 'invalid') {
-            expect(result.error.message).toMatch(/mock\.manifest\.yml: Invalid YAML:.*line 2, column 1/si);
+            expect(result.error.message).toMatch(/mock\.manifest\.yml: Invalid YAML:.*line 2, column 1/is);
         }
     });
 
@@ -108,9 +108,6 @@ describe('readMockManifest', () => {
             expect(result.error.message).toContain('endpoints[0].status');
             expect(result.error.message).toContain('referenced file "missing.json" does not exist');
             expect(result.error.message).toContain('endpoints[1].id: duplicate endpoint ID "same"');
-            expect(result.error.message).toContain(
-                'endpoints[1]: route conflicts with mock.manifest.json.endpoints[0]'
-            );
         }
     });
 });

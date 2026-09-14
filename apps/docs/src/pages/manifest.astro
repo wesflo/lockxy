@@ -161,7 +161,7 @@ lockxy({
             <tbody>
                 <tr><td><code>path</code></td><td>Yes</td><td>Absolute request path. Segments beginning with <code>:</code> match one dynamic value.</td></tr>
                 <tr><td><code>method</code></td><td>No</td><td>One case-insensitive HTTP method or an array of methods. When omitted, the endpoint matches every method.</td></tr>
-                <tr><td><code>id</code></td><td>No</td><td>Stable identifier used by panel settings and cookies. Generated from method and path when omitted.</td></tr>
+                <tr><td><code>id</code></td><td>No</td><td>Stable identifier used by panel settings and cookies. Generated from method and path when omitted; colliding generated IDs receive a numeric suffix.</td></tr>
                 <tr><td><code>label</code></td><td>No</td><td>Human-readable name shown in the proxy panel.</td></tr>
                 <tr><td><code>active</code></td><td>No</td><td>Set to <code>false</code> to skip this manifest endpoint. Defaults to active.</td></tr>
                 <tr><td><code>file</code></td><td>No</td><td>Response file relative to <code>mockRoot</code>.</td></tr>
@@ -173,7 +173,10 @@ lockxy({
         <p>
             Required paths match by segment count. A dynamic segment matches exactly one value, so
             <code>/api/users/:id</code> matches <code>/api/users/42</code> but not <code>/api/users/42/orders</code>. Query
-            parameters do not participate in endpoint matching. The first active endpoint matching method and path wins.
+            parameters do not participate in endpoint matching. When several active endpoints match, literal paths win over
+            dynamic paths, required parameters win over optional parameters, and method-specific entries win over
+            method-agnostic entries. Manifest order breaks any remaining tie. Multiple active configurations for the same
+            route remain valid and produce a console warning listing their manifest locations.
         </p>
         <p>
             Use an array such as <code>["POST", "PUT"]</code> when several methods should share the same response behavior,
@@ -241,7 +244,6 @@ lockxy({
             <li>missing or unsafe response files;</li>
             <li>duplicate endpoint and scenario IDs;</li>
             <li>invalid status codes and delay ranges;</li>
-            <li>active routes whose method and path shapes conflict.</li>
         </ul>
         <p>
             General request and runtime logging is controlled separately through <code>logging</code> and defaults to

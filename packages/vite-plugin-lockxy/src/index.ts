@@ -14,6 +14,7 @@ import { CONTENT_TYPES, EXTENSIONS, DEBUG, REQUEST_PREFIXES, MANIFEST_FILE_NAME,
 import type { MockApiPluginOptions, MockApiRuntimeOptions, ResolvedMockApiPluginOptions } from './interface.js';
 import { buildMockFileIndex } from './util/buildMockFileIndex.js';
 import { logError } from './util/logError.js';
+import { logManifestRouteWarnings } from './util/logManifestRouteWarnings.js';
 import { logRequest } from './util/logRequest.js';
 import { normalizeMockRoot } from './util/normalizeMockRoot.js';
 import { normalizeRequestPrefixes } from './util/normalizeRequestPrefixes.js';
@@ -69,10 +70,12 @@ export const lockxy = ({
 
             const fileIndex = await buildMockFileIndex(options.mockRoot);
             const manifestFileName = resolveManifestFileName(options.manifestFileName, fileIndex);
+            const manifestResult = await readMockManifest(options.mockRoot, manifestFileName, options.debug);
+            logManifestRouteWarnings(options.logging, manifestFileName, manifestResult);
             const runtimeOptions: MockApiRuntimeOptions = {
                 ...options,
                 fileIndex,
-                manifestResult: await readMockManifest(options.mockRoot, manifestFileName, options.debug),
+                manifestResult,
             };
             registerMockWatcher(server.watcher, runtimeOptions);
 

@@ -35,6 +35,22 @@ describe('normalizeMockManifest', () => {
         expect(manifest.endpoints?.[0]?.id).toBe('any_api_health');
     });
 
+    it('adds stable suffixes when generated endpoint IDs collide', () => {
+        const manifest = normalizeMockManifest({
+            endpoints: [
+                { method: 'GET', path: '/api/users' },
+                { method: 'GET', path: '/api/users' },
+                { id: 'get_api_users', method: 'PUT', path: '/api/users' },
+            ],
+        });
+
+        expect(manifest.endpoints?.map((endpoint) => endpoint.id)).toEqual([
+            'get_api_users_2',
+            'get_api_users_3',
+            'get_api_users',
+        ]);
+    });
+
     it('keeps a root-delay-only manifest minimal', () => {
         expect(normalizeMockManifest({ delay: 400 })).toEqual({ delay: 400 });
     });
