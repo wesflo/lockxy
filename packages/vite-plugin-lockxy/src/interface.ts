@@ -75,7 +75,7 @@ export interface NormalizedMockScenario extends Omit<MockScenario, 'id' | 'label
 }
 
 export type ManifestReadResult =
-    | { status: 'valid'; manifest: NormalizedMockManifest }
+    | { status: 'valid'; manifest: NormalizedMockManifest; warnings?: readonly string[] }
     | { status: 'missing' }
     | { status: 'invalid'; error: Error };
 

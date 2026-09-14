@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { validateManifestStructure } from './validateManifestStructure.js';
 
@@ -40,5 +40,23 @@ describe('validateManifestStructure', () => {
         };
 
         expect(validateManifestStructure(manifest, 'mock.json')).toBe(manifest);
+    });
+
+    it('can omit invalid endpoints while keeping the valid manifest entries', () => {
+        const onInvalidEndpoint = vi.fn();
+
+        expect(
+            validateManifestStructure(
+                {
+                    endpoints: [{ path: '/api/users' }, { path: 'api/orders' }, { path: '/api/profile', method: 42 }],
+                },
+                'mock.json',
+                onInvalidEndpoint
+            )
+        ).toEqual({ endpoints: [{ path: '/api/users' }] });
+        expect(onInvalidEndpoint).toHaveBeenCalledTimes(2);
+        expect(onInvalidEndpoint).toHaveBeenCalledWith(
+            'mock.json.endpoints[1].path: must be a string beginning with /'
+        );
     });
 });

@@ -90,12 +90,13 @@ describe('readMockManifest', () => {
         }
     });
 
-    it('runs semantic and file validation only in debug mode', async () => {
+    it('skips invalid endpoints in debug mode while keeping valid endpoints available', async () => {
         const mockRoot = await writeManifest(
             JSON.stringify({
                 endpoints: [
                     { id: 'same', method: 'GET', path: '/api/users/:id', status: 700, file: 'missing.json' },
                     { id: 'same', method: 'GET', path: '/api/users/:name' },
+                    { id: 'orders', method: 'GET', path: '/api/orders' },
                 ],
             })
         );
@@ -103,11 +104,46 @@ describe('readMockManifest', () => {
         await expect(readMockManifest(mockRoot, 'mock.manifest.json')).resolves.toMatchObject({ status: 'valid' });
 
         const result = await readMockManifest(mockRoot, 'mock.manifest.json', true);
+        expect(result.status).toBe('valid');
+        if (result.status === 'valid') {
+            expect(result.manifest.endpoints).toEqual([expect.objectContaining({ id: 'orders', path: '/api/orders' })]);
+            expect(result.warnings).toEqual(
+                expect.arrayContaining([
+                    expect.stringContaining('endpoints[0].status'),
+                    expect.stringContaining('referenced file "missing.json" does not exist'),
+                    expect.stringContaining('endpoints[1].id: duplicate endpoint ID "same"'),
+                ])
+            );
+        }
+    });
+
+    it('skips structurally invalid endpoints even without debug mode', async () => {
+        const mockRoot = await writeManifest(
+            JSON.stringify({ endpoints: [{ path: 'api/broken' }, { path: '/api/working', status: 204 }] })
+        );
+
+        await expect(readMockManifest(mockRoot, 'mock.manifest.json')).resolves.toEqual({
+            status: 'valid',
+            manifest: {
+                endpoints: [expect.objectContaining({ path: '/api/working', status: 204 })],
+            },
+            warnings: [
+                'Ignoring invalid endpoint: mock.manifest.json.endpoints[0].path: must be a string beginning with /',
+            ],
+        });
+    });
+
+    it('still rejects invalid root configuration in debug mode', async () => {
+        const mockRoot = await writeManifest(
+            JSON.stringify({ delay: -1, endpoints: [{ path: '/api/working', status: 204 }] })
+        );
+        const result = await readMockManifest(mockRoot, 'mock.manifest.json', true);
+
         expect(result.status).toBe('invalid');
         if (result.status === 'invalid') {
-            expect(result.error.message).toContain('endpoints[0].status');
-            expect(result.error.message).toContain('referenced file "missing.json" does not exist');
-            expect(result.error.message).toContain('endpoints[1].id: duplicate endpoint ID "same"');
+            expect(result.error.message).toContain(
+                'mock.manifest.json.delay: must be a non-negative integer or an ascending'
+            );
         }
     });
 });

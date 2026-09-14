@@ -99,9 +99,9 @@ lockxy({
         </ul>
         <Callout title="A manifest is never required">
             <p>
-                A missing manifest is valid and produces no warning. Convention-only projects remain plug and play. If a
-                manifest exists but is malformed, Lockxy reports the error while convention-based requests can still be
-                resolved.
+                A missing manifest is valid and produces no warning. Convention-only projects remain plug and play.
+                Invalid JSON or an invalid root object rejects the complete manifest, while malformed individual endpoints
+                are skipped with a warning so the remaining endpoints stay available.
             </p>
         </Callout>
 
@@ -247,8 +247,9 @@ lockxy({
         </ul>
         <p>
             General request and runtime logging is controlled separately through <code>logging</code> and defaults to
-            <code>true</code>. Manifest changes and referenced mock files are watched outside <code>src</code>, so restarting
-            Vite is not required.
+            <code>true</code>. Endpoint validation failures are logged as non-fatal warnings and remove only the affected
+            endpoint. Manifest changes and referenced mock files are watched outside <code>src</code>, so restarting Vite is
+            not required.
         </p>
 
         <h2 id="best-practices">Best practices</h2>

@@ -9,6 +9,19 @@ import { logManifestRouteWarnings } from './logManifestRouteWarnings.js';
 describe('logManifestRouteWarnings', () => {
     beforeEach(() => vi.resetAllMocks());
 
+    it('logs non-fatal endpoint warnings returned while reading the manifest', () => {
+        logManifestRouteWarnings(true, 'mock.manifest.json', {
+            status: 'valid',
+            manifest: {},
+            warnings: ['Ignoring invalid endpoint: mock.manifest.json.endpoints[1].status'],
+        });
+
+        expect(mocks.logWarning).toHaveBeenCalledWith(
+            true,
+            'Ignoring invalid endpoint: mock.manifest.json.endpoints[1].status'
+        );
+    });
+
     it('warns once when active configurations overlap on the same route', () => {
         logManifestRouteWarnings(true, 'mock.manifest.json', {
             status: 'valid',

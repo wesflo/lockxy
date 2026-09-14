@@ -21,6 +21,8 @@ export const logManifestRouteWarnings = (enabled: boolean, fileName: string, res
         return;
     }
 
+    result.warnings?.forEach((warning) => logWarning(enabled, warning));
+
     const endpoints = result.manifest.endpoints ?? [];
     const overlaps = new Map<string, Set<number>>();
 
