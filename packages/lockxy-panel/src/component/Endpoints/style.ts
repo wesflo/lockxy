@@ -129,6 +129,10 @@ export const endpointsStyle = [
             grid-template-columns: minmax(0, 1fr) auto;
         }
 
+        .scenario-value {
+            font-size: var(--wf-font-size-s);
+        }
+
         select {
             width: 100%;
             height: 36px;
@@ -137,6 +141,7 @@ export const endpointsStyle = [
             border: 1px solid var(--wf-line);
             border-radius: 8px;
             background: var(--wf-white);
+            font-size: var(--wf-font-size-s);
         }
 
         select:disabled {

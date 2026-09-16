@@ -41,10 +41,31 @@ describe('mock proxy endpoints', () => {
         expect(element.shadowRoot?.querySelector('select')).toBeNull();
     });
 
-    it('renders zero or one scenario using the label, formatted ID or file', async () => {
+    it('renders an endpoint file or convention fallback when no scenario exists', async () => {
         const element = await createElement();
         element.endpoints = [
-            { id: 'foo-bar', method: 'GET', path: '/api/foo' },
+            { id: 'foo-bar', label: 'Endpoint label', method: 'GET', path: '/api/foo', file: 'endpoint.json' },
+            { id: 'id-fallback', method: 'GET', path: '/api/id' },
+        ];
+        await element.updateComplete;
+
+        const values = Array.from(element.shadowRoot?.querySelectorAll('.scenario-value') ?? []).map((item) =>
+            item.textContent?.trim()
+        );
+
+        expect(values).toEqual(['endpoint.json', 'File by convention']);
+        expect(element.shadowRoot?.querySelector('select')).toBeNull();
+    });
+
+    it('renders one scenario using its label, formatted ID, file or convention fallback', async () => {
+        const element = await createElement();
+        element.endpoints = [
+            {
+                id: 'label-fallback',
+                method: 'GET',
+                path: '/api/label',
+                scenarios: [{ id: 'ignored-id', label: 'Scenario label', file: 'ignored.json' }],
+            },
             {
                 id: 'file-fallback',
                 method: 'GET',
@@ -57,6 +78,12 @@ describe('mock proxy endpoints', () => {
                 path: '/api/scenario',
                 scenarios: [{ id: 'slow-response' }],
             },
+            {
+                id: 'convention-fallback',
+                method: 'GET',
+                path: '/api/convention',
+                scenarios: [{}],
+            },
         ];
         await element.updateComplete;
 
@@ -64,7 +91,12 @@ describe('mock proxy endpoints', () => {
             item.textContent?.trim()
         );
 
-        expect(values).toEqual(['Foo Bar', 'scenarios/explicit.json', 'Slow Response']);
+        expect(values).toEqual([
+            'Scenario label',
+            'scenarios/explicit.json',
+            'Slow Response',
+            'File by convention',
+        ]);
         expect(element.shadowRoot?.querySelector('select')).toBeNull();
     });
 
@@ -77,7 +109,8 @@ describe('mock proxy endpoints', () => {
                 path: '/api/orders',
                 scenarios: [
                     { id: 'success', label: 'Success' },
-                    { id: 'error', label: 'Error' },
+                    { id: 'error-response' },
+                    { file: 'scenarios/file-only.json' },
                 ],
             },
         ];
@@ -86,8 +119,13 @@ describe('mock proxy endpoints', () => {
 
         const select = element.shadowRoot?.querySelector<HTMLSelectElement>('select');
         expect(select?.value).toBe('success');
-        expect(Array.from(select?.options ?? []).map(({ value }) => value)).toEqual(['success', 'error', '']);
-        expect(select?.options[2]?.textContent?.trim()).toBe('Default file resolution');
+        expect(Array.from(select?.options ?? []).map(({ textContent }) => textContent?.trim())).toEqual([
+            'Success',
+            'Error Response',
+            'scenarios/file-only.json',
+            'Default file resolution',
+        ]);
+        expect(select?.options[3]?.textContent?.trim()).toBe('Default file resolution');
     });
 
     it('offers reset and documentation actions in the footer', async () => {

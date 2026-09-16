@@ -67,14 +67,14 @@ export class MockProxyEndpoints extends LitElement {
     private endpointLabel = (endpoint: MockEndpoint): string =>
         endpoint.label?.trim() || (endpoint.id ? this.formatId(endpoint.id) : '') || this.displayPath(endpoint.path);
 
-    private scenarioLabel = (endpoint: MockEndpoint, scenario?: MockScenario): string =>
-        scenario?.label?.trim() ||
-        (scenario?.id ? this.formatId(scenario.id) : '') ||
-        scenario?.file?.trim() ||
-        endpoint.label?.trim() ||
-        (endpoint.id ? this.formatId(endpoint.id) : '') ||
-        endpoint.file?.trim() ||
-        'Default file resolution';
+    private scenarioLabel = (scenario: MockScenario): string =>
+        scenario.label?.trim() ||
+        (scenario.id ? this.formatId(scenario.id) : '') ||
+        scenario.file?.trim() ||
+        'File by convention';
+
+    private responseLabel = (endpoint: MockEndpoint, scenario?: MockScenario): string =>
+        scenario ? this.scenarioLabel(scenario) : endpoint.file?.trim() || 'File by convention';
 
     private setScenarioValue = (element: Element | undefined, value: string): void => {
         if (!(element instanceof HTMLSelectElement)) {
@@ -114,7 +114,9 @@ export class MockProxyEndpoints extends LitElement {
                 <div class="endpoint-control">
                     ${scenarios.length <= 1
                         ? html`
-                              <span class="scenario-value">${this.scenarioLabel(endpoint, scenarios[0])}</span>
+                              <span class="scenario-value">
+                                  ${this.responseLabel(endpoint, scenarios[0])}
+                              </span>
                           `
                         : html`
                               <label>
@@ -131,7 +133,7 @@ export class MockProxyEndpoints extends LitElement {
                                       ${scenarios.map(
                                           (scenario) => html`
                                               <option value=${scenario.id ?? ''}>
-                                                  ${scenario.label ?? scenario.id ?? 'Unnamed scenario'}
+                                                  ${this.scenarioLabel(scenario)}
                                               </option>
                                           `
                                       )}
