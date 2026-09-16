@@ -53,6 +53,28 @@ describe('mock proxy endpoints', () => {
         expect(element.shadowRoot?.querySelector('select')).toBeNull();
     });
 
+    it('selects the first scenario by default and renders file resolution last', async () => {
+        const element = await createElement();
+        element.endpoints = [
+            {
+                id: 'orders',
+                method: 'GET',
+                path: '/api/orders',
+                scenarios: [
+                    { id: 'success', label: 'Success' },
+                    { id: 'error', label: 'Error' },
+                ],
+            },
+        ];
+        await element.updateComplete;
+        await Promise.resolve();
+
+        const select = element.shadowRoot?.querySelector<HTMLSelectElement>('select');
+        expect(select?.value).toBe('success');
+        expect(Array.from(select?.options ?? []).map(({ value }) => value)).toEqual(['success', 'error', '']);
+        expect(select?.options[2]?.textContent?.trim()).toBe('Default file resolution');
+    });
+
     it('offers reset and documentation actions in the footer', async () => {
         const element = await createElement();
         const listener = vi.fn();

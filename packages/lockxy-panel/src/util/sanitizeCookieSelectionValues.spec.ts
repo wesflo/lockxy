@@ -33,6 +33,13 @@ describe('sanitizeCookieSelectionValues', () => {
         });
     });
 
+    it('preserves an explicit default file resolution selection', () => {
+        expect(sanitizeCookieSelectionValues(endpoints, undefined, 'orders:')).toEqual({
+            bypass: '',
+            scenarios: 'orders:',
+        });
+    });
+
     it('preserves global bypass and removes malformed entries', () => {
         expect(sanitizeCookieSelectionValues(endpoints, '*', 'invalid:value:extra')).toEqual({
             bypass: '*',

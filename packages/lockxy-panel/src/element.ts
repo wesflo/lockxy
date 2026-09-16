@@ -157,7 +157,7 @@ export class WfLockxyPanel extends MockProxyInteractionElement {
 
         setCookieValue(
             SCENARIO_COOKIE_NAME,
-            updateScenarioCookie(getCookieValue(SCENARIO_COOKIE_NAME), endpoint.id, scenarioId || undefined)
+            updateScenarioCookie(getCookieValue(SCENARIO_COOKIE_NAME), endpoint.id, scenarioId)
         );
         this.syncCookieState();
         this.persistSelections([endpoint]);

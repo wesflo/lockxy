@@ -10,4 +10,8 @@ describe('updateScenarioCookie', () => {
     it('removes only the requested endpoint without a scenario', () => {
         expect(updateScenarioCookie('delay:short|errors:400', 'delay')).toBe('errors:400');
     });
+
+    it('keeps an explicit default file resolution selection', () => {
+        expect(updateScenarioCookie('delay:short', 'delay', '')).toBe('delay:');
+    });
 });

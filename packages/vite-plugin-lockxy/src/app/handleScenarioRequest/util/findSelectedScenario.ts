@@ -6,17 +6,17 @@ export const findSelectedScenario = (
 ): MockScenario | undefined => {
     const scenarios = endpoint.scenarios ?? [];
 
-    if (scenarios.length === 1) {
-        return scenarios[0];
+    if (scenarios.length === 0) {
+        return undefined;
     }
 
-    if (!endpoint.id) {
-        return undefined;
+    if (!endpoint.id || !selections.has(endpoint.id)) {
+        return scenarios[0];
     }
 
     const scenarioId = selections.get(endpoint.id);
 
-    if (!scenarioId) {
+    if (scenarioId === '') {
         return undefined;
     }
 

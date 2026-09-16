@@ -4,9 +4,10 @@ import { parseScenarioCookie } from './parseScenarioCookie';
 
 describe('parseScenarioCookie', () => {
     it('returns all valid selections', () => {
-        expect([...parseScenarioCookie('delay:short|errors:server-error')]).toEqual([
+        expect([...parseScenarioCookie('delay:short|errors:server-error|users:')]).toEqual([
             ['delay', 'short'],
             ['errors', 'server-error'],
+            ['users', ''],
         ]);
     });
 

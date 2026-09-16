@@ -63,7 +63,8 @@ const scriptUsage = `<wf-lockxy-panel></wf-lockxy-panel>
             and path, for example <code>checkout → GET /api/orders</code>. The setting is unavailable without a root ID, so
             unrelated micro frontends cannot accidentally share these values. A visible notice explains how to enable the
             setting when the ID is missing. The panel maps stored values back to the current endpoint IDs after loading. If
-            a selected scenario no longer exists, the first configured scenario is used as a fallback.
+            no selection exists or a selected scenario no longer exists, the first configured scenario is used as a
+            fallback. Default file resolution remains available as the final select option.
         </p>
         <Callout title="Shared-origin limitation">
             <p>
@@ -88,7 +89,9 @@ const scriptUsage = `<wf-lockxy-panel></wf-lockxy-panel>
             Scenario selections use <code>lockxy-scenarios</code>. Entries are encoded as
             <code>endpoint-id:scenario-id</code> and separated with <code>|</code>. Prefer the panel or the exported utility
             helpers over constructing this value manually. If a stored scenario no longer exists after the manifest is
-            changed, the endpoint automatically uses its first configured scenario.
+            changed, the endpoint automatically uses its first configured scenario. An empty scenario ID, for example
+            <code>orders:</code>, records an explicit choice of default file resolution; a missing endpoint entry selects
+            its first scenario.
         </p>
     </article>
 </DocsLayout>

@@ -91,7 +91,7 @@ export class MockProxyEndpoints extends LitElement {
         const displayMethods = methods.length > 0 ? methods : ['ANY'];
         const methodLabel = displayMethods.join(', ');
         const scenarios = endpoint.scenarios ?? [];
-        const selectedScenarioId = this.scenarios.get(endpoint.id ?? '') ?? '';
+        const selectedScenarioId = this.scenarios.get(endpoint.id ?? '') ?? scenarios[0]?.id ?? '';
 
         return html`
             <article class=${`endpoint ${unavailable ? 'inactive' : ''}`}>
@@ -122,9 +122,6 @@ export class MockProxyEndpoints extends LitElement {
                                               scenarioId: (event.currentTarget as HTMLSelectElement).value,
                                           })}
                                   >
-                                      <option value="">
-                                          ${scenarios.length ? 'Default file resolution' : 'Endpoint configuration'}
-                                      </option>
                                       ${scenarios.map(
                                           (scenario) => html`
                                               <option value=${scenario.id ?? ''}>
@@ -132,6 +129,7 @@ export class MockProxyEndpoints extends LitElement {
                                               </option>
                                           `
                                       )}
+                                      <option value="">Default file resolution</option>
                                   </select>
                               </label>
                           `}

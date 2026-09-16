@@ -11,9 +11,9 @@ export const parseScenarioCookie = (value?: string): Map<string, string> => {
         if (
             parts.length === 2 &&
             endpointId &&
-            scenarioId &&
+            scenarioId !== undefined &&
             SCENARIO_ID_PATTERN.test(endpointId) &&
-            SCENARIO_ID_PATTERN.test(scenarioId)
+            (scenarioId === '' || SCENARIO_ID_PATTERN.test(scenarioId))
         ) {
             selections.set(endpointId, scenarioId);
         }

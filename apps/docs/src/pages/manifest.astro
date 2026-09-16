@@ -198,15 +198,15 @@ lockxy({
         </p>
         <Code code={completeManifest} label="complete manifest example" />
         <ul>
-            <li>Exactly one scenario is applied automatically without a panel or cookie.</li>
-            <li>With multiple scenarios, endpoint-level behavior is used until a selection exists.</li>
+            <li>When scenarios exist, the first one is applied automatically without a panel or cookie selection.</li>
+            <li>The panel lists scenarios first and keeps explicit default file resolution as its final option.</li>
             <li>If a stored scenario no longer exists, the first configured scenario is used as a safe fallback.</li>
             <li>Generated scenario IDs include their array position and can change when scenarios are reordered.</li>
         </ul>
 
         <h2 id="response-precedence">Response precedence</h2>
         <ol>
-            <li>A selected—or automatically selected single—scenario provides <code>file</code>, <code>status</code>, and <code>delay</code>.</li>
+            <li>A selected—or automatically selected first—scenario provides <code>file</code>, <code>status</code>, and <code>delay</code>.</li>
             <li>Missing scenario values fall back to the matching endpoint.</li>
             <li>Missing endpoint delay falls back to the root-level delay.</li>
             <li>If no explicit file is present, the normal method-specific and generic naming conventions resolve it.</li>
