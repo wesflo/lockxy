@@ -108,13 +108,18 @@ export const endpointsStyle = [
             color: var(--wf-danger);
         }
 
-        .path {
+        .endpoint-name {
             min-width: 0;
             overflow: hidden;
-            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
             font-size: var(--wf-font-size-xs);
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+
+        .endpoint-name.path {
+            direction: rtl;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            text-align: left;
         }
 
         .endpoint-control {

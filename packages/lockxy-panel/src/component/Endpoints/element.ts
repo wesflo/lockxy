@@ -64,6 +64,9 @@ export class MockProxyEndpoints extends LitElement {
             .trim()
             .replace(/\b\p{L}/gu, (character) => character.toLocaleUpperCase());
 
+    private endpointLabel = (endpoint: MockEndpoint): string =>
+        endpoint.label?.trim() || (endpoint.id ? this.formatId(endpoint.id) : '') || this.displayPath(endpoint.path);
+
     private scenarioLabel = (endpoint: MockEndpoint, scenario?: MockScenario): string =>
         scenario?.label?.trim() ||
         (scenario?.id ? this.formatId(scenario.id) : '') ||
@@ -92,6 +95,7 @@ export class MockProxyEndpoints extends LitElement {
         const methodLabel = displayMethods.join(', ');
         const scenarios = endpoint.scenarios ?? [];
         const selectedScenarioId = this.scenarios.get(endpoint.id ?? '') ?? scenarios[0]?.id ?? '';
+        const hasEndpointName = Boolean(endpoint.label?.trim() || endpoint.id);
 
         return html`
             <article class=${`endpoint ${unavailable ? 'inactive' : ''}`}>
@@ -103,7 +107,9 @@ export class MockProxyEndpoints extends LitElement {
                             `
                         )}
                     </span>
-                    <span class="path" title=${endpoint.path}>${this.displayPath(endpoint.path)}</span>
+                    <span class=${hasEndpointName ? 'endpoint-name' : 'endpoint-name path'} title=${endpoint.path}>
+                        ${this.endpointLabel(endpoint)}
+                    </span>
                 </div>
                 <div class="endpoint-control">
                     ${scenarios.length <= 1

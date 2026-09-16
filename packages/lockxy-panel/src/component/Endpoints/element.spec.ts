@@ -15,6 +15,21 @@ const createElement = async (): Promise<MockProxyEndpoints> => {
 };
 
 describe('mock proxy endpoints', () => {
+    it('renders the endpoint label before a formatted ID instead of the path', async () => {
+        const element = await createElement();
+        element.endpoints = [
+            { id: 'orders-list', label: 'Available orders', method: 'GET', path: '/api/internal/orders' },
+            { id: 'customer_details', method: 'GET', path: '/api/internal/customers' },
+        ];
+        await element.updateComplete;
+
+        const names = Array.from(element.shadowRoot?.querySelectorAll('.endpoint-name') ?? []).map((item) =>
+            item.textContent?.trim()
+        );
+
+        expect(names).toEqual(['Available orders', 'Customer Details']);
+    });
+
     it('renders a single scenario as text', async () => {
         const element = await createElement();
         element.endpoints = [
