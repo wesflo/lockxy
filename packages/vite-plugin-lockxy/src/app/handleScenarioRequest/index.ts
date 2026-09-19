@@ -2,7 +2,8 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { MANIFEST_ROUTE } from '@wesflo/local-mock-api-utils';
 
 import { EMPTY_MANIFEST } from '../../constant.js';
-import type { MockApiRuntimeOptions, MockFile } from '../../interface.js';
+import type { MockFile } from '../../interface.js';
+import type { MockApiRuntimeOptions } from '../../runtimeInterface.js';
 import { findMockFile } from '../../util/findMockFile.js';
 import { getCandidatePaths } from '../../util/getCandidatePaths.js';
 import { getContentType } from '../../util/getContentType.js';

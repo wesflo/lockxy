@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import type { MockManifest } from '../../../interface.js';
+import type { MockManifest } from '../../../runtimeInterface.js';
 import { validateMockManifest } from './validateMockManifest.js';
 
 describe('validateMockManifest', () => {

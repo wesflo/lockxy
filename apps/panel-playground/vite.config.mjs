@@ -1,0 +1,29 @@
+import lockxy from '@wesflo/vite-plugin-lockxy';
+import { defineConfig } from 'vite';
+
+const apiTarget = process.env.PANEL_PLAYGROUND_API_TARGET;
+
+export default defineConfig(({ command }) => ({
+    plugins:
+        command === 'serve'
+            ? [
+                  lockxy({
+                      mockRoot: new URL('./mock/', import.meta.url),
+                      requestPrefixes: ['/api/'],
+                  }),
+              ]
+            : [],
+    server: {
+        host: '127.0.0.1',
+        port: 5174,
+        strictPort: true,
+        proxy: apiTarget
+            ? {
+                  '/api': {
+                      target: apiTarget,
+                      changeOrigin: true,
+                  },
+              }
+            : undefined,
+    },
+}));

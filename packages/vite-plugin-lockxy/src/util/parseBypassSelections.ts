@@ -4,7 +4,7 @@ import {
     ENDPOINT_ID_PATTERN,
     parseBypassCookie,
 } from '@wesflo/local-mock-api-utils';
-import type { BypassSelections } from '../interface.js';
+import type { BypassSelections } from '../runtimeInterface.js';
 
 export const parseBypassSelections = (cookieHeader?: string, onError?: (message: string) => void): BypassSelections => {
     const endpointIds = new Set<string>();

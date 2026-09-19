@@ -1,7 +1,7 @@
 import type { ViteDevServer } from 'vite';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { MockApiRuntimeOptions } from '../interface.js';
+import type { MockApiRuntimeOptions } from '../runtimeInterface.js';
 
 const mocks = vi.hoisted(() => ({
     buildMockFileIndex: vi.fn(),

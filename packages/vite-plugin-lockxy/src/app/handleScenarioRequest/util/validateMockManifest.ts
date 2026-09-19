@@ -1,7 +1,7 @@
 import { stat } from 'node:fs/promises';
 import { ENDPOINT_ID_PATTERN, toMethodArray } from '@wesflo/local-mock-api-utils';
 
-import type { MockManifest, MockResponseConfig } from '../../../interface.js';
+import type { MockManifest, MockResponseConfig } from '../../../runtimeInterface.js';
 import { toMockUrl } from '../../../util/toMockUrl.js';
 import { isSafeScenarioFile } from './isSafeScenarioFile.js';
 import { createScenarioId } from './createScenarioId.js';

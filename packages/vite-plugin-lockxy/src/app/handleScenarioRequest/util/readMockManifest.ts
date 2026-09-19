@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 
-import type { ManifestReadResult, MockManifest } from '../../../interface.js';
+import type { ManifestReadResult, MockManifest } from '../../../runtimeInterface.js';
 import { toMockUrl } from '../../../util/toMockUrl.js';
 import { normalizeMockManifest } from './normalizeMockManifest.js';
 import { parseManifestContent } from './parseManifestContent.js';

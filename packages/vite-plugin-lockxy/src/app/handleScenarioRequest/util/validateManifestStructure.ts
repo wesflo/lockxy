@@ -1,4 +1,4 @@
-import type { MockManifest } from '../../../interface.js';
+import type { MockManifest } from '../../../runtimeInterface.js';
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
     Boolean(value) && typeof value === 'object' && !Array.isArray(value);

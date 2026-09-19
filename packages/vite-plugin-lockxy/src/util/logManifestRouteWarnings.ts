@@ -1,6 +1,6 @@
 import { toMethodArray } from '@wesflo/local-mock-api-utils';
 
-import type { ManifestReadResult, NormalizedMockEndpoint } from '../interface.js';
+import type { ManifestReadResult, NormalizedMockEndpoint } from '../runtimeInterface.js';
 import { logWarning } from './logWarning.js';
 
 const normalizePath = (path: string): string => `/${path.split('/').filter(Boolean).join('/')}`;

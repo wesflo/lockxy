@@ -15,34 +15,34 @@ Die Zahlen schließen parametrisierte Testfälle einzeln ein.
 
 ## Testläufe
 
-| Befehl                              | Umfang                                               |
-| ----------------------------------- | ---------------------------------------------------- |
-| `pnpm test:all`                     | Unit-, Integrations- und Chrome-Browsertests         |
-| `pnpm test:all:demo`                | Alle Tests der Demo                                  |
-| `pnpm test:all:playground`          | Alle Tests des Playgrounds                           |
-| `pnpm test:all:panel`               | Alle Unit- und Browsertests des Panels               |
-| `pnpm test:all:plugin`              | Alle Unit- und Integrationstests des Plugins         |
-| `pnpm test:all:ui`                  | Alle Tests der UI-Komponenten                        |
-| `pnpm test:all:utils`               | Alle Tests der Browser-Utils                         |
-| `pnpm test`                         | Alle Unit- und komponentennahen Vitest-Tests         |
-| `pnpm test:app`                     | Nur die Vitest-Tests der Demo                        |
-| `pnpm test:package`                 | Nur die Vitest-Tests des Plugins                     |
-| `pnpm test:integration`             | Alle Integrationstests                               |
-| `pnpm test:integration:plugin`      | Nur die Plugin-Integrationstests                     |
-| `pnpm test:browser`                 | Alle Cypress-Suites nacheinander in Chrome           |
-| `pnpm test:browser:demo`            | Cypress nur für die Demo                             |
-| `pnpm test:browser:playground`      | Cypress nur für das Playground                       |
-| `pnpm test:browser:panel`           | Cypress nur für das Panel                            |
-| `pnpm test:browser:extended`        | Alle Cypress-Suites in Firefox und anschließend Edge |
-| `pnpm test:browser:open:demo`       | Interaktiver Cypress-Runner für die Demo             |
-| `pnpm test:browser:open:playground` | Interaktiver Cypress-Runner für das Playground       |
-| `pnpm test:browser:open:panel`      | Interaktiver Cypress-Runner für das Panel            |
+| Befehl                                    | Umfang                                               |
+| ----------------------------------------- | ---------------------------------------------------- |
+| `pnpm test:all`                           | Unit-, Integrations- und Chrome-Browsertests         |
+| `pnpm test:all:plugin-demo`               | Alle Tests der Plugin-Demo                           |
+| `pnpm test:all:panel-playground`          | Alle Tests des Panel-Playgrounds                     |
+| `pnpm test:all:panel`                     | Alle Unit- und Browsertests des Panels               |
+| `pnpm test:all:plugin`                    | Alle Unit- und Integrationstests des Plugins         |
+| `pnpm test:all:ui`                        | Alle Tests der UI-Komponenten                        |
+| `pnpm test:all:utils`                     | Alle Tests der Browser-Utils                         |
+| `pnpm test`                               | Alle Unit- und komponentennahen Vitest-Tests         |
+| `pnpm test:plugin-demo`                   | Nur die Vitest-Tests der Plugin-Demo                 |
+| `pnpm test:package`                       | Nur die Vitest-Tests des Plugins                     |
+| `pnpm test:integration`                   | Alle Integrationstests                               |
+| `pnpm test:integration:plugin`            | Nur die Plugin-Integrationstests                     |
+| `pnpm test:browser`                       | Alle Cypress-Suites nacheinander in Chrome           |
+| `pnpm test:browser:plugin-demo`           | Cypress nur für die Plugin-Demo                      |
+| `pnpm test:browser:panel-playground`      | Cypress nur für das Panel-Playground                 |
+| `pnpm test:browser:panel`                 | Cypress nur für das Panel                            |
+| `pnpm test:browser:extended`              | Alle Cypress-Suites in Firefox und anschließend Edge |
+| `pnpm test:browser:open:plugin-demo`      | Interaktiver Cypress-Runner für die Plugin-Demo      |
+| `pnpm test:browser:open:panel-playground` | Interaktiver Cypress-Runner für das Panel-Playground |
+| `pnpm test:browser:open:panel`            | Interaktiver Cypress-Runner für das Panel            |
 
 `test:all` führt zuerst Unit- und Integrationstests aus. Nur wenn diese erfolgreich sind, folgen die Cypress-Suites seriell in Chrome. Der normale Browserlauf bleibt auf Chrome beschränkt. Firefox und Edge sind als langsamer, optionaler Cross-Browser-Lauf zusammengefasst und nicht Bestandteil von `test:all`. In der CI laufen Unit-, Integrations- und Chrome-Browsertests getrennt.
 
-## `apps/demo`
+## `apps/plugin-demo`
 
-Die Demo repräsentiert die Nutzung des Plugins ohne Panel. Damit sichern wir insbesondere ab, dass weder ein Panel noch bereits vorhandene Lockxy-Cookies Voraussetzung für die Plugin-Funktion werden.
+Die Plugin-Demo repräsentiert die Nutzung des Plugins ohne Panel. Damit sichern wir insbesondere ab, dass weder ein Panel noch bereits vorhandene Lockxy-Cookies Voraussetzung für die Plugin-Funktion werden.
 
 ### Vitest
 
@@ -69,9 +69,9 @@ Die Demo repräsentiert die Nutzung des Plugins ohne Panel. Damit sichern wir in
 - Eine echte leere `204`-Antwort wird korrekt behandelt.
 - Der Reset löscht die Auswahl und setzt die Response-Ansicht zurück.
 
-## `apps/playground`
+## `apps/panel-playground`
 
-Das Playground testet die gemeinsame Verhaltenskette von Panel und Plugin im Browser.
+Das Panel-Playground testet die gemeinsame Verhaltenskette von Panel und Plugin im Browser.
 
 ```mermaid
 sequenceDiagram
@@ -79,7 +79,7 @@ sequenceDiagram
     participant Panel
     participant State as Cookie / Local Storage
     participant Plugin
-    participant App as Playground
+    participant App as Panel playground
 
     User->>Panel: Panel öffnen und Endpoint filtern
     User->>Panel: Scenario wählen oder Mock deaktivieren
@@ -91,7 +91,7 @@ sequenceDiagram
     App-->>User: Status und Body anzeigen
 ```
 
-Die Cypress-Suite prüft konkret:
+Die Cypress-Suite des Panel-Playgrounds prüft konkret:
 
 - Ein im Panel ausgewähltes Fehler-Scenario erzeugt im Playground die erwartete `500`-Response.
 - Ein einzelner Endpoint kann deaktiviert werden, fällt dann auf die echte App zurück und kann wieder aktiviert werden.
@@ -332,7 +332,7 @@ flowchart TD
 - Launcher und geöffnetes Panel bleiben auf einem mobilen Viewport sichtbar.
 - Das Panel bleibt mobil per Tastatur bedienbar und ohne von Axe erkennbare Verstöße.
 
-Der zentrale Panel-Klickpfad ist damit auf zwei Ebenen abgesichert: isoliert im Panel-Package und gemeinsam mit dem Plugin im Playground.
+Der zentrale Panel-Klickpfad ist damit auf zwei Ebenen abgesichert: isoliert im Panel-Package und gemeinsam mit dem Plugin im Panel-Playground.
 
 ```mermaid
 flowchart LR

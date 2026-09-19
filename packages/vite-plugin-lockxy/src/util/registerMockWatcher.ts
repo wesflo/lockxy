@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import type { ViteDevServer } from 'vite';
 
 import { FILE_INDEX_EVENTS } from '../constant.js';
-import type { MockApiRuntimeOptions } from '../interface.js';
+import type { MockApiRuntimeOptions } from '../runtimeInterface.js';
 import { readMockManifest } from '../app/handleScenarioRequest/util/readMockManifest.js';
 import { resolveManifestFileName } from '../app/handleScenarioRequest/util/resolveManifestFileName.js';
 import { buildMockFileIndex } from './buildMockFileIndex.js';

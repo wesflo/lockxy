@@ -1,4 +1,5 @@
-import type { MockManifest, MockResponseSource } from './interface.js';
+import type { MockResponseSource } from './interface.js';
+import type { MockManifest } from './runtimeInterface.js';
 
 export const EMPTY_MANIFEST: MockManifest = {};
 export const EXTENSIONS = [

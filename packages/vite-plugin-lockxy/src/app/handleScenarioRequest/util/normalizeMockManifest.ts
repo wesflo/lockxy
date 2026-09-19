@@ -3,7 +3,7 @@ import type {
     NormalizedMockEndpoint,
     NormalizedMockManifest,
     NormalizedMockScenario,
-} from '../../../interface.js';
+} from '../../../runtimeInterface.js';
 import { createEndpointId } from './createEndpointId.js';
 import { createScenarioId } from './createScenarioId.js';
 

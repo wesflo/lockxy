@@ -1,5 +1,5 @@
 import { ENDPOINT_ID_PATTERN, SCENARIO_COOKIE_NAME } from '@wesflo/local-mock-api-utils';
-import type { ScenarioSelections } from '../../../interface.js';
+import type { ScenarioSelections } from '../../../runtimeInterface.js';
 
 export const parseScenarioSelections = (
     cookieHeader?: string,

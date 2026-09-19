@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { MockEndpoint } from '../../../interface.js';
+import type { MockEndpoint } from '../../../runtimeInterface.js';
 import { findSelectedScenario } from './findSelectedScenario.js';
 
 describe('findSelectedScenario', () => {

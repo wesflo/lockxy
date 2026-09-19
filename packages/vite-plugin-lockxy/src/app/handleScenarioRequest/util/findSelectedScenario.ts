@@ -1,4 +1,4 @@
-import type { MockEndpoint, MockScenario, ScenarioSelections } from '../../../interface.js';
+import type { MockEndpoint, MockScenario, ScenarioSelections } from '../../../runtimeInterface.js';
 
 export const findSelectedScenario = (
     endpoint: MockEndpoint,

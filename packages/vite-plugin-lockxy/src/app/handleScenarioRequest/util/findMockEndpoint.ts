@@ -1,6 +1,6 @@
 import { toMethodArray } from '@wesflo/local-mock-api-utils';
 
-import type { MockEndpoint, MockManifest } from '../../../interface.js';
+import type { MockEndpoint, MockManifest } from '../../../runtimeInterface.js';
 import { matchManifestPath } from './matchManifestPath.js';
 
 interface EndpointSpecificity {

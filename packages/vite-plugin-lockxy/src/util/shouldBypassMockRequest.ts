@@ -1,6 +1,6 @@
 import type { IncomingMessage } from 'node:http';
 
-import type { MockApiRuntimeOptions, MockEndpoint } from '../interface.js';
+import type { MockApiRuntimeOptions, MockEndpoint } from '../runtimeInterface.js';
 import { findMockEndpoint } from '../app/handleScenarioRequest/util/findMockEndpoint.js';
 import { getRequestRouteParts } from './getRequestRouteParts.js';
 import { logError } from './logError.js';

@@ -6,7 +6,8 @@ import { tmpdir } from 'node:os';
 import { afterEach } from 'vitest';
 
 import lockxy from '../../src/index.js';
-import type { MockApiPluginOptions, MockManifest } from '../../src/interface.js';
+import type { MockApiPluginOptions } from '../../src/interface.js';
+import type { MockManifest } from '../../src/runtimeInterface.js';
 
 type FixtureContent = string | Uint8Array;
 
