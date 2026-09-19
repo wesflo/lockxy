@@ -13,4 +13,22 @@ describe('parseBypassCookie', () => {
             endpointIds: new Set(['orders', 'user_details']),
         });
     });
+
+    it('supports every allowed separator and letter casing', () => {
+        expect(parseBypassCookie('Orders-V2|user_details_3|ABC123')).toEqual({
+            all: false,
+            endpointIds: new Set(['Orders-V2', 'user_details_3', 'ABC123']),
+        });
+    });
+
+    it.each([undefined, '', '|||'])('returns an empty selection for %s', (value) => {
+        expect(parseBypassCookie(value)).toEqual({ all: false, endpointIds: new Set() });
+    });
+
+    it('ignores separators, whitespace, unicode and encoded ids', () => {
+        expect(parseBypassCookie('valid|with space|colon:id|slash/id|ümlaut|encoded%20id|*')).toEqual({
+            all: false,
+            endpointIds: new Set(['valid']),
+        });
+    });
 });

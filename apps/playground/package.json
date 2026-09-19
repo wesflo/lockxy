@@ -6,7 +6,9 @@
     "scripts": {
         "dev": "vite --config vite.config.mjs",
         "build": "vite build --config vite.config.mjs",
-        "check-types": "tsc --noEmit -p tsconfig.json"
+        "test:browser": "start-server-and-test dev http://127.0.0.1:5174 'cypress run --browser ${CYPRESS_BROWSER:-chrome} --project .'",
+        "test:browser:open": "start-server-and-test dev http://127.0.0.1:5174 'cypress open --project .'",
+        "check-types": "tsc --noEmit -p tsconfig.json && tsc -p tsconfig.test.json"
     },
     "dependencies": {
         "@wesflo/local-mock-api-ui": "workspace:*",

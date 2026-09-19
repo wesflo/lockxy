@@ -8,4 +8,9 @@ describe('toMethodArray', () => {
         expect(toMethodArray('POST')).toEqual(['POST']);
         expect(toMethodArray(['POST', 'PUT'])).toEqual(['POST', 'PUT']);
     });
+
+    it('preserves empty strings and an explicitly empty array for callers to validate', () => {
+        expect(toMethodArray('')).toEqual(['']);
+        expect(toMethodArray([])).toEqual([]);
+    });
 });

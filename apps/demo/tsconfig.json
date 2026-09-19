@@ -4,7 +4,7 @@
         "outDir": "dist",
         "target": "es2022",
         "lib": ["ES2022", "DOM", "DOM.Iterable"],
-        "types": ["vitest/globals", "vite/client", "@types/jest"],
+        "types": ["vite/client"],
         "declaration": true,
         "emitDeclarationOnly": false,
         "strict": true,
@@ -25,5 +25,6 @@
         "moduleResolution": "Bundler",
         "strictFunctionTypes": false
     },
-    "include": ["src/**/*.ts"]
+    "include": ["src/**/*.ts"],
+    "exclude": ["src/**/*.spec.ts", "test", "dist", "node_modules"]
 }

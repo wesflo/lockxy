@@ -169,7 +169,7 @@ export const mockProxyStyle = [
         }
 
         .tab[aria-selected='true'] {
-            color: var(--wf-primary);
+            color: var(--wf-primary-dark);
             font-weight: 650;
         }
 

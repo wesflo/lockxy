@@ -92,16 +92,16 @@ export const endpointsStyle = [
         }
 
         .method.get {
-            color: var(--wf-primary);
+            color: var(--wf-primary-dark);
         }
 
         .method.post {
-            color: var(--wf-success);
+            color: var(--wf-success-dark);
         }
 
         .method.put,
         .method.patch {
-            color: var(--wf-warning);
+            color: var(--wf-warning-dark);
         }
 
         .method.delete {

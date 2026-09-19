@@ -19,6 +19,11 @@ export default defineConfig(({ command, mode }) => {
         build: {
             outDir: 'dist',
         },
+        server: {
+            host: '127.0.0.1',
+            port: 5173,
+            strictPort: true,
+        },
         plugins: command === 'serve' ? [lockxy({ mockRoot, requestPrefixes: '/api/' })] : [],
     };
 });

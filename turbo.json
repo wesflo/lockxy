@@ -21,6 +21,22 @@
             "cache": false,
             "persistent": true
         },
+        "test:integration": {
+            "dependsOn": ["^build"],
+            "cache": false,
+            "outputs": []
+        },
+        "test:browser": {
+            "dependsOn": ["^build"],
+            "cache": false,
+            "outputs": ["test-results/**"],
+            "passThroughEnv": ["CYPRESS_BROWSER"]
+        },
+        "test:browser:open": {
+            "dependsOn": ["^build"],
+            "cache": false,
+            "persistent": true
+        },
         "lint": {
             "outputs": []
         },

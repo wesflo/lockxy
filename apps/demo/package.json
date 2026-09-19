@@ -15,9 +15,12 @@
         "test:watch": "vitest",
         "test:c": "vitest run --coverage --passWithNoTests",
         "test:ui": "vitest --ui",
+        "test:browser:dev": "vite --config=vite.config.mjs",
+        "test:browser": "start-server-and-test test:browser:dev http://127.0.0.1:5173 'cypress run --browser ${CYPRESS_BROWSER:-chrome} --project .'",
+        "test:browser:open": "start-server-and-test test:browser:dev http://127.0.0.1:5173 'cypress open --project .'",
         "lint": "eslint .",
         "lint:fix": "eslint --ext .js,.ts  --fix",
-        "check-types": "tsc --noEmit -p tsconfig.json",
+        "check-types": "tsc --noEmit -p tsconfig.json && tsc -p tsconfig.test.json",
         "prettier": "prettier -c --config ../../prettier.config.mjs ./src",
         "prettier:w": "prettier -w --config ../../prettier.config.mjs ./src"
     },

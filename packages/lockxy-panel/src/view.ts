@@ -72,7 +72,7 @@ export const renderMockProxy = (model: MockProxyViewModel, actions: MockProxyVie
         <img src=${lockxyMarkInverse} alt="" />
     </button>
 
-    <aside
+    <div
         class=${`panel ${model.open ? 'open' : ''}`}
         id="mock-proxy-panel"
         role="dialog"
@@ -115,5 +115,5 @@ export const renderMockProxy = (model: MockProxyViewModel, actions: MockProxyVie
         </nav>
 
         <div class="content">${renderContent(model, actions)}</div>
-    </aside>
+    </div>
 `;
