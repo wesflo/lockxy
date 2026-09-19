@@ -1,7 +1,17 @@
-import type { MockManifest, MockResponseSource } from './interface.js';
+import type { MockResponseSource } from './interface.js';
+import type { MockManifest } from './runtimeInterface.js';
 
 export const EMPTY_MANIFEST: MockManifest = {};
-export const EXTENSIONS = ['.json', '.pdf', '.csv', '.txt', '.jpg', '.jpeg', '.png', '.webp'];
+export const EXTENSIONS = [
+    '.json', //
+    '.pdf',
+    '.csv',
+    '.txt',
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.webp',
+];
 
 export const CONTENT_TYPES: Readonly<Record<string, string>> = {
     '.json': 'application/json; charset=utf-8',
@@ -19,7 +29,9 @@ export const CONTENT_TYPES: Readonly<Record<string, string>> = {
  */
 export const REQUEST_PREFIXES = ['/api/'] as const;
 
-export const MANIFEST_FILE_NAME = 'mock.manifest.json';
+export const MANIFEST_FILE_NAME = 'mock.manifest';
+
+export const MANIFEST_FILE_EXTENSIONS = ['.json', '.yaml', '.yml'] as const;
 
 export const DEBUG = false;
 

@@ -1,36 +1,10 @@
 import { stat } from 'node:fs/promises';
 import { ENDPOINT_ID_PATTERN, toMethodArray } from '@wesflo/local-mock-api-utils';
 
-import type { MockManifest, MockResponseConfig } from '../../../interface.js';
+import type { MockManifest, MockResponseConfig } from '../../../runtimeInterface.js';
 import { toMockUrl } from '../../../util/toMockUrl.js';
 import { isSafeScenarioFile } from './isSafeScenarioFile.js';
-import { createEndpointId } from './createEndpointId.js';
 import { createScenarioId } from './createScenarioId.js';
-
-const routeParts = (path: string): string[] => path.split('/').filter(Boolean);
-
-const isOptionalParameter = (part: string | undefined): boolean => Boolean(part?.startsWith(':') && part.endsWith('?'));
-
-const routesOverlap = (left: readonly string[], right: readonly string[], leftIndex = 0, rightIndex = 0): boolean => {
-    if (leftIndex === left.length) {
-        return right.slice(rightIndex).every(isOptionalParameter);
-    }
-    if (rightIndex === right.length) {
-        return left.slice(leftIndex).every(isOptionalParameter);
-    }
-
-    const leftPart = left[leftIndex]!;
-    const rightPart = right[rightIndex]!;
-    if (isOptionalParameter(leftPart) && routesOverlap(left, right, leftIndex + 1, rightIndex)) {
-        return true;
-    }
-    if (isOptionalParameter(rightPart) && routesOverlap(left, right, leftIndex, rightIndex + 1)) {
-        return true;
-    }
-
-    const compatible = leftPart === rightPart || leftPart.startsWith(':') || rightPart.startsWith(':');
-    return compatible && routesOverlap(left, right, leftIndex + 1, rightIndex + 1);
-};
 
 const validateResponse = (value: MockResponseConfig, path: string, issues: string[]): void => {
     if (value.status !== undefined && (!Number.isInteger(value.status) || value.status < 100 || value.status > 599)) {
@@ -86,9 +60,6 @@ const validateMethods = (value: string | readonly string[] | undefined, path: st
     });
 };
 
-const methodsOverlap = (left: readonly string[], right: readonly string[]): boolean =>
-    left.length === 0 || right.length === 0 || left.some((method) => right.includes(method));
-
 const validateReferencedFile = async (
     file: string | undefined,
     path: string,
@@ -112,41 +83,32 @@ const validateReferencedFile = async (
 export const validateMockManifest = async (manifest: MockManifest, fileName: string, mockRoot: URL): Promise<void> => {
     const issues: string[] = [];
     const endpointIds = new Set<string>();
-    const routes: { methods: readonly string[]; parts: string[]; path: string }[] = [];
 
     validateResponse(manifest, fileName, issues);
     validateOptionalText(manifest.$schema, `${fileName}.$schema`, issues);
     validateOptionalId(manifest.id, `${fileName}.id`, issues);
+    if (manifest.preventMock !== undefined && typeof manifest.preventMock !== 'boolean') {
+        issues.push(`${fileName}.preventMock: must be a boolean`);
+    }
 
     for (const [endpointIndex, endpoint] of (manifest.endpoints ?? []).entries()) {
         const path = `${fileName}.endpoints[${endpointIndex}]`;
-        const id = endpoint.id ?? createEndpointId(endpoint.method, endpoint.path);
 
         validateResponse(endpoint, path, issues);
         validateOptionalId(endpoint.id, `${path}.id`, issues);
         validateOptionalText(endpoint.label, `${path}.label`, issues);
         validateMethods(endpoint.method, `${path}.method`, issues);
-        if (endpoint.active !== undefined && typeof endpoint.active !== 'boolean') {
-            issues.push(`${path}.active: must be a boolean`);
+        if ('active' in endpoint) {
+            issues.push(`${path}.active: is not supported on endpoints; use preventMock instead`);
         }
-        if (endpointIds.has(id)) {
-            issues.push(`${path}.id: duplicate endpoint ID "${id}"`);
+        if (endpoint.preventMock !== undefined && typeof endpoint.preventMock !== 'boolean') {
+            issues.push(`${path}.preventMock: must be a boolean`);
         }
-        endpointIds.add(id);
-
-        if (endpoint.active !== false) {
-            const route = {
-                methods: toMethodArray(endpoint.method).map((method) => method.toUpperCase()),
-                parts: routeParts(endpoint.path),
-                path,
-            };
-            const conflict = routes.find(
-                (current) => routesOverlap(current.parts, route.parts) && methodsOverlap(current.methods, route.methods)
-            );
-            if (conflict) {
-                issues.push(`${path}: route conflicts with ${conflict.path}`);
-            }
-            routes.push(route);
+        if (endpoint.id && endpointIds.has(endpoint.id)) {
+            issues.push(`${path}.id: duplicate endpoint ID "${endpoint.id}"`);
+        }
+        if (endpoint.id) {
+            endpointIds.add(endpoint.id);
         }
 
         await validateReferencedFile(endpoint.file, path, mockRoot, issues);
@@ -157,6 +119,9 @@ export const validateMockManifest = async (manifest: MockManifest, fileName: str
             validateResponse(scenario, scenarioPath, issues);
             validateOptionalId(scenario.id, `${scenarioPath}.id`, issues);
             validateOptionalText(scenario.label, `${scenarioPath}.label`, issues);
+            if (scenario.active !== undefined && typeof scenario.active !== 'boolean') {
+                issues.push(`${scenarioPath}.active: must be a boolean`);
+            }
             if (scenarioIds.has(scenarioId)) {
                 issues.push(`${scenarioPath}.id: duplicate scenario ID "${scenarioId}"`);
             }

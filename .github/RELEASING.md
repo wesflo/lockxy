@@ -52,4 +52,6 @@ Once OIDC publishing has been verified, configure each npm package to require tw
 - Use **Production release** from `main` for stable npm releases and documentation deployment.
 - Use **Alpha release** from a feature branch for prereleases published under the `alpha` distribution tag.
 
-Select only the packages that should be released and choose the appropriate semantic version increment. Tests and builds must pass before publication.
+Select only the packages that should be released. For the first alpha in a version line, choose `patch`, `minor`, or `major`; for example, `minor` turns `0.1.0` into `0.2.0-alpha.0`. For every following alpha in that line, keep the default `prerelease`, which turns `0.2.0-alpha.0` into `0.2.0-alpha.1`. The workflow stops with an explanation if `prerelease` is selected for a package that does not currently have an alpha version. Production releases continue to use `patch`, `minor`, or `major`.
+
+Tests and builds must pass before publication.

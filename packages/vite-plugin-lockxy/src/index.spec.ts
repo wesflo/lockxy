@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
     buildMockFileIndex: vi.fn(),
     handleMockRequest: vi.fn(),
     handleScenarioRequest: vi.fn(),
+    logManifestRouteWarnings: vi.fn(),
     normalizeMockRoot: vi.fn(),
     readMockManifest: vi.fn(),
     registerMockWatcher: vi.fn(),
@@ -29,7 +30,8 @@ vi.mock('./constant.js', () => ({
     EXTENSIONS: ['.json'],
     DEBUG: false,
     REQUEST_PREFIXES: ['/api/'],
-    MANIFEST_FILE_NAME: 'mock.manifest.json',
+    MANIFEST_FILE_NAME: 'mock.manifest',
+    MANIFEST_FILE_EXTENSIONS: ['.json', '.yaml', '.yml'],
     LOGGING: true,
 }));
 
@@ -43,6 +45,10 @@ vi.mock('./util/buildMockFileIndex.js', () => ({
 
 vi.mock('./util/registerMockWatcher.js', () => ({
     registerMockWatcher: mocks.registerMockWatcher,
+}));
+
+vi.mock('./util/logManifestRouteWarnings.js', () => ({
+    logManifestRouteWarnings: mocks.logManifestRouteWarnings,
 }));
 
 vi.mock('./util/shouldBypassMockRequest.js', () => ({
@@ -145,12 +151,30 @@ describe('lockxy', () => {
             requestPrefixes: ['/api/'],
             extensions: ['.json'],
             contentTypes: { '.json': 'application/json' },
-            manifestFileName: 'mock.manifest.json',
+            manifestFileName: 'mock.manifest',
             debug: false,
             logging: true,
             fileIndex: new Set(['orders.json']),
             manifestResult: { status: 'missing' },
         });
+    });
+
+    it('discovers the highest-priority indexed manifest from the default basename', async () => {
+        mocks.buildMockFileIndex.mockResolvedValue(
+            new Set(['mock.manifest.yml', 'mock.manifest.yaml', 'mock.manifest.json'])
+        );
+        const plugin = lockxy();
+        const configureServer = plugin.configureServer as (server: ViteDevServer) => Promise<void>;
+
+        await configureServer({ middlewares: { use: vi.fn() } } as unknown as ViteDevServer);
+
+        expect(mocks.readMockManifest).toHaveBeenCalledWith(normalizedMockRoot, 'mock.manifest.json', false);
+        expect(mocks.logManifestRouteWarnings).toHaveBeenCalledWith(
+            true,
+            'mock.manifest.json',
+            expect.objectContaining({ status: 'missing' }),
+            false
+        );
     });
 
     it('passes bypassed requests directly to the next middleware', async () => {

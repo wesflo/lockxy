@@ -3,11 +3,24 @@ import Callout from '../components/Callout.astro';
 import Code from '../components/Code.astro';
 import DocsLayout from '../layouts/DocsLayout.astro';
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 const schemaManifest = `{
   "$schema": "../node_modules/@wesflo/vite-plugin-lockxy/mock.manifest.schema.json",
   "id": "checkout",
   "delay": 400
 }`;
+
+const yamlManifest = `# yaml-language-server: $schema=../node_modules/@wesflo/vite-plugin-lockxy/mock.manifest.schema.json
+id: shop-frontend
+delay: [100, 300]
+endpoints:
+  - method: [POST, PUT]
+    path: /api/users/:id
+    file: scenarios/user.json
+    delay: 150
+  - path: /api/health
+    status: 204`;
 
 const minimalFile = `{
   "endpoints": [
@@ -37,7 +50,6 @@ const completeManifest = `{
       "label": "User profile",
       "method": ["POST", "PUT"],
       "path": "/api/users/:id",
-      "active": true,
       "status": 200,
       "delay": 150,
       "file": "scenarios/user-default.json",
@@ -45,6 +57,7 @@ const completeManifest = `{
         {
           "id": "success",
           "label": "Successful response",
+          "active": true,
           "file": "scenarios/user-success.json"
         },
         {
@@ -78,26 +91,28 @@ lockxy({
         </p>
 
         <h2 id="when-to-use-a-manifest">When to use a manifest</h2>
-        <p>Create <code>mock.manifest.json</code> inside <code>mockRoot</code> when a request needs behavior such as:</p>
+        <p>Create <code>mock.manifest.json</code>, <code>mock.manifest.yaml</code>, or <code>mock.manifest.yml</code> inside <code>mockRoot</code> when a request needs behavior such as:</p>
         <ul>
             <li>a real <code>204</code>, <code>304</code>, <code>400</code>, or <code>500</code> response;</li>
             <li>a fixed delay or random delay range for loading and timeout testing;</li>
             <li>an explicit response file that does not follow the naming convention;</li>
             <li>a dynamic route such as <code>/api/users/:id</code>;</li>
-            <li>multiple response scenarios selectable through the proxy panel.</li>
+            <li>multiple response scenarios selectable through the proxy panel;</li>
+            <li>a source-controlled decision to mock or pass through a request.</li>
         </ul>
         <Callout title="A manifest is never required">
             <p>
-                A missing manifest is valid and produces no warning. Convention-only projects remain plug and play. If a
-                manifest exists but is malformed, Lockxy reports the error while convention-based requests can still be
-                resolved.
+                A missing manifest is valid and produces no warning. Convention-only projects remain plug and play.
+                Invalid JSON or an invalid root object rejects the complete manifest, while malformed individual endpoints
+                are skipped with a warning so the remaining endpoints stay available.
             </p>
         </Callout>
 
-        <h2 id="location-and-schema">Location and JSON Schema</h2>
+        <h2 id="location-and-schema">Location, format, and schema</h2>
         <p>
-            The default filename is <code>mock.manifest.json</code> and can be changed with the plugin's
-            <code>manifestFileName</code> option. The file always lives directly inside <code>mockRoot</code>. Add the schema
+            The default basename is <code>mock.manifest</code>. Lockxy discovers <code>.json</code>, <code>.yaml</code>, and
+            <code>.yml</code> files at the root of <code>mockRoot</code>. If several formats exist, JSON wins before YAML and
+            YML. Set <code>manifestFileName</code> to an explicit filename when a project uses another name. Add the schema
             shipped with the npm package for autocomplete and inline validation:
         </p>
         <Code code={schemaManifest} label="mock/mock.manifest.json" />
@@ -108,10 +123,22 @@ lockxy({
             </a>.
         </p>
 
+        <h2 id="yaml-manifests">YAML manifests</h2>
+        <p>
+            YAML provides the same fields, validation, normalization, and runtime behavior as JSON. The optional
+            <code>yaml-language-server</code> comment associates the published JSON Schema with editors that support the
+            YAML language server:
+        </p>
+        <Code code={yamlManifest} label="mock/mock.manifest.yaml" />
+        <p>
+            JSON remains the preferred format when both are present. Keep only one manifest format in a project so the
+            active configuration is immediately obvious to every contributor.
+        </p>
+
         <h2 id="minimal-manifests">Minimal manifests</h2>
         <p>
-            The manifest root is an object. Both <code>delay</code> and <code>endpoints</code> are optional. A global delay is
-            therefore already a complete useful manifest:
+            The manifest root is an object. <code>preventMock</code>, <code>delay</code>, and <code>endpoints</code> are
+            optional. A global delay is therefore already a complete useful manifest:
         </p>
         <Code code={`{
   "delay": 400
@@ -126,6 +153,7 @@ lockxy({
             <tbody>
                 <tr><td><code>$schema</code></td><td>No</td><td>Schema URL used by the editor; ignored during response handling.</td></tr>
                 <tr><td><code>id</code></td><td>No</td><td>Stable project ID that enables manifest-scoped panel storage.</td></tr>
+                <tr><td><code>preventMock</code></td><td>No</td><td>When <code>true</code>, every matching request passes through before endpoint, scenario, or cookie handling.</td></tr>
                 <tr><td><code>delay</code></td><td>No</td><td>Default delay for all mocked requests, in milliseconds or as an inclusive range.</td></tr>
                 <tr><td><code>endpoints</code></td><td>No</td><td>Targeted behavior definitions for selected method and path combinations.</td></tr>
             </tbody>
@@ -137,9 +165,9 @@ lockxy({
             <tbody>
                 <tr><td><code>path</code></td><td>Yes</td><td>Absolute request path. Segments beginning with <code>:</code> match one dynamic value.</td></tr>
                 <tr><td><code>method</code></td><td>No</td><td>One case-insensitive HTTP method or an array of methods. When omitted, the endpoint matches every method.</td></tr>
-                <tr><td><code>id</code></td><td>No</td><td>Stable identifier used by panel settings and cookies. Generated from method and path when omitted.</td></tr>
+                <tr><td><code>id</code></td><td>No</td><td>Stable identifier used by panel settings and cookies. Generated from method and path when omitted; colliding generated IDs receive a numeric suffix.</td></tr>
                 <tr><td><code>label</code></td><td>No</td><td>Human-readable name shown in the proxy panel.</td></tr>
-                <tr><td><code>active</code></td><td>No</td><td>Set to <code>false</code> to skip this manifest endpoint. Defaults to active.</td></tr>
+                <tr><td><code>preventMock</code></td><td>No</td><td>When <code>true</code>, this endpoint passes through and cannot be overridden by a scenario or browser cookie.</td></tr>
                 <tr><td><code>file</code></td><td>No</td><td>Response file relative to <code>mockRoot</code>.</td></tr>
                 <tr><td><code>status</code></td><td>No</td><td>HTTP response status from <code>100</code> through <code>599</code>. Defaults to <code>200</code>.</td></tr>
                 <tr><td><code>delay</code></td><td>No</td><td>Fixed milliseconds or an inclusive <code>[minimum, maximum]</code> range.</td></tr>
@@ -149,7 +177,10 @@ lockxy({
         <p>
             Required paths match by segment count. A dynamic segment matches exactly one value, so
             <code>/api/users/:id</code> matches <code>/api/users/42</code> but not <code>/api/users/42/orders</code>. Query
-            parameters do not participate in endpoint matching. The first active endpoint matching method and path wins.
+            parameters do not participate in endpoint matching. When several endpoints match, literal paths win over
+            dynamic paths, required parameters win over optional parameters, and method-specific entries win over
+            method-agnostic entries. Manifest order breaks any remaining tie. Multiple configurations for the same
+            route remain valid and produce a console warning listing their manifest locations.
         </p>
         <p>
             Use an array such as <code>["POST", "PUT"]</code> when several methods should share the same response behavior,
@@ -164,22 +195,28 @@ lockxy({
 
         <h2 id="scenario-fields">Scenario fields</h2>
         <p>
-            A scenario accepts <code>id</code>, <code>label</code>, <code>file</code>, <code>status</code>, and
-            <code>delay</code>. All are technically optional: Lockxy can generate the ID and label and can fall back to
-            convention-based file resolution. In practice, explicit IDs and labels are recommended whenever scenarios are
-            displayed or persisted by the panel.
+            A scenario accepts <code>id</code>, <code>label</code>, <code>active</code>, <code>file</code>,
+            <code>status</code>, and <code>delay</code>. Apart from <code>active</code>, all fields can fall back to generated
+            or inherited values. In practice, explicit IDs and labels are recommended whenever scenarios are displayed or
+            persisted by the panel.
         </p>
         <Code code={completeManifest} label="complete manifest example" />
         <ul>
-            <li>Exactly one scenario is applied automatically without a panel or cookie.</li>
-            <li>With multiple scenarios, endpoint-level behavior is used until a selection exists.</li>
+            <li>Without an <code>active</code> property or cookie selection, the first scenario is applied automatically.</li>
+            <li>If any scenario defines <code>active</code>, the first <code>true</code> scenario wins; if none are <code>true</code>, the request passes through.</li>
+            <li>The panel lists scenarios first and keeps explicit default file resolution as its final option.</li>
             <li>If a stored scenario no longer exists, the first configured scenario is used as a safe fallback.</li>
             <li>Generated scenario IDs include their array position and can change when scenarios are reordered.</li>
         </ul>
 
         <h2 id="response-precedence">Response precedence</h2>
+        <p>
+            This value precedence applies only after Lockxy has decided to mock the request. Manifest passthrough controls
+            and browser cookies follow the separate
+            <a href={`${base}/control-hierarchy/#decision-flow`}>control hierarchy</a>.
+        </p>
         <ol>
-            <li>A selected—or automatically selected single—scenario provides <code>file</code>, <code>status</code>, and <code>delay</code>.</li>
+            <li>A selected—or automatically selected first—scenario provides <code>file</code>, <code>status</code>, and <code>delay</code>.</li>
             <li>Missing scenario values fall back to the matching endpoint.</li>
             <li>Missing endpoint delay falls back to the root-level delay.</li>
             <li>If no explicit file is present, the normal method-specific and generic naming conventions resolve it.</li>
@@ -189,6 +226,14 @@ lockxy({
             <p>
                 Status <code>204</code> and <code>304</code> responses never contain a body, even when a file is configured.
                 Lockxy also removes the body from every <code>HEAD</code> response.
+            </p>
+        </Callout>
+
+        <Callout title="Manifest control is documented in one place">
+            <p>
+                See the <a href={`${base}/control-hierarchy/#behavior-matrix`}>complete behavior matrix</a> for the exact
+                priority of root and endpoint <code>preventMock</code>, scenario <code>active</code>, panel cookies, and
+                convention-based defaults.
             </p>
         </Callout>
 
@@ -217,12 +262,12 @@ lockxy({
             <li>missing or unsafe response files;</li>
             <li>duplicate endpoint and scenario IDs;</li>
             <li>invalid status codes and delay ranges;</li>
-            <li>active routes whose method and path shapes conflict.</li>
         </ul>
         <p>
             General request and runtime logging is controlled separately through <code>logging</code> and defaults to
-            <code>true</code>. Manifest changes and referenced mock files are watched outside <code>src</code>, so restarting
-            Vite is not required.
+            <code>true</code>. Endpoint validation failures are logged as non-fatal warnings and remove only the affected
+            endpoint. Manifest changes and referenced mock files are watched outside <code>src</code>, so restarting Vite is
+            not required.
         </p>
 
         <h2 id="best-practices">Best practices</h2>

@@ -20,7 +20,9 @@ export const createCookieSelectionValues = (
         if (selection?.active === false) {
             bypass = updateBypassCookie(bypass, endpoint.id, true);
         }
-        if (selection?.scenarioId) {
+        if (selection?.scenarioId === '' && endpoint.scenarios?.length) {
+            scenarios = updateScenarioCookie(scenarios, endpoint.id, '');
+        } else if (selection?.scenarioId) {
             const selectedScenario =
                 endpoint.scenarios?.find((scenario) => scenario.id === selection.scenarioId) ?? endpoint.scenarios?.[0];
             if (selectedScenario?.id) {

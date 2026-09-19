@@ -166,6 +166,10 @@ describe('wf-lockxy-panel', () => {
         scenario!.value = 'error';
         scenario?.dispatchEvent(new Event('change'));
         expect(getCookieValue(SCENARIO_COOKIE_NAME)).toBe('orders:error');
+
+        scenario!.value = '';
+        scenario?.dispatchEvent(new Event('change'));
+        expect(getCookieValue(SCENARIO_COOKIE_NAME)).toBe('orders:');
     });
 
     it('renders the settings as a separate component', async () => {

@@ -16,11 +16,12 @@ on:
                 default: false
                 type: boolean
             version_bump:
-                description: Version update for selected npm packages
+                description: Continue the current alpha or start a new version line
                 required: true
-                default: minor
+                default: prerelease
                 type: choice
                 options:
+                    - prerelease
                     - patch
                     - minor
                     - major

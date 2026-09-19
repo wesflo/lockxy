@@ -52,7 +52,7 @@ lockxy({
     contentTypes: {
         '.xml': 'application/xml; charset=utf-8',
     },
-    manifestFileName: 'mock.manifest.json',
+    manifestFileName: 'mock.manifest',
     debug: false,
     logging: true,
 });
@@ -64,11 +64,11 @@ lockxy({
 | `requestPrefixes` | `string \| readonly string[]` | `'/api/'` | Local URL namespaces handled by Lockxy. |
 | `extensions` | `readonly string[]` | `[]` | Adds file extensions after the built-in JSON, PDF, CSV, text, JPEG, PNG, and WebP candidates. |
 | `contentTypes` | `Readonly<Record<string, string>>` | `{}` | Adds or overrides extension-to-content-type mappings. |
-| `manifestFileName` | `string` | `'mock.manifest.json'` | Manifest filename inside `mockRoot`. |
+| `manifestFileName` | `string` | `'mock.manifest'` | Manifest basename or explicit `.json`, `.yaml`, or `.yml` filename inside `mockRoot`. |
 | `debug` | `boolean` | `false` | Enables detailed manifest, route, status, delay, ID, and referenced-file validation. |
 | `logging` | `boolean` | `true` | Logs handled requests and runtime errors. |
 
-The manifest HTTP route is intentionally fixed at `/_local-mock-api/manifest` and cannot be changed through plugin options.
+The manifest HTTP route is intentionally fixed at `/_lockxy/manifest` and cannot be changed through plugin options. Every response produced by Lockxy includes the `x-lockxy: true` header, making mocked traffic easy to identify in the browser network panel.
 
 ### Naming conventions and precedence
 
@@ -105,7 +105,7 @@ The matched prefix is removed before file resolution, so `/development-api/users
 
 ## Optional manifest
 
-`mock.manifest.json` is not required. Convention-only projects remain fully functional when it is missing. Add it only for calls that need an explicit file, status, delay, failure, dynamic route, or multiple selectable scenarios; every other request continues to use naming conventions.
+No manifest is required. Convention-only projects remain fully functional when `mock.manifest.json`, `mock.manifest.yaml`, and `mock.manifest.yml` are missing. Add one only for calls that need an explicit file, status, delay, failure, dynamic route, or multiple selectable scenarios; every other request continues to use naming conventions. If several default manifests exist, Lockxy uses `.json`, then `.yaml`, then `.yml`.
 
 The package includes a JSON Schema for editor autocomplete and inline validation:
 
@@ -119,7 +119,22 @@ The package includes a JSON Schema for editor autocomplete and inline validation
 
 A root-level delay is already a complete manifest and applies to all mocked requests. Use `[200, 600]` instead of `400` to choose a new inclusive random delay for every request.
 
-Endpoint entries require only `path`. `method`, `id`, `label`, `active`, `file`, `status`, `delay`, and `scenarios` are optional:
+The same configuration can be written as YAML:
+
+```yaml
+# yaml-language-server: $schema=../node_modules/@wesflo/vite-plugin-lockxy/mock.manifest.schema.json
+id: shop-frontend
+delay: [200, 600]
+endpoints:
+    - path: /api/health
+      status: 204
+    - method: [POST, PUT]
+      path: /api/users/:id
+      file: scenarios/user.json
+      delay: 250
+```
+
+Endpoint entries require only `path`. `method`, `id`, `label`, `preventMock`, `file`, `status`, `delay`, and `scenarios` are optional:
 
 ```json
 {
@@ -142,6 +157,7 @@ Endpoint entries require only `path`. `method`, `id`, `label`, `active`, `file`,
                 {
                     "id": "success",
                     "label": "Successful response",
+                    "active": true,
                     "status": 200,
                     "file": "scenarios/user-success.json"
                 },
@@ -159,31 +175,35 @@ Endpoint entries require only `path`. `method`, `id`, `label`, `active`, `file`,
 
 The optional root `id` namespaces panel selections in local storage. Define a stable ID when a project uses the panel's “Save selections” setting.
 
-An endpoint `method` can be a string or an array such as `["POST", "PUT"]` when multiple methods share one response configuration. An omitted `method` matches every method. An omitted `file` falls back to naming conventions. Required dynamic segments use `:id`; append `?`, as in `/api/cart/:id?`, to match the segment both when present and absent. A single scenario is selected automatically; multiple scenarios can be selected through the optional panel or scenario cookie. Selected scenario values override endpoint values, endpoint values override the root delay, and remaining file lookup follows naming conventions. Responses with status `204` or `304`, as well as all `HEAD` responses, never include a body.
+An endpoint `method` can be a string or an array such as `["POST", "PUT"]` when multiple methods share one response configuration. An omitted `method` matches every method. An omitted `file` falls back to naming conventions. Required dynamic segments use `:id`; append `?`, as in `/api/cart/:id?`, to match the segment both when present and absent. When several endpoints match, literal paths win over dynamic paths, required parameters win over optional parameters, and method-specific entries win over method-agnostic entries. Manifest order breaks any remaining tie. Invalid individual endpoints are skipped with a warning while the remaining endpoints continue to work; invalid JSON or an invalid manifest root still rejects the complete manifest. When scenarios exist without `active`, the first one is selected automatically until another scenario or explicit default file resolution is selected. Selected scenario values override endpoint values, endpoint values override the root delay, and remaining file lookup follows naming conventions. Responses with status `204` or `304`, as well as all `HEAD` responses, never include a body.
 
-Set `debug: true` while authoring a manifest to report exact invalid fields, malformed routes, duplicate IDs, invalid status codes or delays, route conflicts, unsafe paths, and missing referenced files. Request logging remains enabled independently by default.
+Root- or endpoint-level `preventMock: true` passes matching requests through to the next Vite middleware. As soon as a scenario defines `active`, the manifest fixes that endpoint: the first `active: true` scenario is mocked, and no `true` entry means passthrough. Manifest controls take priority over bypass and scenario cookies. The [control hierarchy](https://wesflo.github.io/lockxy/control-hierarchy/) documents the full decision flow and matrix.
+
+`active` is a scenario-only field. Endpoint-level `active` is rejected; use endpoint-level `preventMock` for passthrough behavior.
+
+Set `debug: true` while authoring a manifest to report exact invalid fields, malformed routes, duplicate IDs, invalid status codes or delays, unsafe paths, and missing referenced files. Request logging remains enabled independently by default.
 
 ## Passthrough to a development API
 
 Lockxy can bypass all matching mocks and continue to the next Vite middleware, such as `server.proxy`:
 
 ```js
-document.cookie = 'wesflo-mock-api-bypass=*; Path=/; SameSite=Lax';
+document.cookie = 'lockxy-bypass=*; Path=/; SameSite=Lax';
 ```
 
 Manifest endpoints can be bypassed individually by joining their IDs with `|`:
 
 ```js
-document.cookie = 'wesflo-mock-api-bypass=orders|user-profile; Path=/; SameSite=Lax';
+document.cookie = 'lockxy-bypass=orders|user-profile; Path=/; SameSite=Lax';
 ```
 
 Remove the cookie to enable all mocks again:
 
 ```js
-document.cookie = 'wesflo-mock-api-bypass=; Max-Age=0; Path=/; SameSite=Lax';
+document.cookie = 'lockxy-bypass=; Max-Age=0; Path=/; SameSite=Lax';
 ```
 
-The optional [`@wesflo/lockxy-panel`](https://www.npmjs.com/package/@wesflo/lockxy-panel) provides browser controls for the same scenario and bypass behavior.
+The optional [`@wesflo/lockxy-panel`](https://www.npmjs.com/package/@wesflo/lockxy-panel) provides browser controls when the manifest has not fixed the request behavior.
 
 ## Runtime behavior
 

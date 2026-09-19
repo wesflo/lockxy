@@ -17,6 +17,9 @@ export const sanitizeCookieSelectionValues = (
     const sanitizedScenarios = [...scenarios]
         .flatMap(([endpointId, scenarioId]) => {
             const endpoint = endpointsById.get(endpointId);
+            if (scenarioId === '' && endpoint?.scenarios?.length) {
+                return [`${endpointId}:`];
+            }
             const selectedScenario =
                 endpoint?.scenarios?.find((scenario) => scenario.id === scenarioId) ?? endpoint?.scenarios?.[0];
 

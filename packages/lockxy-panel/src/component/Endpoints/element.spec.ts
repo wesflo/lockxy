@@ -3,7 +3,7 @@
 import type { WfButton, WfSwitch } from '@wesflo/local-mock-api-ui';
 import { describe, expect, it, vi } from 'vitest';
 
-import { DOCUMENTATION_URL } from '../../constant.js';
+import { DOCUMENTATION_URL, MANIFEST_CONTROL_DOCUMENTATION_URL } from '../../constant.js';
 import './element.js';
 import type { MockProxyEndpoints } from './element.js';
 
@@ -15,6 +15,21 @@ const createElement = async (): Promise<MockProxyEndpoints> => {
 };
 
 describe('mock proxy endpoints', () => {
+    it('renders the endpoint label before a formatted ID instead of the path', async () => {
+        const element = await createElement();
+        element.endpoints = [
+            { id: 'orders-list', label: 'Available orders', method: 'GET', path: '/api/internal/orders' },
+            { id: 'customer_details', method: 'GET', path: '/api/internal/customers' },
+        ];
+        await element.updateComplete;
+
+        const names = Array.from(element.shadowRoot?.querySelectorAll('.endpoint-name') ?? []).map((item) =>
+            item.textContent?.trim()
+        );
+
+        expect(names).toEqual(['Available orders', 'Customer Details']);
+    });
+
     it('renders a single scenario as text', async () => {
         const element = await createElement();
         element.endpoints = [
@@ -26,10 +41,31 @@ describe('mock proxy endpoints', () => {
         expect(element.shadowRoot?.querySelector('select')).toBeNull();
     });
 
-    it('renders zero or one scenario using the label, formatted ID or file', async () => {
+    it('renders an endpoint file or convention fallback when no scenario exists', async () => {
         const element = await createElement();
         element.endpoints = [
-            { id: 'foo-bar', method: 'GET', path: '/api/foo' },
+            { id: 'foo-bar', label: 'Endpoint label', method: 'GET', path: '/api/foo', file: 'endpoint.json' },
+            { id: 'id-fallback', method: 'GET', path: '/api/id' },
+        ];
+        await element.updateComplete;
+
+        const values = Array.from(element.shadowRoot?.querySelectorAll('.scenario-value') ?? []).map((item) =>
+            item.textContent?.trim()
+        );
+
+        expect(values).toEqual(['endpoint.json', 'File by convention']);
+        expect(element.shadowRoot?.querySelector('select')).toBeNull();
+    });
+
+    it('renders one scenario using its label, formatted ID, file or convention fallback', async () => {
+        const element = await createElement();
+        element.endpoints = [
+            {
+                id: 'label-fallback',
+                method: 'GET',
+                path: '/api/label',
+                scenarios: [{ id: 'ignored-id', label: 'Scenario label', file: 'ignored.json' }],
+            },
             {
                 id: 'file-fallback',
                 method: 'GET',
@@ -42,6 +78,12 @@ describe('mock proxy endpoints', () => {
                 path: '/api/scenario',
                 scenarios: [{ id: 'slow-response' }],
             },
+            {
+                id: 'convention-fallback',
+                method: 'GET',
+                path: '/api/convention',
+                scenarios: [{}],
+            },
         ];
         await element.updateComplete;
 
@@ -49,8 +91,36 @@ describe('mock proxy endpoints', () => {
             item.textContent?.trim()
         );
 
-        expect(values).toEqual(['Foo Bar', 'scenarios/explicit.json', 'Slow Response']);
+        expect(values).toEqual(['Scenario label', 'scenarios/explicit.json', 'Slow Response', 'File by convention']);
         expect(element.shadowRoot?.querySelector('select')).toBeNull();
+    });
+
+    it('selects the first scenario by default and renders file resolution last', async () => {
+        const element = await createElement();
+        element.endpoints = [
+            {
+                id: 'orders',
+                method: 'GET',
+                path: '/api/orders',
+                scenarios: [
+                    { id: 'success', label: 'Success' },
+                    { id: 'error-response' },
+                    { file: 'scenarios/file-only.json' },
+                ],
+            },
+        ];
+        await element.updateComplete;
+        await Promise.resolve();
+
+        const select = element.shadowRoot?.querySelector<HTMLSelectElement>('select');
+        expect(select?.value).toBe('success');
+        expect(Array.from(select?.options ?? []).map(({ textContent }) => textContent?.trim())).toEqual([
+            'Success',
+            'Error Response',
+            'scenarios/file-only.json',
+            'Default file resolution',
+        ]);
+        expect(select?.options[3]?.textContent?.trim()).toBe('Default file resolution');
     });
 
     it('offers reset and documentation actions in the footer', async () => {
@@ -66,6 +136,45 @@ describe('mock proxy endpoints', () => {
         expect(listener).toHaveBeenCalledOnce();
         expect(documentation?.href).toBe(DOCUMENTATION_URL);
         expect(documentation?.target).toBe('_blank');
+    });
+
+    it('replaces all endpoint controls when the root manifest controls mocking', async () => {
+        const element = await createElement();
+        element.manifestControlled = true;
+        element.endpoints = [{ id: 'orders', method: 'GET', path: '/api/orders' }];
+        await element.updateComplete;
+
+        const link = element.shadowRoot?.querySelector<HTMLAnchorElement>('.root-manifest-control a');
+        expect(link?.textContent?.trim()).toBe('Controlled by manifest');
+        expect(link?.href).toBe(MANIFEST_CONTROL_DOCUMENTATION_URL);
+        expect(link?.target).toBe('_blank');
+        expect(element.shadowRoot?.querySelector('.master-toggle')).toBeNull();
+        expect(element.shadowRoot?.querySelector('.endpoint')).toBeNull();
+    });
+
+    it('replaces a manifest-controlled endpoint row with a documentation link', async () => {
+        const element = await createElement();
+        element.endpoints = [
+            { id: 'profile', method: 'GET', path: '/api/profile', preventMock: true },
+            {
+                id: 'orders',
+                method: 'GET',
+                path: '/api/orders',
+                scenarios: [{ id: 'success', active: false }, { id: 'failure' }],
+            },
+        ];
+        await element.updateComplete;
+
+        const endpoints = element.shadowRoot?.querySelectorAll('.endpoint');
+        expect(endpoints).toHaveLength(2);
+        endpoints?.forEach((endpoint) => {
+            const link = endpoint.querySelector<HTMLAnchorElement>('.manifest-control');
+            expect(endpoint.classList.contains('controlled')).toBe(true);
+            expect(link?.href).toBe(MANIFEST_CONTROL_DOCUMENTATION_URL);
+            expect(link?.target).toBe('_blank');
+            expect(endpoint.querySelector('wf-switch')).toBeNull();
+            expect(endpoint.querySelector('select')).toBeNull();
+        });
     });
 
     it('renders and searches every method from a method array', async () => {

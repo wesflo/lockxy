@@ -1,0 +1,332 @@
+---
+import Callout from '../components/Callout.astro';
+import Code from '../components/Code.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const rootControl = `{
+  "preventMock": true,
+  "endpoints": [
+    { "path": "/api/profile" },
+    { "path": "/api/orders" }
+  ]
+}`;
+
+const endpointControl = `{
+  "endpoints": [
+    {
+      "path": "/api/profile",
+      "preventMock": true
+    }
+  ]
+}`;
+
+const scenarioControl = `{
+  "endpoints": [
+    {
+      "path": "/api/profile",
+      "scenarios": [
+        { "id": "success", "active": false },
+        { "id": "failure", "active": true, "status": 500 }
+      ]
+    }
+  ]
+}`;
+---
+
+<DocsLayout
+    title="Control hierarchy"
+    description="Understand how the plugin, manifest, and proxy panel decide whether Lockxy mocks a request."
+    activePath="/control-hierarchy/"
+>
+    <article>
+        <p class="kicker">One request · one clear decision</p>
+        <h1>Manifest decisions win before browser controls.</h1>
+        <p class="lead">
+            Lockxy is built bottom up: the plugin works on its own, a manifest can add explicit project configuration,
+            and the proxy panel adds convenient browser controls. Each higher layer is optional and must never become a
+            hidden requirement for the layer below it.
+        </p>
+
+        <h2 id="bottom-up-model">The bottom-up model</h2>
+        <ol class="layer-stack">
+            <li>
+                <span class="layer-number">1</span>
+                <div>
+                    <strong>Plugin and file conventions</strong>
+                    <p>Always usable on their own. Matching requests resolve local files without a manifest or panel.</p>
+                </div>
+            </li>
+            <li>
+                <span class="layer-number">2</span>
+                <div>
+                    <strong>Manifest configuration</strong>
+                    <p>Adds routes, response details, and fixed decisions that remain valid without browser state.</p>
+                </div>
+            </li>
+            <li>
+                <span class="layer-number">3</span>
+                <div>
+                    <strong>Proxy panel</strong>
+                    <p>Writes cookies for temporary local choices when the manifest has not already fixed the result.</p>
+                </div>
+            </li>
+        </ol>
+        <Callout title="The hierarchy is intentional">
+            <p>
+                Explicit manifest control has priority over cookies. This keeps identical source-controlled configuration
+                reproducible for every developer, while the panel remains a comfort layer rather than a runtime dependency.
+            </p>
+        </Callout>
+
+        <h2 id="manifest-controls">Manifest controls</h2>
+        <h3>Pass through every request</h3>
+        <p>
+            Set root-level <code>preventMock: true</code> to prevent Lockxy from mocking any request. The plugin hands the
+            request to the next Vite middleware; a configured <code>server.proxy</code> can then forward it to an API.
+            <code>false</code> and an omitted property both leave normal resolution enabled.
+        </p>
+        <Code code={rootControl} label="mock/mock.manifest.json" />
+
+        <h3>Pass through one endpoint</h3>
+        <p>
+            Endpoint-level <code>preventMock: true</code> makes only that matching endpoint pass through. It has priority
+            over scenario configuration and browser cookies for that endpoint.
+        </p>
+        <Code code={endpointControl} label="mock/mock.manifest.json" />
+
+        <h3>Fix scenario behavior</h3>
+        <p>
+            As soon as at least one scenario contains an <code>active</code> property, the manifest controls the endpoint.
+            The first scenario with <code>active: true</code> is mocked. If all explicitly configured values are
+            <code>false</code>, Lockxy passes the request through instead. Scenario and bypass cookies are ignored for this
+            endpoint in both cases.
+        </p>
+        <Code code={scenarioControl} label="mock/mock.manifest.json" />
+
+        <h2 id="decision-flow">Decision flow</h2>
+        <p>The first matching decision ends the flow for the current request.</p>
+        <figure class="decision-flow" aria-labelledby="flow-caption">
+            <figcaption id="flow-caption">How Lockxy decides between passthrough and a mocked response</figcaption>
+            <div class="flow-start">Matching request enters Lockxy</div>
+            <div class="flow-arrow" aria-hidden="true">↓</div>
+            <div class="flow-decision">
+                <div class="flow-question">Root <code>preventMock: true</code>?</div>
+                <div class="flow-result"><span>Yes</span><strong>Pass through to API</strong></div>
+            </div>
+            <div class="flow-arrow"><span aria-hidden="true">↓</span> No</div>
+            <div class="flow-decision">
+                <div class="flow-question">Endpoint <code>preventMock: true</code>?</div>
+                <div class="flow-result"><span>Yes</span><strong>Pass through to API</strong></div>
+            </div>
+            <div class="flow-arrow"><span aria-hidden="true">↓</span> No</div>
+            <div class="flow-decision">
+                <div class="flow-question">Does any scenario define <code>active</code>?</div>
+                <div class="flow-result flow-result-split">
+                    <span>Yes</span>
+                    <strong>First <code>true</code> → mock it</strong>
+                    <strong>No <code>true</code> → pass through</strong>
+                </div>
+            </div>
+            <div class="flow-arrow"><span aria-hidden="true">↓</span> No</div>
+            <div class="flow-decision">
+                <div class="flow-question">Does a bypass cookie apply?</div>
+                <div class="flow-result"><span>Yes</span><strong>Pass through to API</strong></div>
+            </div>
+            <div class="flow-arrow"><span aria-hidden="true">↓</span> No</div>
+            <div class="flow-decision">
+                <div class="flow-question">Is there a valid scenario cookie?</div>
+                <div class="flow-result"><span>Yes</span><strong>Mock the selected scenario</strong></div>
+            </div>
+            <div class="flow-arrow"><span aria-hidden="true">↓</span> No</div>
+            <div class="flow-end">Mock the first scenario, endpoint response, or convention-based file</div>
+        </figure>
+
+        <h2 id="behavior-matrix">Behavior matrix</h2>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Lockxy behavior matrix">
+            <table>
+                <thead>
+                    <tr><th>Configuration or state</th><th>Request result</th><th>Panel</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Root <code>preventMock: true</code></td><td>Pass through</td><td>All endpoint controls are hidden and marked as manifest-controlled.</td></tr>
+                    <tr><td>Endpoint <code>preventMock: true</code></td><td>Pass through</td><td>The endpoint is disabled and marked as manifest-controlled.</td></tr>
+                    <tr><td>At least one <code>active</code>; first <code>true</code> exists</td><td>Mock that scenario</td><td>The endpoint is disabled and marked as manifest-controlled.</td></tr>
+                    <tr><td>At least one <code>active</code>; none are <code>true</code></td><td>Pass through</td><td>The endpoint is disabled and marked as manifest-controlled.</td></tr>
+                    <tr><td>No manifest control; global bypass cookie</td><td>Pass through</td><td>The master switch reflects the browser choice.</td></tr>
+                    <tr><td>No manifest control; endpoint bypass cookie</td><td>Pass through</td><td>The endpoint switch reflects the browser choice.</td></tr>
+                    <tr><td>No manifest control; valid scenario cookie</td><td>Mock the selected scenario</td><td>The matching option is selected.</td></tr>
+                    <tr><td>No manifest control; missing or stale scenario cookie</td><td>Mock the first scenario</td><td>The first scenario is selected as the fallback.</td></tr>
+                    <tr><td>No scenarios; endpoint response configured</td><td>Use endpoint file, status, and delay</td><td>The resolved response is read-only.</td></tr>
+                    <tr><td>No matching manifest behavior</td><td>Use file conventions</td><td>No panel state is required.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 id="panel-behavior">Panel behavior</h2>
+        <p>
+            The panel communicates locked manifest decisions instead of pretending its controls can override them. With
+            root-level <code>preventMock: true</code>, the endpoint list is replaced by a manifest-controlled notice. For an
+            endpoint-level decision, that endpoint is greyed out and its secondary line becomes a danger-colored
+            <a href="#manifest-controls">Controlled by manifest</a> link to this section.
+        </p>
+        <p>
+            Existing cookies may remain stored, but they do not affect a manifest-controlled request. If the fixed setting
+            is removed later, normal cookie behavior becomes available again without making the panel necessary for the
+            plugin.
+        </p>
+
+        <h2 id="edge-cases">Edge cases</h2>
+        <ul>
+            <li>If several scenarios use <code>active: true</code>, the first one in manifest order wins. Debug mode reports the ambiguity.</li>
+            <li>An explicit <code>active: false</code> opts the endpoint into manifest control; it is not the same as omitting <code>active</code>.</li>
+            <li><code>active</code> is valid only on scenarios. The former endpoint field is rejected; use endpoint-level <code>preventMock</code> instead.</li>
+            <li>Passthrough means “continue to the next Vite middleware.” It does not send a remote request by itself.</li>
+            <li>Without an explicit passthrough decision, a missing mock file remains a mock-resolution error rather than silently calling an API.</li>
+        </ul>
+        <p>
+            See the <a href={`${base}/manifest/`}>manifest reference</a> for every field and the
+            <a href={`${base}/proxy-panel/`}>proxy panel guide</a> for cookie and persistence details.
+        </p>
+    </article>
+</DocsLayout>
+
+<style>
+    .layer-stack {
+        display: grid;
+        margin: var(--wf-gap-xl) 0;
+        padding: 0;
+        gap: var(--wf-gap-m);
+        list-style: none;
+        counter-reset: none;
+    }
+
+    .layer-stack li {
+        display: flex;
+        padding: var(--wf-gap-l);
+        gap: var(--wf-gap-l);
+        align-items: flex-start;
+        border: 1px solid var(--wf-docs-line);
+        border-radius: 10px;
+        background: var(--wf-docs-surface);
+        box-shadow: 0 5px 18px var(--wf-docs-shadow-s);
+    }
+
+    .layer-stack p {
+        margin: var(--wf-gap-xs) 0 0;
+    }
+
+    .layer-number {
+        display: grid;
+        width: 2rem;
+        height: 2rem;
+        flex: 0 0 2rem;
+        place-items: center;
+        color: var(--wf-white);
+        border-radius: 50%;
+        background: var(--wf-docs-primary);
+        font-weight: 700;
+    }
+
+    .decision-flow {
+        margin: var(--wf-gap-xl) 0;
+        padding: var(--wf-gap-xl);
+        border: 1px solid var(--wf-docs-line);
+        border-radius: 12px;
+        background: var(--wf-docs-surface-soft);
+    }
+
+    .decision-flow figcaption {
+        margin-bottom: var(--wf-gap-xl);
+        color: var(--wf-docs-heading);
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .flow-start,
+    .flow-end,
+    .flow-question,
+    .flow-result {
+        padding: var(--wf-gap-m) var(--wf-gap-l);
+        border: 1px solid var(--wf-docs-line);
+        border-radius: 8px;
+        background: var(--wf-docs-surface);
+    }
+
+    .flow-start,
+    .flow-end {
+        max-width: 31rem;
+        margin: 0 auto;
+        color: var(--wf-docs-heading);
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .flow-end {
+        border-color: var(--wf-docs-primary);
+        background: var(--wf-docs-primary-soft);
+    }
+
+    .flow-arrow {
+        min-height: 2.2rem;
+        color: var(--wf-docs-muted);
+        text-align: center;
+    }
+
+    .flow-decision {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.65fr);
+        gap: var(--wf-gap-m);
+        align-items: stretch;
+    }
+
+    .flow-question {
+        display: grid;
+        place-items: center;
+        color: var(--wf-docs-heading);
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .flow-result {
+        display: flex;
+        gap: var(--wf-gap-s);
+        flex-direction: column;
+        justify-content: center;
+        border-color: color-mix(in srgb, var(--wf-docs-callout-warning) 55%, var(--wf-docs-line));
+    }
+
+    .flow-result span {
+        color: var(--wf-docs-muted);
+        font-size: var(--wf-font-size-xs);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .flow-result-split strong + strong {
+        padding-top: var(--wf-gap-s);
+        border-top: 1px solid var(--wf-docs-line);
+    }
+
+    .table-scroll {
+        overflow-x: auto;
+    }
+
+    @media (max-width: 640px) {
+        .decision-flow {
+            padding: var(--wf-gap-m);
+        }
+
+        .flow-decision {
+            grid-template-columns: 1fr;
+        }
+
+        .flow-result::before {
+            content: '↘';
+            color: var(--wf-docs-muted);
+            text-align: center;
+        }
+    }
+</style>

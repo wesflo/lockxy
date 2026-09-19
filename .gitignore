@@ -42,5 +42,6 @@ internal/**/*.d.ts
 
 # Operating system files
 .DS_Store
+/Roadmap.md
 /ToDo.md
 /test.txt

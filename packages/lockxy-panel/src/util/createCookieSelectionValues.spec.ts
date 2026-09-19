@@ -29,6 +29,14 @@ describe('createCookieSelectionValues', () => {
         });
     });
 
+    it('restores an explicitly stored default file resolution selection', () => {
+        const stored = new Map([['GET /api/orders', { scenarioId: '' }]]);
+        expect(createCookieSelectionValues(endpoints, stored, true)).toEqual({
+            bypass: '',
+            scenarios: 'orders:',
+        });
+    });
+
     it('ignores unknown routes and endpoints without IDs', () => {
         const stored = new Map([['POST /api/unknown', { active: false }]]);
         expect(createCookieSelectionValues([...endpoints, { path: '/api/no-id' }], stored, true)).toEqual({

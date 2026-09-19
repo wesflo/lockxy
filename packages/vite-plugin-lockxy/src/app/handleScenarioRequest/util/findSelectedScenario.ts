@@ -1,4 +1,4 @@
-import type { MockEndpoint, MockScenario, ScenarioSelections } from '../../../interface.js';
+import type { MockEndpoint, MockScenario, ScenarioSelections } from '../../../runtimeInterface.js';
 
 export const findSelectedScenario = (
     endpoint: MockEndpoint,
@@ -6,17 +6,21 @@ export const findSelectedScenario = (
 ): MockScenario | undefined => {
     const scenarios = endpoint.scenarios ?? [];
 
-    if (scenarios.length === 1) {
-        return scenarios[0];
+    if (scenarios.length === 0) {
+        return undefined;
     }
 
-    if (!endpoint.id) {
-        return undefined;
+    if (scenarios.some((scenario) => scenario.active !== undefined)) {
+        return scenarios.find((scenario) => scenario.active === true);
+    }
+
+    if (!endpoint.id || !selections.has(endpoint.id)) {
+        return scenarios[0];
     }
 
     const scenarioId = selections.get(endpoint.id);
 
-    if (!scenarioId) {
+    if (scenarioId === '') {
         return undefined;
     }
 

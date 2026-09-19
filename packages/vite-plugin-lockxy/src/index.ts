@@ -9,10 +9,13 @@ import {
 import { handleMockRequest } from './app/handleMockRequest/index.js';
 import { handleScenarioRequest } from './app/handleScenarioRequest/index.js';
 import { readMockManifest } from './app/handleScenarioRequest/util/readMockManifest.js';
+import { resolveManifestFileName } from './app/handleScenarioRequest/util/resolveManifestFileName.js';
 import { CONTENT_TYPES, EXTENSIONS, DEBUG, REQUEST_PREFIXES, MANIFEST_FILE_NAME, LOGGING } from './constant.js';
-import type { MockApiPluginOptions, MockApiRuntimeOptions, ResolvedMockApiPluginOptions } from './interface.js';
+import type { MockApiPluginOptions, ResolvedMockApiPluginOptions } from './interface.js';
+import type { MockApiRuntimeOptions } from './runtimeInterface.js';
 import { buildMockFileIndex } from './util/buildMockFileIndex.js';
 import { logError } from './util/logError.js';
+import { logManifestRouteWarnings } from './util/logManifestRouteWarnings.js';
 import { logRequest } from './util/logRequest.js';
 import { normalizeMockRoot } from './util/normalizeMockRoot.js';
 import { normalizeRequestPrefixes } from './util/normalizeRequestPrefixes.js';
@@ -66,10 +69,14 @@ export const lockxy = ({
                 return;
             }
 
+            const fileIndex = await buildMockFileIndex(options.mockRoot);
+            const manifestFileName = resolveManifestFileName(options.manifestFileName, fileIndex);
+            const manifestResult = await readMockManifest(options.mockRoot, manifestFileName, options.debug);
+            logManifestRouteWarnings(options.logging, manifestFileName, manifestResult, options.debug);
             const runtimeOptions: MockApiRuntimeOptions = {
                 ...options,
-                fileIndex: await buildMockFileIndex(options.mockRoot),
-                manifestResult: await readMockManifest(options.mockRoot, options.manifestFileName, options.debug),
+                fileIndex,
+                manifestResult,
             };
             registerMockWatcher(server.watcher, runtimeOptions);
 

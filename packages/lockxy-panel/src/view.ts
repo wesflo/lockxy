@@ -17,6 +17,7 @@ const renderContent = (model: MockProxyViewModel, actions: MockProxyViewActions)
                   .endpoints=${model.endpoints}
                   .error=${model.error}
                   .loading=${model.loading}
+                  .manifestControlled=${model.manifestControlled}
                   .query=${model.query}
                   .scenarios=${model.scenarios}
                   @onProxyChange=${(event: CustomEvent<{ active: boolean }>) =>
@@ -72,7 +73,7 @@ export const renderMockProxy = (model: MockProxyViewModel, actions: MockProxyVie
         <img src=${lockxyMarkInverse} alt="" />
     </button>
 
-    <aside
+    <div
         class=${`panel ${model.open ? 'open' : ''}`}
         id="mock-proxy-panel"
         role="dialog"
@@ -115,5 +116,5 @@ export const renderMockProxy = (model: MockProxyViewModel, actions: MockProxyVie
         </nav>
 
         <div class="content">${renderContent(model, actions)}</div>
-    </aside>
+    </div>
 `;

@@ -23,6 +23,7 @@ const links = [
     { href: '/vite-plugin/', label: 'Vite Plugin', icon: '◇' },
     { href: '/manifest/', label: 'Manifest', icon: '≡' },
     { href: '/proxy-panel/', label: 'Proxy panel', icon: '≋' },
+    { href: '/control-hierarchy/', label: 'Control hierarchy', icon: '⇵' },
     { href: '/playgrounds/', label: 'Playgrounds', icon: '✓' },
 ];
 const pageSections: Record<string, Array<{ href: string; label: string }>> = {
@@ -64,11 +65,19 @@ const pageSections: Record<string, Array<{ href: string; label: string }>> = {
         { href: '#bypass-cookie', label: 'Bypass cookie' },
         { href: '#scenario-cookie', label: 'Scenario cookie' },
     ],
+    '/control-hierarchy/': [
+        { href: '#bottom-up-model', label: 'Bottom-up model' },
+        { href: '#manifest-controls', label: 'Manifest controls' },
+        { href: '#decision-flow', label: 'Decision flow' },
+        { href: '#behavior-matrix', label: 'Behavior matrix' },
+        { href: '#panel-behavior', label: 'Panel behavior' },
+        { href: '#edge-cases', label: 'Edge cases' },
+    ],
     '/playgrounds/': [
         { href: '#checkout-and-start', label: 'Checkout and start' },
         { href: '#plugin-demo', label: 'Plugin demo' },
-        { href: '#demo-modes', label: 'Demo modes' },
-        { href: '#proxy-playground', label: 'Proxy playground' },
+        { href: '#plugin-demo-modes', label: 'Plugin demo modes' },
+        { href: '#panel-playground', label: 'Panel playground' },
         { href: '#what-to-run', label: 'What to run' },
         { href: '#repository-map', label: 'Repository map' },
         { href: '#automated-checks', label: 'Automated checks' },
