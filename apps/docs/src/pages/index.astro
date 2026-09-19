@@ -134,11 +134,11 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         </p>
 
         <h2 id="how-a-request-is-resolved">How a request is resolved</h2>
-        <ol>
-            <li>The plugin checks whether the URL matches one of the configured request prefixes.</li>
-            <li>If browser bypass is enabled, the request continues unchanged to the next Vite middleware or proxy.</li>
-            <li>A matching automatic or selected scenario overrides endpoint settings; endpoint settings override root delay.</li>
-            <li>If no explicit file applies, the plugin uses method-specific and generic naming-convention candidates.</li>
-        </ol>
+        <p>
+            Lockxy first respects source-controlled manifest decisions, then optional browser choices, and finally its
+            automatic scenario and file-convention defaults. The
+            <a href={`${base}/control-hierarchy/`}>control hierarchy</a> shows the complete decision flow and behavior
+            matrix, including passthrough and manifest-controlled panel states.
+        </p>
     </article>
 </DocsLayout>
