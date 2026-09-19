@@ -35,14 +35,14 @@ describe('panel and plugin integration', () => {
         selectRequest('JSON response');
         openPanel();
         filterPanel('/json');
-        endpointsRoot().find('.endpoint:not(.inactive)').find('wf-switch').shadow().find('span').click();
+        endpointsRoot().find('.endpoint:not(.controlled)').find('wf-switch').shadow().find('span').click();
         panelRoot().find('.close').click();
 
         runRequest();
         resultBody().should('contain.text', '<!doctype html>');
 
         openPanel();
-        endpointsRoot().find('.endpoint:not(.inactive)').find('wf-switch').shadow().find('span').click();
+        endpointsRoot().find('.endpoint:not(.controlled)').find('wf-switch').shadow().find('span').click();
         panelRoot().find('.close').click();
         runRequest();
 

@@ -114,7 +114,9 @@ Naming conventions work without a manifest. Add `mock/mock.manifest.json`, `mock
 }
 ```
 
-Only `path` is required for an endpoint. `method` accepts either one method or an array such as `["POST", "PUT"]` when several methods share the same behavior. Without `method`, every method matches; without `file`, normal naming conventions resolve the response. Use `:id?` for an optional dynamic path segment. When several endpoints match, literal paths win over dynamic paths, required parameters win over optional parameters, and method-specific entries win over method-agnostic entries. Manifest order breaks any remaining tie. Multiple active configurations for the same route are allowed and produce a console warning. Invalid individual endpoints are skipped with a warning while the remaining endpoints continue to work; invalid JSON or an invalid manifest root still rejects the complete manifest. The optional root `id` enables project-specific selection storage in the panel. Root delay applies to all calls, while endpoint and scenario values override it. When scenarios exist, the first one is automatic until another scenario or the final `Default file resolution` option is selected. Set `debug: true` for precise validation diagnostics.
+Only `path` is required for an endpoint. `method` accepts either one method or an array such as `["POST", "PUT"]` when several methods share the same behavior. Without `method`, every method matches; without `file`, normal naming conventions resolve the response. Use `:id?` for an optional dynamic path segment. When several endpoints match, literal paths win over dynamic paths, required parameters win over optional parameters, and method-specific entries win over method-agnostic entries. Manifest order breaks any remaining tie. Invalid individual endpoints are skipped with a warning while the remaining endpoints continue to work; invalid JSON or an invalid manifest root still rejects the complete manifest. The optional root `id` enables project-specific selection storage in the panel. Root delay applies to all calls, while endpoint and scenario values override it. When scenarios exist, the first one is automatic until another scenario or the final `Default file resolution` option is selected. Set `debug: true` for precise validation diagnostics.
+
+Set `preventMock: true` at the root or on an endpoint to pass matching requests to the next Vite middleware. Scenario-level `active` flags create a fixed manifest selection: the first `active: true` scenario wins, while an explicit active configuration without a `true` entry passes through. These source-controlled decisions take priority over browser cookies. See the [control hierarchy and behavior matrix](https://wesflo.github.io/lockxy/control-hierarchy/) for the complete flow.
 
 ## Mock Proxy panel
 
@@ -177,7 +179,7 @@ To bypass only selected endpoints, set the cookie to their manifest IDs separate
 document.cookie = 'lockxy-bypass=orders|user-details; Path=/; SameSite=Lax';
 ```
 
-Selective bypasses use the endpoint `id` from the active manifest, while matching the current request by HTTP method and path. When an ID is omitted, the manifest response generates one from method and path. All other endpoints continue to use their selected scenario or their local fallback file. The manifest route remains available even while global bypass is on.
+Selective bypasses use the endpoint `id` from the manifest, while matching the current request by HTTP method and path. When an ID is omitted, the manifest response generates one from method and path. All other endpoints continue to use their selected scenario or their local fallback file. Explicit manifest controls take priority over these cookies. The manifest route remains available even while global bypass is on.
 
 Remove the bypass by expiring the cookie:
 

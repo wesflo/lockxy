@@ -3,7 +3,7 @@
 import type { WfButton, WfSwitch } from '@wesflo/local-mock-api-ui';
 import { describe, expect, it, vi } from 'vitest';
 
-import { DOCUMENTATION_URL } from '../../constant.js';
+import { DOCUMENTATION_URL, MANIFEST_CONTROL_DOCUMENTATION_URL } from '../../constant.js';
 import './element.js';
 import type { MockProxyEndpoints } from './element.js';
 
@@ -91,12 +91,7 @@ describe('mock proxy endpoints', () => {
             item.textContent?.trim()
         );
 
-        expect(values).toEqual([
-            'Scenario label',
-            'scenarios/explicit.json',
-            'Slow Response',
-            'File by convention',
-        ]);
+        expect(values).toEqual(['Scenario label', 'scenarios/explicit.json', 'Slow Response', 'File by convention']);
         expect(element.shadowRoot?.querySelector('select')).toBeNull();
     });
 
@@ -141,6 +136,45 @@ describe('mock proxy endpoints', () => {
         expect(listener).toHaveBeenCalledOnce();
         expect(documentation?.href).toBe(DOCUMENTATION_URL);
         expect(documentation?.target).toBe('_blank');
+    });
+
+    it('replaces all endpoint controls when the root manifest controls mocking', async () => {
+        const element = await createElement();
+        element.manifestControlled = true;
+        element.endpoints = [{ id: 'orders', method: 'GET', path: '/api/orders' }];
+        await element.updateComplete;
+
+        const link = element.shadowRoot?.querySelector<HTMLAnchorElement>('.root-manifest-control a');
+        expect(link?.textContent?.trim()).toBe('Controlled by manifest');
+        expect(link?.href).toBe(MANIFEST_CONTROL_DOCUMENTATION_URL);
+        expect(link?.target).toBe('_blank');
+        expect(element.shadowRoot?.querySelector('.master-toggle')).toBeNull();
+        expect(element.shadowRoot?.querySelector('.endpoint')).toBeNull();
+    });
+
+    it('replaces a manifest-controlled endpoint row with a documentation link', async () => {
+        const element = await createElement();
+        element.endpoints = [
+            { id: 'profile', method: 'GET', path: '/api/profile', preventMock: true },
+            {
+                id: 'orders',
+                method: 'GET',
+                path: '/api/orders',
+                scenarios: [{ id: 'success', active: false }, { id: 'failure' }],
+            },
+        ];
+        await element.updateComplete;
+
+        const endpoints = element.shadowRoot?.querySelectorAll('.endpoint');
+        expect(endpoints).toHaveLength(2);
+        endpoints?.forEach((endpoint) => {
+            const link = endpoint.querySelector<HTMLAnchorElement>('.manifest-control');
+            expect(endpoint.classList.contains('controlled')).toBe(true);
+            expect(link?.href).toBe(MANIFEST_CONTROL_DOCUMENTATION_URL);
+            expect(link?.target).toBe('_blank');
+            expect(endpoint.querySelector('wf-switch')).toBeNull();
+            expect(endpoint.querySelector('select')).toBeNull();
+        });
     });
 
     it('renders and searches every method from a method array', async () => {

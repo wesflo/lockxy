@@ -71,7 +71,7 @@ export const lockxy = ({
             const fileIndex = await buildMockFileIndex(options.mockRoot);
             const manifestFileName = resolveManifestFileName(options.manifestFileName, fileIndex);
             const manifestResult = await readMockManifest(options.mockRoot, manifestFileName, options.debug);
-            logManifestRouteWarnings(options.logging, manifestFileName, manifestResult);
+            logManifestRouteWarnings(options.logging, manifestFileName, manifestResult, options.debug);
             const runtimeOptions: MockApiRuntimeOptions = {
                 ...options,
                 fileIndex,

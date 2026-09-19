@@ -39,4 +39,53 @@ describe('panel manifest states', () => {
         settingsRoot().find('[role="note"]').should('contain.text', 'Project storage is unavailable');
         settingsRoot().find('wf-switch').eq(1).shadow().find('input').should('be.disabled');
     });
+
+    it('replaces root-controlled endpoint content with the manifest notice', () => {
+        cy.intercept('GET', '/_lockxy/manifest', {
+            body: { id: 'root-controlled', preventMock: true, endpoints: [] },
+        }).as('manifest');
+        cy.visit('/');
+        cy.wait('@manifest');
+        openPanel();
+
+        endpointsRoot()
+            .find('.root-manifest-control a')
+            .should('contain.text', 'Controlled by manifest')
+            .and('have.attr', 'target', '_blank')
+            .and('have.attr', 'href')
+            .and('include', '/control-hierarchy/#manifest-controls');
+        endpointsRoot().find('.master-toggle, .search, .endpoint').should('not.exist');
+    });
+
+    it('greys out endpoint-level and scenario-level manifest controls', () => {
+        cy.intercept('GET', '/_lockxy/manifest', {
+            body: {
+                id: 'controlled-endpoints',
+                endpoints: [
+                    { id: 'profile', path: '/api/profile', preventMock: true },
+                    {
+                        id: 'orders',
+                        path: '/api/orders',
+                        scenarios: [{ id: 'success', active: true }, { id: 'failure' }],
+                    },
+                    { id: 'health', path: '/api/health' },
+                ],
+            },
+        }).as('manifest');
+        cy.visit('/');
+        cy.wait('@manifest');
+        openPanel();
+
+        endpointsRoot()
+            .find('.endpoint.controlled')
+            .should('have.length', 2)
+            .each(($endpoint) => {
+                cy.wrap($endpoint)
+                    .find('.manifest-control')
+                    .should('contain.text', 'Controlled by manifest')
+                    .and('have.attr', 'target', '_blank');
+                cy.wrap($endpoint).find('wf-switch, select').should('not.exist');
+            });
+        endpointsRoot().find('.endpoint:not(.controlled)').should('have.length', 1).find('wf-switch').should('exist');
+    });
 });

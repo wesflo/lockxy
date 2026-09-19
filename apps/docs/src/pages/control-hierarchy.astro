@@ -181,6 +181,7 @@ const scenarioControl = `{
         <ul>
             <li>If several scenarios use <code>active: true</code>, the first one in manifest order wins. Debug mode reports the ambiguity.</li>
             <li>An explicit <code>active: false</code> opts the endpoint into manifest control; it is not the same as omitting <code>active</code>.</li>
+            <li><code>active</code> is valid only on scenarios. The former endpoint field is rejected; use endpoint-level <code>preventMock</code> instead.</li>
             <li>Passthrough means “continue to the next Vite middleware.” It does not send a remote request by itself.</li>
             <li>Without an explicit passthrough decision, a missing mock file remains a mock-resolution error rather than silently calling an API.</li>
         </ul>

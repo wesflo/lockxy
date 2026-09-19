@@ -10,6 +10,12 @@ const validateEndpointStructure = (endpoint: unknown, path: string): void => {
     if (typeof endpoint.path !== 'string' || !endpoint.path.startsWith('/')) {
         throw new TypeError(`${path}.path: must be a string beginning with /`);
     }
+    if ('active' in endpoint) {
+        throw new TypeError(`${path}.active: is not supported on endpoints; use preventMock instead`);
+    }
+    if (endpoint.preventMock !== undefined && typeof endpoint.preventMock !== 'boolean') {
+        throw new TypeError(`${path}.preventMock: must be a boolean`);
+    }
     if (endpoint.method !== undefined && typeof endpoint.method !== 'string' && !Array.isArray(endpoint.method)) {
         throw new TypeError(`${path}.method: must be a string or an array of strings`);
     }
@@ -30,6 +36,9 @@ const validateEndpointStructure = (endpoint: unknown, path: string): void => {
         if (!isObject(scenario)) {
             throw new TypeError(`${path}.scenarios[${scenarioIndex}]: must be an object`);
         }
+        if (scenario.active !== undefined && typeof scenario.active !== 'boolean') {
+            throw new TypeError(`${path}.scenarios[${scenarioIndex}].active: must be a boolean`);
+        }
     });
 };
 
@@ -47,6 +56,9 @@ export const validateManifestStructure = (
     }
     if (value.id !== undefined && typeof value.id !== 'string') {
         throw new TypeError(`${fileName}.id: must be a string`);
+    }
+    if (value.preventMock !== undefined && typeof value.preventMock !== 'boolean') {
+        throw new TypeError(`${fileName}.preventMock: must be a boolean`);
     }
 
     const endpoints = value.endpoints?.flatMap((endpoint, endpointIndex) => {

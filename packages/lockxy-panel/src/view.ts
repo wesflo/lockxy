@@ -17,6 +17,7 @@ const renderContent = (model: MockProxyViewModel, actions: MockProxyViewActions)
                   .endpoints=${model.endpoints}
                   .error=${model.error}
                   .loading=${model.loading}
+                  .manifestControlled=${model.manifestControlled}
                   .query=${model.query}
                   .scenarios=${model.scenarios}
                   @onProxyChange=${(event: CustomEvent<{ active: boolean }>) =>

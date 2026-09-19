@@ -16,7 +16,12 @@ const methodsOverlap = (left: NormalizedMockEndpoint, right: NormalizedMockEndpo
     );
 };
 
-export const logManifestRouteWarnings = (enabled: boolean, fileName: string, result: ManifestReadResult): void => {
+export const logManifestRouteWarnings = (
+    enabled: boolean,
+    fileName: string,
+    result: ManifestReadResult,
+    debug = false
+): void => {
     if (!enabled || result.status !== 'valid') {
         return;
     }
@@ -27,13 +32,20 @@ export const logManifestRouteWarnings = (enabled: boolean, fileName: string, res
     const overlaps = new Map<string, Set<number>>();
 
     endpoints.forEach((endpoint, endpointIndex) => {
-        if (endpoint.active === false) {
-            return;
+        const activeScenarioIndexes = (endpoint.scenarios ?? []).flatMap((scenario, scenarioIndex) =>
+            scenario.active === true ? [scenarioIndex] : []
+        );
+        if (debug && activeScenarioIndexes.length > 1) {
+            logWarning(
+                enabled,
+                `${fileName}.endpoints[${endpointIndex}]: active scenario entries at ${activeScenarioIndexes
+                    .map((index) => `scenarios[${index}]`)
+                    .join(', ')}. The first active scenario wins.`
+            );
         }
 
         endpoints.slice(endpointIndex + 1).forEach((candidate, candidateOffset) => {
             if (
-                candidate.active === false ||
                 normalizePath(endpoint.path) !== normalizePath(candidate.path) ||
                 !methodsOverlap(endpoint, candidate)
             ) {

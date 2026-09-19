@@ -10,6 +10,10 @@ export const findSelectedScenario = (
         return undefined;
     }
 
+    if (scenarios.some((scenario) => scenario.active !== undefined)) {
+        return scenarios.find((scenario) => scenario.active === true);
+    }
+
     if (!endpoint.id || !selections.has(endpoint.id)) {
         return scenarios[0];
     }

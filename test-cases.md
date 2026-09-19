@@ -6,10 +6,10 @@ Stand der Suite:
 
 | Ebene                           | Werkzeug                          | Testfälle |
 | ------------------------------- | --------------------------------- | --------: |
-| Unit- und komponentennahe Tests | Vitest                            |       332 |
-| Plugin-Integration              | Vitest mit echtem Vite-Testserver |        24 |
-| Browser- und End-to-End-Tests   | Cypress                           |        31 |
-| **Gesamt**                      |                                   |   **387** |
+| Unit- und komponentennahe Tests | Vitest                            |       342 |
+| Plugin-Integration              | Vitest mit echtem Vite-Testserver |        29 |
+| Browser- und End-to-End-Tests   | Cypress                           |        33 |
+| **Gesamt**                      |                                   |   **404** |
 
 Die Zahlen schließen parametrisierte Testfälle einzeln ein.
 
@@ -181,6 +181,9 @@ Die Utils decken normale Nutzung sowie bewusst kaputte oder ungewöhnliche Brows
 - Fester und zufälliger Delay sowie Body-lose Status werden verarbeitet.
 - Ein einzelnes Scenario wird automatisch gewählt.
 - Bei mehreren Scenarios gilt die Cookie-Auswahl; eine veraltete Auswahl fällt auf das erste Scenario zurück.
+- Root- und Endpoint-`preventMock` werden vor Browser-Cookies ausgewertet.
+- Sobald ein Scenario `active` definiert, gewinnt das erste `active: true`; ohne `true` wird durchgereicht.
+- Mehrere aktive Scenarios werden im Debug-Modus gemeldet, wobei weiterhin das erste gewinnt.
 - Kaputte Scenario- und Bypass-Cookies führen nicht zu einem Fehler.
 - Globaler und Endpoint-spezifischer Bypass betreffen nur die vorgesehenen Requests.
 
@@ -213,6 +216,14 @@ Die Integrationstests liegen aufgeteilt unter `packages/vite-plugin-lockxy/test/
 - Endpoint-spezifischer Bypass bei mehreren Einträgen.
 - Normales Mocking ohne Lockxy-Cookie.
 
+#### Manifest controls
+
+- Root-`preventMock` reicht alle passenden API-Requests durch.
+- Endpoint-`preventMock` reicht nur den betroffenen Endpoint durch.
+- Das erste aktive Scenario gewinnt auch gegen globale Bypass- und Scenario-Cookies.
+- Eine explizite Scenario-Aktivierung ohne `true` reicht den Request durch.
+- `preventMock: false` verhält sich wie ein nicht gesetztes Feld.
+
 #### Response-Typen
 
 - JSON und Text inklusive korrektem Content Type.
@@ -232,17 +243,26 @@ Der getestete Plugin-Entscheidungsweg lässt sich vereinfacht so lesen:
 flowchart TD
     A[API-Request] --> B{Konfigurierter Prefix?}
     B -- Nein --> N[next middleware]
-    B -- Ja --> C{Globaler oder Endpoint-Bypass?}
+    B -- Ja --> C{Root preventMock?}
     C -- Ja --> N
-    C -- Nein --> D{Passender Manifest-Endpoint?}
-    D -- Ja --> E[Endpoint-/Scenario-Settings und Delay anwenden]
-    D -- Nein --> F[Convention-Kandidaten bilden]
-    E --> G{Response-Datei oder body-loser Status?}
-    G -- Datei --> H[Status, Header und Body senden]
-    G -- Body-los --> I[Response ohne Entity-Body senden]
-    F --> J{Kandidat gefunden?}
-    J -- Ja --> H
-    J -- Nein --> K[Mock 404]
+    C -- Nein --> D{Passender Endpoint?}
+    D -- Ja --> E{Endpoint preventMock?}
+    E -- Ja --> N
+    E -- Nein --> F{Scenario active definiert?}
+    F -- Ja, keines true --> N
+    F -- Ja, erstes true --> G[Festes Scenario anwenden]
+    F -- Nein --> H{Globaler oder Endpoint-Bypass?}
+    D -- Nein --> H
+    H -- Ja --> N
+    H -- Nein --> I{Manifest-Response?}
+    I -- Ja --> G
+    I -- Nein --> L[Convention-Kandidaten bilden]
+    G --> J{Datei oder body-loser Status?}
+    J -- Datei --> K[Status, Header und Body senden]
+    J -- Body-los --> O[Response ohne Entity-Body senden]
+    L --> P{Kandidat gefunden?}
+    P -- Ja --> K
+    P -- Nein --> M[Mock 404]
 ```
 
 ## `packages/lockxy-panel`
@@ -257,6 +277,8 @@ flowchart TD
 - Endpoint-Liste unterstützt alle HTTP-Methoden eines Methoden-Arrays.
 - Suche filtert Endpoints; leere Trefferlisten haben einen Empty State.
 - Kein, ein oder mehrere Scenarios werden passend als Text beziehungsweise Select dargestellt.
+- Root-gesteuertes Mocking ersetzt sämtliche Endpoint-Controls durch den Manifest-Hinweis.
+- Endpoint-`preventMock` und Scenario-`active` ersetzen nur den betroffenen Endpoint durch den verlinkten Hinweis.
 - Endpoint-, Scenario- und globale Proxy-Änderungen erzeugen die richtigen Cookies und Events.
 - Settings zeigen Defaults und melden exakt die geänderte Option.
 - Proxy-on-load wird gespeichert und beim nächsten Mount angewandt.
@@ -300,6 +322,8 @@ flowchart TD
 - Manifest-Ladefehler zeigt einen Fehler und kann per Retry wiederhergestellt werden.
 - Ein leeres Manifest erzeugt keinen Launcher.
 - Ohne Manifest-ID bleibt projektspezifische Persistenz deaktiviert.
+- Root-gesteuerte Manifeste blenden Master-Switch, Suche und Endpoint-Liste aus.
+- Manifest-gesteuerte Endpoints sind ausgegraut und verlinken in einem neuen Tab zur Kontrollhierarchie.
 
 #### Große und kleine Ansichten
 

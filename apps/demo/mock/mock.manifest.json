@@ -33,20 +33,6 @@
             ]
         },
         {
-            "id": "json-response",
-            "label": "Inactive Scenario JSON response",
-            "method": "GET",
-            "path": "/api/demo/json",
-            "active": false,
-            "scenarios": [
-                {
-                    "id": "explicit-file",
-                    "label": "Explicit file",
-                    "file": "scenarios/explicit.json"
-                }
-            ]
-        },
-        {
             "id": "http-errors",
             "method": "GET",
             "path": "/api/demo/errors",

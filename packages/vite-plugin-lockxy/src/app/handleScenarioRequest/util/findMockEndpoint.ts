@@ -40,10 +40,6 @@ export const findMockEndpoint = (
     let match: { endpoint: MockEndpoint; specificity: EndpointSpecificity } | undefined;
 
     for (const endpoint of manifest.endpoints ?? []) {
-        if (endpoint.active === false) {
-            continue;
-        }
-
         const methods = toMethodArray(endpoint.method).map((value) => value.toUpperCase());
         if (methods.length > 0 && !methods.includes(normalizedMethod ?? '')) {
             continue;

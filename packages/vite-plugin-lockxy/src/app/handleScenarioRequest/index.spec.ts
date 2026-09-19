@@ -124,6 +124,23 @@ describe('handleScenarioRequest', () => {
         );
     });
 
+    it('does not parse scenario cookies for a manifest-controlled scenario', async () => {
+        const scenario = { id: 'failure', active: true, status: 204 };
+        const endpoint = {
+            id: 'profile',
+            path: '/api/profile',
+            scenarios: [{ id: 'success', active: false }, scenario],
+        };
+        options.manifestResult = { status: 'valid', manifest: { endpoints: [endpoint] } };
+        mocks.findMockEndpoint.mockReturnValue(endpoint);
+        mocks.findSelectedScenario.mockReturnValue(scenario);
+
+        await expect(handleScenarioRequest(request, response, options)).resolves.toBe(true);
+
+        expect(mocks.parseScenarioSelections).not.toHaveBeenCalled();
+        expect(mocks.findSelectedScenario).toHaveBeenCalledWith(endpoint, new Map());
+    });
+
     it('rejects a missing manifest file from the index without accessing the file system', async () => {
         const endpoint = { id: 'profile', path: '/api/profile', file: 'scenarios/missing.json' };
         options.manifestResult = { status: 'valid', manifest: { endpoints: [endpoint] } };

@@ -36,6 +36,7 @@ export type MockMethod = string | readonly string[];
 export interface MockManifest {
     $schema?: string;
     id?: string;
+    preventMock?: boolean;
     delay?: MockDelay;
     endpoints?: MockEndpoint[];
 }
@@ -49,7 +50,7 @@ export interface MockResponseConfig {
 export interface MockEndpoint extends MockResponseConfig {
     id?: string;
     label?: string;
-    active?: boolean;
+    preventMock?: boolean;
     method?: MockMethod;
     path: string;
     scenarios?: MockScenario[];
@@ -58,6 +59,7 @@ export interface MockEndpoint extends MockResponseConfig {
 export interface MockScenario extends MockResponseConfig {
     id?: string;
     label?: string;
+    active?: boolean;
 }
 
 export interface NormalizedMockManifest extends Omit<MockManifest, 'endpoints'> {

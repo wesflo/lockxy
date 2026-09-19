@@ -87,6 +87,9 @@ export const validateMockManifest = async (manifest: MockManifest, fileName: str
     validateResponse(manifest, fileName, issues);
     validateOptionalText(manifest.$schema, `${fileName}.$schema`, issues);
     validateOptionalId(manifest.id, `${fileName}.id`, issues);
+    if (manifest.preventMock !== undefined && typeof manifest.preventMock !== 'boolean') {
+        issues.push(`${fileName}.preventMock: must be a boolean`);
+    }
 
     for (const [endpointIndex, endpoint] of (manifest.endpoints ?? []).entries()) {
         const path = `${fileName}.endpoints[${endpointIndex}]`;
@@ -95,8 +98,11 @@ export const validateMockManifest = async (manifest: MockManifest, fileName: str
         validateOptionalId(endpoint.id, `${path}.id`, issues);
         validateOptionalText(endpoint.label, `${path}.label`, issues);
         validateMethods(endpoint.method, `${path}.method`, issues);
-        if (endpoint.active !== undefined && typeof endpoint.active !== 'boolean') {
-            issues.push(`${path}.active: must be a boolean`);
+        if ('active' in endpoint) {
+            issues.push(`${path}.active: is not supported on endpoints; use preventMock instead`);
+        }
+        if (endpoint.preventMock !== undefined && typeof endpoint.preventMock !== 'boolean') {
+            issues.push(`${path}.preventMock: must be a boolean`);
         }
         if (endpoint.id && endpointIds.has(endpoint.id)) {
             issues.push(`${path}.id: duplicate endpoint ID "${endpoint.id}"`);
@@ -113,6 +119,9 @@ export const validateMockManifest = async (manifest: MockManifest, fileName: str
             validateResponse(scenario, scenarioPath, issues);
             validateOptionalId(scenario.id, `${scenarioPath}.id`, issues);
             validateOptionalText(scenario.label, `${scenarioPath}.label`, issues);
+            if (scenario.active !== undefined && typeof scenario.active !== 'boolean') {
+                issues.push(`${scenarioPath}.active: must be a boolean`);
+            }
             if (scenarioIds.has(scenarioId)) {
                 issues.push(`${scenarioPath}.id: duplicate scenario ID "${scenarioId}"`);
             }

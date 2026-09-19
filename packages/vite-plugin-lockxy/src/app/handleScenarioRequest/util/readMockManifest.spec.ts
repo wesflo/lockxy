@@ -119,7 +119,13 @@ describe('readMockManifest', () => {
 
     it('skips structurally invalid endpoints even without debug mode', async () => {
         const mockRoot = await writeManifest(
-            JSON.stringify({ endpoints: [{ path: 'api/broken' }, { path: '/api/working', status: 204 }] })
+            JSON.stringify({
+                endpoints: [
+                    { path: 'api/broken' },
+                    { path: '/api/legacy', active: false },
+                    { path: '/api/working', status: 204 },
+                ],
+            })
         );
 
         await expect(readMockManifest(mockRoot, 'mock.manifest.json')).resolves.toEqual({
@@ -129,6 +135,7 @@ describe('readMockManifest', () => {
             },
             warnings: [
                 'Ignoring invalid endpoint: mock.manifest.json.endpoints[0].path: must be a string beginning with /',
+                'Ignoring invalid endpoint: mock.manifest.json.endpoints[1].active: is not supported on endpoints; use preventMock instead',
             ],
         });
     });

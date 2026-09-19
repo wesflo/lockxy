@@ -22,7 +22,7 @@ describe('logManifestRouteWarnings', () => {
         );
     });
 
-    it('warns once when active configurations overlap on the same route', () => {
+    it('warns once when configurations overlap on the same route', () => {
         logManifestRouteWarnings(true, 'mock.manifest.json', {
             status: 'valid',
             manifest: {
@@ -43,14 +43,13 @@ describe('logManifestRouteWarnings', () => {
         );
     });
 
-    it('does not warn for disjoint methods, inactive endpoints, invalid manifests, or disabled logging', () => {
+    it('does not warn for disjoint methods, invalid manifests, or disabled logging', () => {
         const result = {
             status: 'valid' as const,
             manifest: {
                 endpoints: [
                     { id: 'get', method: 'GET', path: '/api/cart' },
                     { id: 'put', method: 'PUT', path: '/api/cart' },
-                    { id: 'inactive', method: 'GET', path: '/api/cart', active: false },
                 ],
             },
         };
@@ -60,5 +59,35 @@ describe('logManifestRouteWarnings', () => {
         logManifestRouteWarnings(true, 'mock.manifest.json', { status: 'missing' });
 
         expect(mocks.logWarning).not.toHaveBeenCalled();
+    });
+
+    it('warns in debug mode when multiple scenarios are active', () => {
+        logManifestRouteWarnings(
+            true,
+            'mock.manifest.json',
+            {
+                status: 'valid',
+                manifest: {
+                    endpoints: [
+                        {
+                            id: 'orders',
+                            path: '/api/orders',
+                            scenarios: [
+                                { id: 'success', label: 'Success', active: true },
+                                { id: 'failure', label: 'Failure', active: true },
+                            ],
+                        },
+                    ],
+                },
+            },
+            true
+        );
+
+        expect(mocks.logWarning).toHaveBeenCalledWith(
+            true,
+            expect.stringContaining(
+                'active scenario entries at scenarios[0], scenarios[1]. The first active scenario wins.'
+            )
+        );
     });
 });

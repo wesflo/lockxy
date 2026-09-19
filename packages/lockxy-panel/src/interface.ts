@@ -5,6 +5,7 @@ export interface BypassSelection {
 
 export interface MockManifest {
     id?: string;
+    preventMock?: boolean;
     delay?: MockDelay;
     endpoints?: MockEndpoint[];
 }
@@ -15,7 +16,7 @@ export type MockMethod = string | readonly string[];
 export interface MockEndpoint {
     id?: string;
     label?: string;
-    active?: boolean;
+    preventMock?: boolean;
     method?: MockMethod;
     path: string;
     status?: number;
@@ -27,6 +28,7 @@ export interface MockEndpoint {
 export interface MockScenario {
     id?: string;
     label?: string;
+    active?: boolean;
     status?: number;
     file?: string;
     delay?: MockDelay;
@@ -90,6 +92,7 @@ export interface MockProxyViewModel {
     endpoints: readonly MockEndpoint[];
     error: string;
     loading: boolean;
+    manifestControlled: boolean;
     open: boolean;
     position: Position;
     proxyOnLoad: boolean;

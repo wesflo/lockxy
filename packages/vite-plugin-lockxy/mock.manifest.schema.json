@@ -13,6 +13,10 @@
             "pattern": "^[A-Za-z0-9_-]+$",
             "description": "Stable project identifier used to namespace optional panel storage."
         },
+        "preventMock": {
+            "type": "boolean",
+            "description": "When true, all matching requests pass through to the next Vite middleware."
+        },
         "delay": { "$ref": "#/$defs/delay" },
         "endpoints": {
             "type": "array",
@@ -64,6 +68,10 @@
                     "properties": {
                         "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" },
                         "label": { "type": "string", "minLength": 1 },
+                        "active": {
+                            "type": "boolean",
+                            "description": "Opts the endpoint into manifest-controlled scenario selection. The first true scenario wins; when none are true, the request passes through."
+                        },
                         "status": { "$ref": "#/$defs/status" },
                         "delay": { "$ref": "#/$defs/delay" },
                         "file": { "$ref": "#/$defs/file" }
@@ -81,7 +89,10 @@
                     "properties": {
                         "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" },
                         "label": { "type": "string", "minLength": 1 },
-                        "active": { "type": "boolean" },
+                        "preventMock": {
+                            "type": "boolean",
+                            "description": "When true, this endpoint passes through to the next Vite middleware."
+                        },
                         "method": {
                             "oneOf": [
                                 { "type": "string", "minLength": 1 },

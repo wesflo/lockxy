@@ -172,7 +172,8 @@ describe('lockxy', () => {
         expect(mocks.logManifestRouteWarnings).toHaveBeenCalledWith(
             true,
             'mock.manifest.json',
-            expect.objectContaining({ status: 'missing' })
+            expect.objectContaining({ status: 'missing' }),
+            false
         );
     });
 

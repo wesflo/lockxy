@@ -66,9 +66,13 @@ export const endpointsStyle = [
             border-bottom: 0;
         }
 
-        .endpoint.inactive {
+        .endpoint.controlled {
             color: var(--wf-muted-light);
             background: var(--wf-surface);
+        }
+
+        .endpoint.controlled .method {
+            color: var(--wf-muted-light);
         }
 
         .endpoint-heading {
@@ -131,6 +135,31 @@ export const endpointsStyle = [
 
         .scenario-value {
             font-size: var(--wf-font-size-s);
+        }
+
+        .manifest-control {
+            color: var(--wf-danger);
+            font-size: var(--wf-font-size-s);
+            font-weight: 650;
+            text-decoration: none;
+        }
+
+        .manifest-control:hover {
+            text-decoration: underline;
+        }
+
+        .manifest-control:focus-visible {
+            border-radius: var(--wf-radius-s);
+            outline: 2px solid var(--wf-focus);
+            outline-offset: 2px;
+        }
+
+        .root-manifest-control {
+            display: grid;
+            min-height: 180px;
+            padding: var(--wf-gap-xl);
+            place-items: center;
+            text-align: center;
         }
 
         select {
