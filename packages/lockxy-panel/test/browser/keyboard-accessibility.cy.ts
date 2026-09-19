@@ -17,6 +17,9 @@ describe('panel keyboard and accessibility', () => {
         dialog().should('have.attr', 'aria-hidden', 'false');
         panelRoot().find('.close').should('be.focused');
 
+        cy.press(Cypress.Keyboard.Keys.TAB);
+        panelRoot().find('#tab-endpoints').should('be.focused');
+
         panelRoot().find('#tab-endpoints').focus().type('{rightarrow}');
         panelRoot().find('#tab-settings').should('have.attr', 'aria-selected', 'true').and('be.focused');
         settingsRoot().find('h2').should('contain.text', 'General');
@@ -29,11 +32,30 @@ describe('panel keyboard and accessibility', () => {
         openPanel();
 
         endpointsRoot().find('input[type="search"]').focus().type('profile');
-        endpointsRoot().find('.endpoint').should('have.length', 1).and('contain.text', '/profile');
+        endpointsRoot().find('.endpoint').should('have.length', 1);
+        endpointsRoot()
+            .find('.endpoint-name')
+            .should('contain.text', 'Profile')
+            .and('have.attr', 'title', '/api/profile');
 
         endpointsRoot().find('.endpoint wf-switch').shadow().find('input').focus();
         cy.press(Cypress.Keyboard.Keys.SPACE);
         cy.getCookie('lockxy-bypass').should('have.property', 'value', 'profile');
+    });
+
+    it('reaches the scenario select by keyboard and applies its selection', () => {
+        openPanel();
+
+        cy.press(Cypress.Keyboard.Keys.TAB);
+        panelRoot().find('#tab-endpoints').should('be.focused');
+        cy.press(Cypress.Keyboard.Keys.TAB);
+        endpointsRoot().find('.master-toggle wf-switch').shadow().find('input').should('be.focused');
+        cy.press(Cypress.Keyboard.Keys.TAB);
+        endpointsRoot().find('input[type="search"]').should('be.focused');
+        cy.press(Cypress.Keyboard.Keys.TAB);
+        endpointsRoot().find('.endpoint').first().find('select').should('be.focused').select('failure');
+        endpointsRoot().find('.endpoint').first().find('select').should('have.value', 'failure');
+        cy.getCookie('lockxy-scenarios').should('have.property', 'value', 'orders%3Afailure');
     });
 
     it('has no detectable accessibility violations when closed or open', () => {

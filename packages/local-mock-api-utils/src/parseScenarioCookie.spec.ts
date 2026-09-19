@@ -33,11 +33,14 @@ describe('parseScenarioCookie', () => {
         expect(parseScenarioCookie(value)).toEqual(new Map());
     });
 
-    it('ignores empty, whitespace, unicode, encoded and delimiter-containing ids', () => {
+    it('preserves an empty scenario selection and ignores invalid ids', () => {
         expect([
             ...parseScenarioCookie(
                 'valid:success|:empty-endpoint|empty-scenario:|with space:value|umlaut:grün|encoded%20id:value|a:b:c'
             ),
-        ]).toEqual([['valid', 'success']]);
+        ]).toEqual([
+            ['valid', 'success'],
+            ['empty-scenario', ''],
+        ]);
     });
 });

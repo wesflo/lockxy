@@ -6,10 +6,10 @@ Stand der Suite:
 
 | Ebene                           | Werkzeug                          | Testfälle |
 | ------------------------------- | --------------------------------- | --------: |
-| Unit- und komponentennahe Tests | Vitest                            |       315 |
+| Unit- und komponentennahe Tests | Vitest                            |       332 |
 | Plugin-Integration              | Vitest mit echtem Vite-Testserver |        24 |
-| Browser- und End-to-End-Tests   | Cypress                           |        30 |
-| **Gesamt**                      |                                   |   **369** |
+| Browser- und End-to-End-Tests   | Cypress                           |        31 |
+| **Gesamt**                      |                                   |   **387** |
 
 Die Zahlen schließen parametrisierte Testfälle einzeln ein.
 
@@ -17,6 +17,13 @@ Die Zahlen schließen parametrisierte Testfälle einzeln ein.
 
 | Befehl                              | Umfang                                               |
 | ----------------------------------- | ---------------------------------------------------- |
+| `pnpm test:all`                     | Unit-, Integrations- und Chrome-Browsertests         |
+| `pnpm test:all:demo`                | Alle Tests der Demo                                  |
+| `pnpm test:all:playground`          | Alle Tests des Playgrounds                           |
+| `pnpm test:all:panel`               | Alle Unit- und Browsertests des Panels               |
+| `pnpm test:all:plugin`              | Alle Unit- und Integrationstests des Plugins         |
+| `pnpm test:all:ui`                  | Alle Tests der UI-Komponenten                        |
+| `pnpm test:all:utils`               | Alle Tests der Browser-Utils                         |
 | `pnpm test`                         | Alle Unit- und komponentennahen Vitest-Tests         |
 | `pnpm test:app`                     | Nur die Vitest-Tests der Demo                        |
 | `pnpm test:package`                 | Nur die Vitest-Tests des Plugins                     |
@@ -31,7 +38,7 @@ Die Zahlen schließen parametrisierte Testfälle einzeln ein.
 | `pnpm test:browser:open:playground` | Interaktiver Cypress-Runner für das Playground       |
 | `pnpm test:browser:open:panel`      | Interaktiver Cypress-Runner für das Panel            |
 
-Der normale Browserlauf bleibt auf Chrome beschränkt. Firefox und Edge sind als langsamer, optionaler Cross-Browser-Lauf zusammengefasst. In der CI laufen Unit-, Integrations- und Chrome-Browsertests getrennt.
+`test:all` führt zuerst Unit- und Integrationstests aus. Nur wenn diese erfolgreich sind, folgen die Cypress-Suites seriell in Chrome. Der normale Browserlauf bleibt auf Chrome beschränkt. Firefox und Edge sind als langsamer, optionaler Cross-Browser-Lauf zusammengefasst und nicht Bestandteil von `test:all`. In der CI laufen Unit-, Integrations- und Chrome-Browsertests getrennt.
 
 ## `apps/demo`
 
@@ -196,7 +203,7 @@ Die Integrationstests liegen aufgeteilt unter `packages/vite-plugin-lockxy/test/
 - Automatische Auswahl eines einzigen Scenarios ohne Cookie.
 - YAML als repräsentatives Alternativformat.
 - Leeres Manifest, wenn keine Manifest-Datei existiert.
-- Verständlicher Fehler bei ungültigem Manifest bei weiterhin funktionierendem Convention-Fallback.
+- Ungültige Endpoints werden ignoriert, während der Convention-Fallback weiter funktioniert.
 
 #### Selections und Bypass
 
@@ -282,6 +289,7 @@ flowchart TD
 #### Tastatur und Barrierefreiheit
 
 - Launcher, Tabs, Suche und Switches sind ohne Maus bedienbar.
+- Das Multi-Scenario-Select ist über die natürliche Tab-Reihenfolge erreichbar und verarbeitet eine Auswahl.
 - Pfeiltasten wechseln zwischen den Tabs und aktualisieren Fokus sowie ARIA-State.
 - Axe findet im geschlossenen Zustand, im geöffneten Panel und in den Settings keine erkennbaren Verstöße.
 

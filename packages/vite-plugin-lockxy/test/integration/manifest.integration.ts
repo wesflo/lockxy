@@ -81,7 +81,7 @@ describe('manifest behavior', () => {
         expect((await server.request('/api/health')).status).toBe(200);
     });
 
-    it('reports an invalid manifest while preserving convention fallback', async () => {
+    it('ignores an invalid endpoint while preserving convention fallback', async () => {
         const server = await createIntegrationServer({
             manifest: { endpoints: [{ id: 'invalid id', path: '/api/invalid' }] },
             files: { 'legacy.json': '{"fallback":true}' },
@@ -91,8 +91,8 @@ describe('manifest behavior', () => {
         const manifestResponse = await server.request('/_lockxy/manifest');
         const conventionResponse = await server.request('/api/legacy');
 
-        expect(manifestResponse.status).toBe(500);
-        expect((await manifestResponse.json()).error).toContain('Invalid mock manifest');
+        expect(manifestResponse.status).toBe(200);
+        await expect(manifestResponse.json()).resolves.toEqual({ endpoints: [] });
         expect(conventionResponse.status).toBe(200);
         await expect(conventionResponse.json()).resolves.toEqual({ fallback: true });
     });
