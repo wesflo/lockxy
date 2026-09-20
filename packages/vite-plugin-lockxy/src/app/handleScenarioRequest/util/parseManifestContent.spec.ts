@@ -26,7 +26,7 @@ describe('parseManifestContent', () => {
 
     it('reports the YAML file and source location for syntax errors', () => {
         expect(() => parseManifestContent('mock.manifest.yaml', 'delay: [200, 600\n')).toThrow(
-            /mock\.manifest\.yaml: Invalid YAML:.*line 2, column 1/si
+            /mock\.manifest\.yaml: Invalid YAML:.*line 2, column 1/is
         );
     });
 
@@ -37,9 +37,7 @@ describe('parseManifestContent', () => {
     });
 
     it('rejects custom YAML tags', () => {
-        expect(() => parseManifestContent('mock.manifest.yaml', 'delay: !milliseconds 400')).toThrow(
-            /Unresolved tag/
-        );
+        expect(() => parseManifestContent('mock.manifest.yaml', 'delay: !milliseconds 400')).toThrow(/Unresolved tag/);
     });
 
     it('limits YAML alias expansion', () => {
