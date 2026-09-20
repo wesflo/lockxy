@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { MockEndpoint } from '../interface.js';
+import type { MockEndpoint } from '@wesflo/local-mock-api-utils';
 import { sanitizeCookieSelectionValues } from './sanitizeCookieSelectionValues.js';
 
 const endpoints: MockEndpoint[] = [

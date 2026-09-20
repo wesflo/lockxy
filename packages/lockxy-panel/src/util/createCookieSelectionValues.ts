@@ -1,6 +1,7 @@
 import { BYPASS_ALL_VALUE, updateBypassCookie, updateScenarioCookie } from '@wesflo/local-mock-api-utils';
 
-import type { CookieSelectionValues, MockEndpoint, StoredEndpointSelections } from '../interface.js';
+import type { MockEndpoint } from '@wesflo/local-mock-api-utils';
+import type { CookieSelectionValues, StoredEndpointSelections } from '../interface.js';
 import { getEndpointSelectionKey } from './getEndpointSelectionKey.js';
 
 export const createCookieSelectionValues = (

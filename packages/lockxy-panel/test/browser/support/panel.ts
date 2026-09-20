@@ -1,4 +1,4 @@
-import type { MockManifest } from '../../../src/interface.js';
+import type { MockManifest } from '@wesflo/local-mock-api-utils';
 
 export const defaultManifest: MockManifest = {
     id: 'browser-test',

@@ -4,6 +4,14 @@ import { css, unsafeCSS } from 'lit';
 export const theme = [
     unsafeCSS(sharedStyles),
     css`
+        :host {
+            --wf-method-get: #007dab;
+            --wf-method-post: #087a45;
+            --wf-method-put: #9a4b00;
+            --wf-method-patch: #9a4b00;
+            --wf-method-delete: #b42318;
+        }
+
         button:focus-visible,
         input:focus-visible,
         select:focus-visible {

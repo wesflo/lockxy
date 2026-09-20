@@ -1,17 +1,5 @@
 import type { BypassSelection, MockEndpoint } from '@wesflo/local-mock-api-utils';
-
-export type {
-    BypassSelection,
-    MockDelay,
-    MockEndpoint,
-    MockManifest,
-    MockMethod,
-    MockResponseConfig,
-    MockScenario,
-    NormalizedMockEndpoint,
-    NormalizedMockManifest,
-    NormalizedMockScenario,
-} from '@wesflo/local-mock-api-utils';
+import type { SettingChangeDetail } from './component/Settings/interface.js';
 
 export interface EndpointViewState {
     bypass: BypassSelection;
@@ -96,4 +84,3 @@ export interface MockProxyViewActions {
     selectTab(tab: MockProxyTab): void;
     togglePanel(): void;
 }
-import type { SettingChangeDetail } from './component/Settings/interface.js';

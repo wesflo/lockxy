@@ -10,8 +10,18 @@ export const findSelectedScenario = (
         return undefined;
     }
 
-    if (scenarios.some((scenario) => scenario.active !== undefined)) {
-        return scenarios.find((scenario) => scenario.active === true);
+    let manifestControlsScenario = false;
+    for (const scenario of scenarios) {
+        if (scenario.active === true) {
+            return scenario;
+        }
+        if (scenario.active === false) {
+            manifestControlsScenario = true;
+        }
+    }
+
+    if (manifestControlsScenario) {
+        return undefined;
     }
 
     if (!endpoint.id || !selections.has(endpoint.id)) {

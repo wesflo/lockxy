@@ -1,4 +1,5 @@
 import { toMethodArray } from '@wesflo/local-mock-api-utils';
+import type { BypassSelection, MockEndpoint, MockScenario } from '@wesflo/local-mock-api-utils';
 import { resetStyles, wfElement } from '@wesflo/local-mock-api-ui';
 import type { SwitchChangeDetail } from '@wesflo/local-mock-api-ui';
 import { html, LitElement, nothing } from 'lit';
@@ -10,7 +11,6 @@ import {
     MANIFEST_CONTROL_DOCUMENTATION_URL,
     MOCK_PROXY_ENDPOINTS_TAG_NAME,
 } from '../../constant.js';
-import type { BypassSelection, MockEndpoint, MockScenario } from '../../interface.js';
 import {
     ON_ENDPOINT_CHANGE_EVENT,
     ON_PROXY_CHANGE_EVENT,

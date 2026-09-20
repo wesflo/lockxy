@@ -1,6 +1,6 @@
 import { toMethodArray } from '@wesflo/local-mock-api-utils';
 
-import type { MockEndpoint } from '../interface.js';
+import type { MockEndpoint } from '@wesflo/local-mock-api-utils';
 
 export const getEndpointSelectionKey = (endpoint: MockEndpoint): string => {
     const methods = toMethodArray(endpoint.method)

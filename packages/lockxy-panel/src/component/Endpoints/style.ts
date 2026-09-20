@@ -96,20 +96,23 @@ export const endpointsStyle = [
         }
 
         .method.get {
-            color: var(--wf-primary-dark);
+            color: var(--wf-method-get);
         }
 
         .method.post {
-            color: var(--wf-success-dark);
+            color: var(--wf-method-post);
         }
 
-        .method.put,
+        .method.put {
+            color: var(--wf-method-put);
+        }
+
         .method.patch {
-            color: var(--wf-warning-dark);
+            color: var(--wf-method-patch);
         }
 
         .method.delete {
-            color: var(--wf-danger);
+            color: var(--wf-method-delete);
         }
 
         .endpoint-name {

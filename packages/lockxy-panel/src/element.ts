@@ -10,6 +10,7 @@ import {
     updateBypassCookie,
     updateScenarioCookie,
 } from '@wesflo/local-mock-api-utils';
+import type { MockEndpoint, MockManifest } from '@wesflo/local-mock-api-utils';
 import { resetStyles, wfElement } from '@wesflo/local-mock-api-ui';
 import { state } from 'lit/decorators.js';
 
@@ -19,7 +20,6 @@ import {
     PROXY_ON_LOAD_STORAGE_KEY,
     SAVE_SELECTIONS_STORAGE_KEY,
 } from './constant.js';
-import type { MockEndpoint, MockManifest } from './interface.js';
 import './component/Endpoints/element.js';
 import { MockProxyInteractionElement } from './component/MockProxyInteraction/element.js';
 import type { SettingChangeDetail } from './component/Settings/interface.js';
