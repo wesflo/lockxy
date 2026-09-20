@@ -28,12 +28,13 @@ const links = [
 ];
 const pageSections: Record<string, Array<{ href: string; label: string }>> = {
     '/': [
+        { href: '#layered-control', label: 'Layered by design' },
         { href: '#why-lockxy', label: 'Why Lockxy' },
-        { href: '#plugin-first', label: 'Plugin first' },
-        { href: '#optional-extensions', label: 'Optional extensions' },
         { href: '#how-a-request-is-resolved', label: 'Request resolution' },
     ],
     '/getting-started/': [
+        { href: '#plugin-first', label: 'Plugin first' },
+        { href: '#optional-extensions', label: 'Optional extensions' },
         { href: '#1-add-the-vite-plugin', label: 'Add the plugin' },
         { href: '#2-add-a-mock-file', label: 'Add a mock file' },
         { href: '#3-start-vite', label: 'Start Vite' },
@@ -66,7 +67,6 @@ const pageSections: Record<string, Array<{ href: string; label: string }>> = {
         { href: '#scenario-cookie', label: 'Scenario cookie' },
     ],
     '/control-hierarchy/': [
-        { href: '#bottom-up-model', label: 'Bottom-up model' },
         { href: '#manifest-controls', label: 'Manifest controls' },
         { href: '#decision-flow', label: 'Decision flow' },
         { href: '#behavior-matrix', label: 'Behavior matrix' },

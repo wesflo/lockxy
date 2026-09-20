@@ -50,6 +50,30 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <h1>From zero to a local response.</h1>
         <p class="lead">Install the plugin and add a correctly named local file. That is the complete basic setup.</p>
 
+        <h2 id="plugin-first">Plugin first</h2>
+        <p>
+            The default workflow is intentionally file-based. Lockxy matches your application's existing API requests to
+            files below <code>mock/</code>, so the frontend needs no special fetch wrapper and the basic setup needs no
+            manifest or panel. URL paths provide specificity through optional directories; method-prefixed files can
+            override a generic response for individual HTTP methods.
+        </p>
+
+        <h2 id="optional-extensions">Optional extensions</h2>
+        <div class="cards">
+            <a class="card" href={`${base}/manifest/`}>
+                <strong>Manifest</strong>
+                <span>Add exact status codes, delays, failures, explicit files, or multiple scenarios where needed.</span>
+            </a>
+            <a class="card" href={`${base}/proxy-panel/`}>
+                <strong>Proxy panel</strong>
+                <span>Expose manifest scenarios and endpoint passthrough as convenient browser controls.</span>
+            </a>
+        </div>
+        <p>
+            Start with the three steps below. Add either extension later without changing how the plugin resolves your
+            existing convention-based files.
+        </p>
+
         <h2 id="1-add-the-vite-plugin">1. Add the Vite plugin</h2>
         <Code code={viteConfig} label="vite.config.ts" />
         <Callout title="Development only">

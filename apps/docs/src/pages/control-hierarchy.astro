@@ -2,6 +2,7 @@
 import Callout from '../components/Callout.astro';
 import Code from '../components/Code.astro';
 import DocsLayout from '../layouts/DocsLayout.astro';
+import MermaidFlowchart from '../components/MermaidFlowchart.astro';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -33,6 +34,79 @@ const scenarioControl = `{
     }
   ]
 }`;
+
+const decisionFlow = String.raw`flowchart TD
+    START([Request reaches Vite]) --> DEV{Development server?}
+    DEV -- No --> DISABLED([Lockxy middleware is not registered])
+    DEV -- Yes --> URL{Request URL available?}
+    URL -- No --> NEXT([Continue to next Vite middleware])
+    URL -- Yes --> MANIFEST_ROUTE{GET /_lockxy/manifest?}
+
+    MANIFEST_ROUTE -- Yes --> ROUTE_VALID{Manifest valid?}
+    ROUTE_VALID -- Yes --> MANIFEST_OK([200: normalized manifest])
+    ROUTE_VALID -- No --> ROUTE_MISSING{Manifest missing?}
+    ROUTE_MISSING -- Yes --> MANIFEST_EMPTY([200: empty manifest])
+    ROUTE_MISSING -- No --> MANIFEST_ERROR([500: manifest error])
+
+    MANIFEST_ROUTE -- No --> PREFIX{Configured request prefix<br/>and safe path?}
+    PREFIX -- No --> NEXT
+    PREFIX -- Yes --> VALID{Valid manifest loaded?}
+
+    VALID -- No --> FALLBACK_BYPASS{Global bypass cookie?}
+    FALLBACK_BYPASS -- Yes --> NEXT
+    FALLBACK_BYPASS -- No --> CONVENTION
+
+    VALID -- Yes --> ROOT{Root preventMock = true?}
+    ROOT -- Yes --> NEXT
+    ROOT -- No --> MATCH[Choose the most specific<br/>matching endpoint]
+    MATCH --> ENDPOINT{Matching endpoint?}
+    ENDPOINT -- Yes --> ENDPOINT_BYPASS{Endpoint preventMock = true?}
+    ENDPOINT_BYPASS -- Yes --> NEXT
+    ENDPOINT_BYPASS -- No --> ACTIVE_CONFIG{Any scenario defines active?}
+    ACTIVE_CONFIG -- Yes --> ACTIVE_TRUE{Any active = true?}
+    ACTIVE_TRUE -- No --> NEXT
+    ACTIVE_TRUE -- Yes --> FIXED[Select first active = true scenario<br/>Debug warns if several are true]
+    ENDPOINT -- No --> GLOBAL_BYPASS
+    ACTIVE_CONFIG -- No --> GLOBAL_BYPASS{Global bypass cookie?}
+
+    GLOBAL_BYPASS -- Yes --> NEXT
+    GLOBAL_BYPASS -- No --> ENDPOINT_COOKIE{Matching endpoint ID<br/>in bypass cookie?}
+    ENDPOINT_COOKIE -- Yes --> NEXT
+    ENDPOINT_COOKIE -- No --> SCENARIOS{Endpoint has scenarios?}
+    SCENARIOS -- No --> DEFAULTS[Use endpoint and root defaults]
+    SCENARIOS -- Yes --> COOKIE_ENTRY{Scenario cookie entry<br/>for endpoint?}
+    COOKIE_ENTRY -- No --> FIRST[Select first scenario]
+    COOKIE_ENTRY -- Yes --> EMPTY_SELECTION{Selected ID empty?}
+    EMPTY_SELECTION -- Yes --> DEFAULTS
+    EMPTY_SELECTION -- No --> COOKIE_MATCH{Selected scenario exists?}
+    COOKIE_MATCH -- Yes --> SELECTED[Select cookie scenario]
+    COOKIE_MATCH -- No --> FIRST
+
+    FIXED --> RESPONSE[Resolve scenario over endpoint<br/>over root defaults]
+    DEFAULTS --> RESPONSE
+    FIRST --> RESPONSE
+    SELECTED --> RESPONSE
+
+    RESPONSE --> BODYLESS{Status 204 or 304?}
+    BODYLESS -- Yes --> NO_BODY([Send status without entity body or headers])
+    BODYLESS -- No --> FILE{Explicit response file?}
+    FILE -- Yes --> SAFE_FILE{Safe relative path?}
+    SAFE_FILE -- No --> CONVENTION[Build convention candidates]
+    SAFE_FILE -- Yes --> EXPLICIT_EXISTS{Indexed file exists?}
+    EXPLICIT_EXISTS -- No --> NOT_FOUND([Mock 404; never implicit API fallback])
+    EXPLICIT_EXISTS -- Yes --> SEND[Apply delay and status; read response file]
+    FILE -- No --> CONVENTION
+    CONVENTION --> CANDIDATE{Convention candidate exists?}
+    CANDIDATE -- No --> NOT_FOUND
+    CANDIDATE -- Yes --> SEND
+    SEND --> HEAD{HEAD request?}
+    HEAD -- Yes --> HEADERS_ONLY([Send headers without body])
+    HEAD -- No --> MOCKED([Send mocked response])
+
+    class DEV,URL,MANIFEST_ROUTE,ROUTE_VALID,ROUTE_MISSING,PREFIX,VALID,ROOT,ENDPOINT,ENDPOINT_BYPASS,ACTIVE_CONFIG,ACTIVE_TRUE,FALLBACK_BYPASS,GLOBAL_BYPASS,ENDPOINT_COOKIE,SCENARIOS,COOKIE_ENTRY,EMPTY_SELECTION,COOKIE_MATCH,BODYLESS,FILE,SAFE_FILE,EXPLICIT_EXISTS,CANDIDATE,HEAD decision
+    class NEXT passthrough
+    class MANIFEST_ERROR,NOT_FOUND error
+    class MANIFEST_OK,MANIFEST_EMPTY,NO_BODY,HEADERS_ONLY,MOCKED mock`;
 ---
 
 <DocsLayout
@@ -46,33 +120,9 @@ const scenarioControl = `{
         <p class="lead">
             Lockxy is built bottom up: the plugin works on its own, a manifest can add explicit project configuration,
             and the proxy panel adds convenient browser controls. Each higher layer is optional and must never become a
-            hidden requirement for the layer below it.
+            hidden requirement for the layer below it. The <a href={`${base}/#layered-control`}>overview visualizes these
+            three layers</a>.
         </p>
-
-        <h2 id="bottom-up-model">The bottom-up model</h2>
-        <ol class="layer-stack">
-            <li>
-                <span class="layer-number">1</span>
-                <div>
-                    <strong>Plugin and file conventions</strong>
-                    <p>Always usable on their own. Matching requests resolve local files without a manifest or panel.</p>
-                </div>
-            </li>
-            <li>
-                <span class="layer-number">2</span>
-                <div>
-                    <strong>Manifest configuration</strong>
-                    <p>Adds routes, response details, and fixed decisions that remain valid without browser state.</p>
-                </div>
-            </li>
-            <li>
-                <span class="layer-number">3</span>
-                <div>
-                    <strong>Proxy panel</strong>
-                    <p>Writes cookies for temporary local choices when the manifest has not already fixed the result.</p>
-                </div>
-            </li>
-        </ol>
         <Callout title="The hierarchy is intentional">
             <p>
                 Explicit manifest control has priority over cookies. This keeps identical source-controlled configuration
@@ -106,42 +156,15 @@ const scenarioControl = `{
         <Code code={scenarioControl} label="mock/mock.manifest.json" />
 
         <h2 id="decision-flow">Decision flow</h2>
-        <p>The first matching decision ends the flow for the current request.</p>
-        <figure class="decision-flow" aria-labelledby="flow-caption">
-            <figcaption id="flow-caption">How Lockxy decides between passthrough and a mocked response</figcaption>
-            <div class="flow-start">Matching request enters Lockxy</div>
-            <div class="flow-arrow" aria-hidden="true">↓</div>
-            <div class="flow-decision">
-                <div class="flow-question">Root <code>preventMock: true</code>?</div>
-                <div class="flow-result"><span>Yes</span><strong>Pass through to API</strong></div>
-            </div>
-            <div class="flow-arrow"><span aria-hidden="true">↓</span> No</div>
-            <div class="flow-decision">
-                <div class="flow-question">Endpoint <code>preventMock: true</code>?</div>
-                <div class="flow-result"><span>Yes</span><strong>Pass through to API</strong></div>
-            </div>
-            <div class="flow-arrow"><span aria-hidden="true">↓</span> No</div>
-            <div class="flow-decision">
-                <div class="flow-question">Does any scenario define <code>active</code>?</div>
-                <div class="flow-result flow-result-split">
-                    <span>Yes</span>
-                    <strong>First <code>true</code> → mock it</strong>
-                    <strong>No <code>true</code> → pass through</strong>
-                </div>
-            </div>
-            <div class="flow-arrow"><span aria-hidden="true">↓</span> No</div>
-            <div class="flow-decision">
-                <div class="flow-question">Does a bypass cookie apply?</div>
-                <div class="flow-result"><span>Yes</span><strong>Pass through to API</strong></div>
-            </div>
-            <div class="flow-arrow"><span aria-hidden="true">↓</span> No</div>
-            <div class="flow-decision">
-                <div class="flow-question">Is there a valid scenario cookie?</div>
-                <div class="flow-result"><span>Yes</span><strong>Mock the selected scenario</strong></div>
-            </div>
-            <div class="flow-arrow"><span aria-hidden="true">↓</span> No</div>
-            <div class="flow-end">Mock the first scenario, endpoint response, or convention-based file</div>
-        </figure>
+        <p>
+            Follow the labeled Yes and No branches from top to bottom. Terminal nodes show whether the request leaves
+            Lockxy, returns manifest metadata, produces a controlled error, or sends a mocked response.
+        </p>
+        <MermaidFlowchart
+            chart={decisionFlow}
+            caption="Complete request decision flow, including manifest, cookie, file, and HTTP edge cases"
+            label="Scrollable Lockxy request decision flow"
+        />
 
         <h2 id="behavior-matrix">Behavior matrix</h2>
         <div class="table-scroll" tabindex="0" role="region" aria-label="Lockxy behavior matrix">
@@ -193,140 +216,7 @@ const scenarioControl = `{
 </DocsLayout>
 
 <style>
-    .layer-stack {
-        display: grid;
-        margin: var(--wf-gap-xl) 0;
-        padding: 0;
-        gap: var(--wf-gap-m);
-        list-style: none;
-        counter-reset: none;
-    }
-
-    .layer-stack li {
-        display: flex;
-        padding: var(--wf-gap-l);
-        gap: var(--wf-gap-l);
-        align-items: flex-start;
-        border: 1px solid var(--wf-docs-line);
-        border-radius: 10px;
-        background: var(--wf-docs-surface);
-        box-shadow: 0 5px 18px var(--wf-docs-shadow-s);
-    }
-
-    .layer-stack p {
-        margin: var(--wf-gap-xs) 0 0;
-    }
-
-    .layer-number {
-        display: grid;
-        width: 2rem;
-        height: 2rem;
-        flex: 0 0 2rem;
-        place-items: center;
-        color: var(--wf-white);
-        border-radius: 50%;
-        background: var(--wf-docs-primary);
-        font-weight: 700;
-    }
-
-    .decision-flow {
-        margin: var(--wf-gap-xl) 0;
-        padding: var(--wf-gap-xl);
-        border: 1px solid var(--wf-docs-line);
-        border-radius: 12px;
-        background: var(--wf-docs-surface-soft);
-    }
-
-    .decision-flow figcaption {
-        margin-bottom: var(--wf-gap-xl);
-        color: var(--wf-docs-heading);
-        font-weight: 700;
-        text-align: center;
-    }
-
-    .flow-start,
-    .flow-end,
-    .flow-question,
-    .flow-result {
-        padding: var(--wf-gap-m) var(--wf-gap-l);
-        border: 1px solid var(--wf-docs-line);
-        border-radius: 8px;
-        background: var(--wf-docs-surface);
-    }
-
-    .flow-start,
-    .flow-end {
-        max-width: 31rem;
-        margin: 0 auto;
-        color: var(--wf-docs-heading);
-        font-weight: 700;
-        text-align: center;
-    }
-
-    .flow-end {
-        border-color: var(--wf-docs-primary);
-        background: var(--wf-docs-primary-soft);
-    }
-
-    .flow-arrow {
-        min-height: 2.2rem;
-        color: var(--wf-docs-muted);
-        text-align: center;
-    }
-
-    .flow-decision {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.65fr);
-        gap: var(--wf-gap-m);
-        align-items: stretch;
-    }
-
-    .flow-question {
-        display: grid;
-        place-items: center;
-        color: var(--wf-docs-heading);
-        font-weight: 700;
-        text-align: center;
-    }
-
-    .flow-result {
-        display: flex;
-        gap: var(--wf-gap-s);
-        flex-direction: column;
-        justify-content: center;
-        border-color: color-mix(in srgb, var(--wf-docs-callout-warning) 55%, var(--wf-docs-line));
-    }
-
-    .flow-result span {
-        color: var(--wf-docs-muted);
-        font-size: var(--wf-font-size-xs);
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-    }
-
-    .flow-result-split strong + strong {
-        padding-top: var(--wf-gap-s);
-        border-top: 1px solid var(--wf-docs-line);
-    }
-
     .table-scroll {
         overflow-x: auto;
-    }
-
-    @media (max-width: 640px) {
-        .decision-flow {
-            padding: var(--wf-gap-m);
-        }
-
-        .flow-decision {
-            grid-template-columns: 1fr;
-        }
-
-        .flow-result::before {
-            content: '↘';
-            color: var(--wf-docs-muted);
-            text-align: center;
-        }
     }
 </style>
