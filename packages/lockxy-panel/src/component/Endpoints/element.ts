@@ -1,12 +1,16 @@
 import { toMethodArray } from '@wesflo/local-mock-api-utils';
+import type { BypassSelection, MockEndpoint, MockScenario } from '@wesflo/local-mock-api-utils';
 import { resetStyles, wfElement } from '@wesflo/local-mock-api-ui';
 import type { SwitchChangeDetail } from '@wesflo/local-mock-api-ui';
-import { html, LitElement } from 'lit';
+import { html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { ref } from 'lit/directives/ref.js';
 
-import { DOCUMENTATION_URL, MOCK_PROXY_ENDPOINTS_TAG_NAME } from '../../constant.js';
-import type { BypassSelection, MockEndpoint, MockScenario } from '../../interface.js';
+import {
+    DOCUMENTATION_URL,
+    MANIFEST_CONTROL_DOCUMENTATION_URL,
+    MOCK_PROXY_ENDPOINTS_TAG_NAME,
+} from '../../constant.js';
 import {
     ON_ENDPOINT_CHANGE_EVENT,
     ON_PROXY_CHANGE_EVENT,
@@ -25,6 +29,7 @@ export class MockProxyEndpoints extends LitElement {
     @property({ attribute: false }) endpoints: readonly MockEndpoint[] = [];
     @property({ type: String }) error = '';
     @property({ type: Boolean }) loading = true;
+    @property({ type: Boolean }) manifestControlled = false;
     @property({ type: String }) query = '';
     @property({ attribute: false }) scenarios: ReadonlyMap<string, string> = new Map();
 
@@ -54,7 +59,10 @@ export class MockProxyEndpoints extends LitElement {
     };
 
     private isEndpointActive = (endpoint: MockEndpoint): boolean =>
-        endpoint.active !== false && !this.bypass.all && (!endpoint.id || !this.bypass.endpointIds.has(endpoint.id));
+        !this.bypass.all && (!endpoint.id || !this.bypass.endpointIds.has(endpoint.id));
+
+    private isEndpointManifestControlled = (endpoint: MockEndpoint): boolean =>
+        endpoint.preventMock === true || Boolean(endpoint.scenarios?.some((scenario) => scenario.active !== undefined));
 
     private displayPath = (path: string): string => path.replace(/^\/api(?=\/|$)/, '') || '/';
 
@@ -64,14 +72,17 @@ export class MockProxyEndpoints extends LitElement {
             .trim()
             .replace(/\b\p{L}/gu, (character) => character.toLocaleUpperCase());
 
-    private scenarioLabel = (endpoint: MockEndpoint, scenario?: MockScenario): string =>
-        scenario?.label?.trim() ||
-        (scenario?.id ? this.formatId(scenario.id) : '') ||
-        scenario?.file?.trim() ||
-        endpoint.label?.trim() ||
-        (endpoint.id ? this.formatId(endpoint.id) : '') ||
-        endpoint.file?.trim() ||
-        'Default file resolution';
+    private endpointLabel = (endpoint: MockEndpoint): string =>
+        endpoint.label?.trim() || (endpoint.id ? this.formatId(endpoint.id) : '') || this.displayPath(endpoint.path);
+
+    private scenarioLabel = (scenario: MockScenario): string =>
+        scenario.label?.trim() ||
+        (scenario.id ? this.formatId(scenario.id) : '') ||
+        scenario.file?.trim() ||
+        'File by convention';
+
+    private responseLabel = (endpoint: MockEndpoint, scenario?: MockScenario): string =>
+        scenario ? this.scenarioLabel(scenario) : endpoint.file?.trim() || 'File by convention';
 
     private setScenarioValue = (element: Element | undefined, value: string): void => {
         if (!(element instanceof HTMLSelectElement)) {
@@ -85,16 +96,17 @@ export class MockProxyEndpoints extends LitElement {
 
     private renderEndpoint = (endpoint: MockEndpoint) => {
         const active = this.isEndpointActive(endpoint);
-        const unavailable = endpoint.active === false;
-        const disabled = unavailable || this.bypass.all;
+        const controlled = this.isEndpointManifestControlled(endpoint);
+        const disabled = controlled || this.bypass.all;
         const methods = toMethodArray(endpoint.method);
         const displayMethods = methods.length > 0 ? methods : ['ANY'];
         const methodLabel = displayMethods.join(', ');
         const scenarios = endpoint.scenarios ?? [];
-        const selectedScenarioId = this.scenarios.get(endpoint.id ?? '') ?? '';
+        const selectedScenarioId = this.scenarios.get(endpoint.id ?? '') ?? scenarios[0]?.id ?? '';
+        const hasEndpointName = Boolean(endpoint.label?.trim() || endpoint.id);
 
         return html`
-            <article class=${`endpoint ${unavailable ? 'inactive' : ''}`}>
+            <article class=${`endpoint ${controlled ? 'controlled' : ''}`}>
                 <div class="endpoint-heading">
                     <span class="methods">
                         ${displayMethods.map(
@@ -103,54 +115,84 @@ export class MockProxyEndpoints extends LitElement {
                             `
                         )}
                     </span>
-                    <span class="path" title=${endpoint.path}>${this.displayPath(endpoint.path)}</span>
+                    <span class=${hasEndpointName ? 'endpoint-name' : 'endpoint-name path'} title=${endpoint.path}>
+                        ${this.endpointLabel(endpoint)}
+                    </span>
                 </div>
                 <div class="endpoint-control">
-                    ${scenarios.length <= 1
+                    ${controlled
                         ? html`
-                              <span class="scenario-value">${this.scenarioLabel(endpoint, scenarios[0])}</span>
+                              <a
+                                  class="manifest-control"
+                                  href=${MANIFEST_CONTROL_DOCUMENTATION_URL}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                              >
+                                  Controlled by manifest
+                              </a>
                           `
+                        : scenarios.length <= 1
+                          ? html`
+                                <span class="scenario-value">${this.responseLabel(endpoint, scenarios[0])}</span>
+                            `
+                          : html`
+                                <label>
+                                    <span class="sr-only">Scenario for ${methodLabel} ${endpoint.path}</span>
+                                    <select
+                                        ${ref((element) => this.setScenarioValue(element, selectedScenarioId))}
+                                        ?disabled=${disabled || !active}
+                                        @change=${(event: Event) =>
+                                            this.emit<ScenarioChangeDetail>(ON_SCENARIO_CHANGE_EVENT, {
+                                                endpoint,
+                                                scenarioId: (event.currentTarget as HTMLSelectElement).value,
+                                            })}
+                                    >
+                                        ${scenarios.map(
+                                            (scenario) => html`
+                                                <option value=${scenario.id ?? ''}>
+                                                    ${this.scenarioLabel(scenario)}
+                                                </option>
+                                            `
+                                        )}
+                                        <option value="">Default file resolution</option>
+                                    </select>
+                                </label>
+                            `}
+                    ${controlled
+                        ? nothing
                         : html`
-                              <label>
-                                  <span class="sr-only">Scenario for ${methodLabel} ${endpoint.path}</span>
-                                  <select
-                                      ${ref((element) => this.setScenarioValue(element, selectedScenarioId))}
-                                      ?disabled=${disabled || !active}
-                                      @change=${(event: Event) =>
-                                          this.emit<ScenarioChangeDetail>(ON_SCENARIO_CHANGE_EVENT, {
-                                              endpoint,
-                                              scenarioId: (event.currentTarget as HTMLSelectElement).value,
-                                          })}
-                                  >
-                                      <option value="">
-                                          ${scenarios.length ? 'Default file resolution' : 'Endpoint configuration'}
-                                      </option>
-                                      ${scenarios.map(
-                                          (scenario) => html`
-                                              <option value=${scenario.id ?? ''}>
-                                                  ${scenario.label ?? scenario.id ?? 'Unnamed scenario'}
-                                              </option>
-                                          `
-                                      )}
-                                  </select>
-                              </label>
+                              <wf-switch
+                                  .checked=${active}
+                                  .disabled=${disabled}
+                                  .label=${`Mock for ${methodLabel} ${endpoint.path} active`}
+                                  @onSwitchChange=${(event: CustomEvent<SwitchChangeDetail>) =>
+                                      this.emit<EndpointChangeDetail>(ON_ENDPOINT_CHANGE_EVENT, {
+                                          endpoint,
+                                          active: event.detail.checked,
+                                      })}
+                              ></wf-switch>
                           `}
-                    <wf-switch
-                        .checked=${active}
-                        .disabled=${disabled}
-                        .label=${`Mock for ${methodLabel} ${endpoint.path} active`}
-                        @onSwitchChange=${(event: CustomEvent<SwitchChangeDetail>) =>
-                            this.emit<EndpointChangeDetail>(ON_ENDPOINT_CHANGE_EVENT, {
-                                endpoint,
-                                active: event.detail.checked,
-                            })}
-                    ></wf-switch>
                 </div>
             </article>
         `;
     };
 
     render = () => {
+        if (this.manifestControlled) {
+            return html`
+                <div class="root-manifest-control">
+                    <a
+                        class="manifest-control"
+                        href=${MANIFEST_CONTROL_DOCUMENTATION_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Controlled by manifest
+                    </a>
+                </div>
+            `;
+        }
+
         const endpoints = this.visibleEndpoints();
 
         return html`

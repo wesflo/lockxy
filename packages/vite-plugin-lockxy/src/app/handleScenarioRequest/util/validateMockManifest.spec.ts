@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import type { MockManifest } from '../../../interface.js';
+import type { MockManifest } from '../../../runtimeInterface.js';
 import { validateMockManifest } from './validateMockManifest.js';
 
 describe('validateMockManifest', () => {
@@ -31,6 +31,7 @@ describe('validateMockManifest', () => {
     it('accepts an empty or delay-only manifest', async () => {
         await expect(validate({})).resolves.toBeUndefined();
         await expect(validate({ id: 'checkout' })).resolves.toBeUndefined();
+        await expect(validate({ preventMock: true })).resolves.toBeUndefined();
         await expect(validate({ delay: 0 })).resolves.toBeUndefined();
         await expect(validate({ delay: [200, 600] })).resolves.toBeUndefined();
     });
@@ -120,7 +121,7 @@ describe('validateMockManifest', () => {
         );
     });
 
-    it('detects duplicate explicit and generated endpoint IDs', async () => {
+    it('detects duplicate explicit endpoint IDs', async () => {
         await expect(
             validate({
                 endpoints: [
@@ -129,7 +130,9 @@ describe('validateMockManifest', () => {
                 ],
             })
         ).rejects.toThrow(/endpoints\[1\]\.id: duplicate endpoint ID "users"/);
+    });
 
+    it('allows colliding generated endpoint IDs because normalization adds stable suffixes', async () => {
         await expect(
             validate({
                 endpoints: [
@@ -137,7 +140,7 @@ describe('validateMockManifest', () => {
                     { method: 'GET', path: '/api/users' },
                 ],
             })
-        ).rejects.toThrow(/endpoints\[1\]\.id: duplicate endpoint ID "get_api_users"/);
+        ).resolves.toBeUndefined();
     });
 
     it('detects duplicate scenario IDs only within their endpoint', async () => {
@@ -162,54 +165,30 @@ describe('validateMockManifest', () => {
         ).resolves.toBeUndefined();
     });
 
-    it.each([
-        [
-            { method: 'GET', path: '/api/users/:id' },
-            { method: 'GET', path: '/api/users/:name' },
-        ],
-        [
-            { method: 'GET', path: '/api/users/:id' },
-            { method: 'GET', path: '/api/users/current' },
-        ],
-        [
-            { method: 'GET', path: '/api/users/:id?' },
-            { method: 'GET', path: '/api/users' },
-        ],
-        [{ path: '/api/users' }, { method: 'POST', path: '/api/users' }],
-    ])('detects routes that can handle the same request %#', async (first, second) => {
-        await expect(validate({ endpoints: [first, second] })).rejects.toThrow(
-            /endpoints\[1\]: route conflicts with mock\.manifest\.json\.endpoints\[0\]/
-        );
-    });
-
-    it('allows routes separated by method, segment count, or inactive state', async () => {
+    it('allows overlapping routes because endpoint resolution ranks their specificity', async () => {
         await expect(
             validate({
                 endpoints: [
-                    { method: 'GET', path: '/api/users' },
-                    { method: 'POST', path: '/api/users' },
-                    { method: 'GET', path: '/api/users/:id' },
-                    { id: 'inactive-users', method: 'GET', path: '/api/users', active: false },
+                    { id: 'dynamic-cart', method: 'GET', path: '/api/cart/:id?' },
+                    { id: 'wishlist', method: 'GET', path: '/api/cart/wishlist' },
                 ],
             })
         ).resolves.toBeUndefined();
     });
 
-    it('detects conflicts across method arrays and allows disjoint arrays', async () => {
+    it('accepts endpoint passthrough and scenario activity controls', async () => {
         await expect(
             validate({
                 endpoints: [
-                    { method: ['POST', 'PUT'], path: '/api/users' },
-                    { method: 'PUT', path: '/api/users' },
-                ],
-            })
-        ).rejects.toThrow(/endpoints\[1\]: route conflicts with mock\.manifest\.json\.endpoints\[0\]/);
-
-        await expect(
-            validate({
-                endpoints: [
-                    { method: ['POST', 'PUT'], path: '/api/users' },
-                    { method: ['GET', 'DELETE'], path: '/api/users' },
+                    { method: 'GET', path: '/api/users', preventMock: true },
+                    {
+                        method: 'POST',
+                        path: '/api/users',
+                        scenarios: [
+                            { id: 'success', active: true },
+                            { id: 'failure', active: false },
+                        ],
+                    },
                 ],
             })
         ).resolves.toBeUndefined();
@@ -226,21 +205,28 @@ describe('validateMockManifest', () => {
         const manifest = {
             $schema: '',
             id: 'invalid project',
+            preventMock: 'no',
             endpoints: [
                 {
                     id: '',
                     label: 42,
-                    active: 'yes',
+                    active: false,
+                    preventMock: 'yes',
                     method: '',
                     path: '/api/users',
-                    scenarios: [{ id: '', label: 42 }],
+                    scenarios: [{ id: '', label: 42, active: 'yes' }],
                 },
             ],
         } as unknown as MockManifest;
 
         await expect(validate(manifest)).rejects.toThrow(/mock\.manifest\.json\.\$schema: must be a non-empty string/);
         await expect(validate(manifest)).rejects.toThrow(/mock\.manifest\.json\.id: may contain only letters/);
-        await expect(validate(manifest)).rejects.toThrow(/endpoints\[0\]\.active: must be a boolean/);
+        await expect(validate(manifest)).rejects.toThrow(/mock\.manifest\.json\.preventMock: must be a boolean/);
+        await expect(validate(manifest)).rejects.toThrow(
+            /endpoints\[0\]\.active: is not supported on endpoints; use preventMock instead/
+        );
+        await expect(validate(manifest)).rejects.toThrow(/endpoints\[0\]\.preventMock: must be a boolean/);
+        await expect(validate(manifest)).rejects.toThrow(/scenarios\[0\]\.active: must be a boolean/);
         await expect(validate(manifest)).rejects.toThrow(/scenarios\[0\]\.label: must be a non-empty string/);
     });
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { MockEndpoint } from '../interface.js';
+import type { MockEndpoint } from '@wesflo/local-mock-api-utils';
 import { sanitizeCookieSelectionValues } from './sanitizeCookieSelectionValues.js';
 
 const endpoints: MockEndpoint[] = [
@@ -30,6 +30,13 @@ describe('sanitizeCookieSelectionValues', () => {
         expect(sanitizeCookieSelectionValues(endpoints, undefined, 'orders:removed')).toEqual({
             bypass: '',
             scenarios: 'orders:success',
+        });
+    });
+
+    it('preserves an explicit default file resolution selection', () => {
+        expect(sanitizeCookieSelectionValues(endpoints, undefined, 'orders:')).toEqual({
+            bypass: '',
+            scenarios: 'orders:',
         });
     });
 

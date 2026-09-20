@@ -2,7 +2,8 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { MANIFEST_ROUTE } from '@wesflo/local-mock-api-utils';
 
 import { EMPTY_MANIFEST } from '../../constant.js';
-import type { MockApiRuntimeOptions, MockFile } from '../../interface.js';
+import type { MockFile } from '../../interface.js';
+import type { MockApiRuntimeOptions } from '../../runtimeInterface.js';
 import { findMockFile } from '../../util/findMockFile.js';
 import { getCandidatePaths } from '../../util/getCandidatePaths.js';
 import { getContentType } from '../../util/getContentType.js';
@@ -79,7 +80,12 @@ export const handleScenarioRequest = async (
         return false;
     }
 
-    const selections = parseScenarioSelections(req.headers.cookie, (message) => logError(options.logging, message));
+    const manifestControlsScenario = Boolean(
+        endpoint?.scenarios?.some((configuredScenario) => configuredScenario.active !== undefined)
+    );
+    const selections = manifestControlsScenario
+        ? new Map<string, string>()
+        : parseScenarioSelections(req.headers.cookie, (message) => logError(options.logging, message));
     const scenario = endpoint ? findSelectedScenario(endpoint, selections) : undefined;
     const file = scenario?.file ?? endpoint?.file;
     const status = scenario?.status ?? endpoint?.status ?? 200;

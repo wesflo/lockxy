@@ -100,13 +100,28 @@ jobs:
                   current_version="$(node --print "require('./package.json').version")"
 
                   if [[ "$IS_PRERELEASE" == "true" ]]; then
-                      if [[ "$current_version" == *-alpha.* ]]; then
-                          bump="prerelease"
-                      else
-                          bump="pre$VERSION_BUMP"
-                      fi
+                      case "$VERSION_BUMP" in
+                          prerelease)
+                              if [[ ! "$current_version" =~ -alpha\.[0-9]+$ ]]; then
+                                  echo "Cannot continue an alpha from $current_version. Choose patch, minor, or major to start a new alpha line."
+                                  exit 1
+                              fi
+                              bump="prerelease"
+                              ;;
+                          patch|minor|major)
+                              bump="pre$VERSION_BUMP"
+                              ;;
+                          *)
+                              echo "Unsupported alpha version update: $VERSION_BUMP"
+                              exit 1
+                              ;;
+                      esac
                       pnpm version "$bump" --preid alpha --no-git-tag-version
                   else
+                      if [[ ! "$VERSION_BUMP" =~ ^(patch|minor|major)$ ]]; then
+                          echo "Unsupported production version update: $VERSION_BUMP"
+                          exit 1
+                      fi
                       pnpm version "$VERSION_BUMP" --no-git-tag-version
                   fi
 

@@ -1,36 +1,5 @@
-export interface BypassSelection {
-    all: boolean;
-    endpointIds: ReadonlySet<string>;
-}
-
-export interface MockManifest {
-    id?: string;
-    delay?: MockDelay;
-    endpoints?: MockEndpoint[];
-}
-
-export type MockDelay = number | readonly [number, number];
-export type MockMethod = string | readonly string[];
-
-export interface MockEndpoint {
-    id?: string;
-    label?: string;
-    active?: boolean;
-    method?: MockMethod;
-    path: string;
-    status?: number;
-    file?: string;
-    delay?: MockDelay;
-    scenarios?: MockScenario[];
-}
-
-export interface MockScenario {
-    id?: string;
-    label?: string;
-    status?: number;
-    file?: string;
-    delay?: MockDelay;
-}
+import type { BypassSelection, MockEndpoint } from '@wesflo/local-mock-api-utils';
+import type { SettingChangeDetail } from './component/Settings/interface.js';
 
 export interface EndpointViewState {
     bypass: BypassSelection;
@@ -90,6 +59,7 @@ export interface MockProxyViewModel {
     endpoints: readonly MockEndpoint[];
     error: string;
     loading: boolean;
+    manifestControlled: boolean;
     open: boolean;
     position: Position;
     proxyOnLoad: boolean;
@@ -114,4 +84,3 @@ export interface MockProxyViewActions {
     selectTab(tab: MockProxyTab): void;
     togglePanel(): void;
 }
-import type { SettingChangeDetail } from './component/Settings/interface.js';

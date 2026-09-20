@@ -2,10 +2,10 @@
     "files": [],
     "references": [
         {
-            "path": "./apps/demo"
+            "path": "./apps/plugin-demo"
         },
         {
-            "path": "./apps/playground"
+            "path": "./apps/panel-playground"
         },
         {
             "path": "./packages/vite-plugin-lockxy"

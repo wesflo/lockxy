@@ -1,6 +1,6 @@
 {
     "name": "@wesflo/vite-plugin-lockxy",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "The Lockxy Vite plugin for serving a local mock API.",
     "author": {
         "name": "Florian Wessner",
@@ -30,6 +30,9 @@
         "README.md",
         "LICENSE"
     ],
+    "dependencies": {
+        "yaml": "2.9.0"
+    },
     "scripts": {
         "build": "rm -rf ./dist && vite build && tsc -p tsconfig.build.json",
         "bundle:local": "pnpm run build && pnpm pack",
@@ -37,11 +40,12 @@
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "test": "vitest run src",
+        "test:integration": "vitest run --config vitest.integration.config.ts --passWithNoTests",
         "test:watch": "vitest src",
         "prettier": "prettier -c --config ../../prettier.config.mjs ./src",
         "prettier:w": "prettier -w --config ../../prettier.config.mjs ./src",
         "test:c": "vitest run src --coverage --passWithNoTests",
-        "check-types": "tsc --noEmit -p tsconfig.json"
+        "check-types": "tsc --noEmit -p tsconfig.json && tsc -p tsconfig.test.json"
     },
     "devDependencies": {
         "@eslint/js": "^9.23.0",
@@ -56,7 +60,7 @@
         "eslint-plugin-vitest-globals": "^1.5.0",
         "globals": "^16.0.0",
         "happy-dom": "^20.13.1",
-        "lint-staged": "15.2.10",
+        "lint-staged": "15.5.2",
         "prettier": "3.8.1",
         "tslib": "2.8.1",
         "types-package-json": "^2.0.39",

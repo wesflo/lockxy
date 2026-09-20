@@ -1,4 +1,5 @@
-import type { BypassSelection, MockEndpoint, StoredEndpointSelection, StoredEndpointSelections } from '../interface.js';
+import type { BypassSelection, MockEndpoint } from '@wesflo/local-mock-api-utils';
+import type { StoredEndpointSelection, StoredEndpointSelections } from '../interface.js';
 import { getEndpointSelectionKey } from './getEndpointSelectionKey.js';
 
 export const mergeStoredEndpointSelections = (

@@ -37,7 +37,10 @@
     "scripts": {
         "build": "rm -rf ./dist && vite build && tsc -p tsconfig.build.json",
         "test": "vitest run src --passWithNoTests",
-        "check-types": "tsc --noEmit -p tsconfig.json"
+        "test:browser:dev": "vite --config test/browser/harness/vite.config.ts",
+        "test:browser": "start-server-and-test test:browser:dev http://127.0.0.1:5175 'cypress run --browser ${CYPRESS_BROWSER:-chrome} --project .'",
+        "test:browser:open": "start-server-and-test test:browser:dev http://127.0.0.1:5175 'cypress open --project .'",
+        "check-types": "tsc --noEmit -p tsconfig.json && tsc -p tsconfig.test.json"
     },
     "dependencies": {
         "lit": "^3.3.1"

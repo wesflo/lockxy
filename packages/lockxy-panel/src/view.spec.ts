@@ -15,6 +15,7 @@ const model: MockProxyViewModel = {
     endpoints: [{ id: 'users', method: 'GET', path: '/api/users' }],
     error: '',
     loading: false,
+    manifestControlled: false,
     open: true,
     position: { x: 24, y: 48 },
     proxyOnLoad: true,

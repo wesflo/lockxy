@@ -50,6 +50,30 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <h1>From zero to a local response.</h1>
         <p class="lead">Install the plugin and add a correctly named local file. That is the complete basic setup.</p>
 
+        <h2 id="plugin-first">Plugin first</h2>
+        <p>
+            The default workflow is intentionally file-based. Lockxy matches your application's existing API requests to
+            files below <code>mock/</code>, so the frontend needs no special fetch wrapper and the basic setup needs no
+            manifest or panel. URL paths provide specificity through optional directories; method-prefixed files can
+            override a generic response for individual HTTP methods.
+        </p>
+
+        <h2 id="optional-extensions">Optional extensions</h2>
+        <div class="cards">
+            <a class="card" href={`${base}/manifest/`}>
+                <strong>Manifest</strong>
+                <span>Add exact status codes, delays, failures, explicit files, or multiple scenarios where needed.</span>
+            </a>
+            <a class="card" href={`${base}/proxy-panel/`}>
+                <strong>Proxy panel</strong>
+                <span>Expose manifest scenarios and endpoint passthrough as convenient browser controls.</span>
+            </a>
+        </div>
+        <p>
+            Start with the three steps below. Add either extension later without changing how the plugin resolves your
+            existing convention-based files.
+        </p>
+
         <h2 id="1-add-the-vite-plugin">1. Add the Vite plugin</h2>
         <Code code={viteConfig} label="vite.config.ts" />
         <Callout title="Development only">
@@ -78,15 +102,17 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
         <Callout title="No manifest required">
             <p>
-                The default file resolver is the primary workflow. Add <code>mock.manifest.json</code> only when selected
-                calls need custom status codes, delays, failures, or multiple response variants.
+                The default file resolver is the primary workflow. Add <code>mock.manifest.json</code>,
+                <code>mock.manifest.yaml</code>, or <code>mock.manifest.yml</code> only when selected calls need custom status
+                codes, delays, failures, or multiple response variants.
             </p>
         </Callout>
 
         <h2 id="optional-add-a-manifest">Optional: add a manifest</h2>
         <p>
-            Create <code>mock/mock.manifest.json</code> only when a call needs behavior beyond naming conventions. For
-            example, this endpoint keeps using a local response file while adding a fixed delay:
+            Create one of the supported manifests in <code>mock/</code> only when a call needs behavior beyond naming
+            conventions. JSON has priority when several formats exist. For example, this endpoint keeps using a local
+            response file while adding a fixed delay:
         </p>
         <Code code={manifest} label="mock/mock.manifest.json" />
         <p>
@@ -101,7 +127,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <p>
             Install <code>@wesflo/lockxy-panel</code> and mount it only if you want browser controls for scenarios or
             endpoint passthrough. The panel reads the optional manifest from the fixed
-            <code>/_local-mock-api/manifest</code> route.
+            <code>/_lockxy/manifest</code> route.
         </p>
         <Callout title="Panel stays optional">
             <p>

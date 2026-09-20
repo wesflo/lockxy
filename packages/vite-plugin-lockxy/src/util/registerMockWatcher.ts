@@ -3,14 +3,15 @@ import { fileURLToPath } from 'node:url';
 import type { ViteDevServer } from 'vite';
 
 import { FILE_INDEX_EVENTS } from '../constant.js';
-import type { MockApiRuntimeOptions } from '../interface.js';
+import type { MockApiRuntimeOptions } from '../runtimeInterface.js';
 import { readMockManifest } from '../app/handleScenarioRequest/util/readMockManifest.js';
+import { resolveManifestFileName } from '../app/handleScenarioRequest/util/resolveManifestFileName.js';
 import { buildMockFileIndex } from './buildMockFileIndex.js';
 import { logError } from './logError.js';
+import { logManifestRouteWarnings } from './logManifestRouteWarnings.js';
 
 export const registerMockWatcher = (watcher: ViteDevServer['watcher'], runtime: MockApiRuntimeOptions): void => {
     const mockRootPath = resolve(fileURLToPath(runtime.mockRoot));
-    const manifestPath = resolve(mockRootPath, runtime.manifestFileName);
     let updateQueue = Promise.resolve();
 
     watcher.add(mockRootPath);
@@ -19,6 +20,8 @@ export const registerMockWatcher = (watcher: ViteDevServer['watcher'], runtime: 
         const relativePath = relative(mockRootPath, absoluteChangedPath);
         const isInsideMockRoot = relativePath === '' || (!relativePath.startsWith('..') && !isAbsolute(relativePath));
         const fileIndexChanged = FILE_INDEX_EVENTS.has(eventName);
+        const currentManifestFileName = resolveManifestFileName(runtime.manifestFileName, runtime.fileIndex);
+        const manifestPath = resolve(mockRootPath, currentManifestFileName);
         const manifestChanged = absoluteChangedPath === manifestPath;
 
         if (!isInsideMockRoot || (!fileIndexChanged && !manifestChanged)) {
@@ -31,11 +34,9 @@ export const registerMockWatcher = (watcher: ViteDevServer['watcher'], runtime: 
                     runtime.fileIndex = await buildMockFileIndex(runtime.mockRoot);
                 }
 
-                runtime.manifestResult = await readMockManifest(
-                    runtime.mockRoot,
-                    runtime.manifestFileName,
-                    runtime.debug
-                );
+                const manifestFileName = resolveManifestFileName(runtime.manifestFileName, runtime.fileIndex);
+                runtime.manifestResult = await readMockManifest(runtime.mockRoot, manifestFileName, runtime.debug);
+                logManifestRouteWarnings(runtime.logging, manifestFileName, runtime.manifestResult);
             })
             .catch((error) => logError(runtime.logging, 'Failed to refresh the mock runtime state.', error));
 

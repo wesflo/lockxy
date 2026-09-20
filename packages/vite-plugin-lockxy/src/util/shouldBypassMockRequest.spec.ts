@@ -1,7 +1,7 @@
 import type { IncomingMessage } from 'node:http';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { MockApiRuntimeOptions } from '../interface.js';
+import type { MockApiRuntimeOptions } from '../runtimeInterface.js';
 
 const mocks = vi.hoisted(() => ({
     findMockEndpoint: vi.fn(),
@@ -66,6 +66,15 @@ describe('shouldBypassMockRequest', () => {
         expect(mocks.findMockEndpoint).not.toHaveBeenCalled();
     });
 
+    it('keeps the global browser bypass available when the manifest is invalid', async () => {
+        options.manifestResult = { status: 'invalid', error: new Error('broken manifest') };
+        mocks.parseBypassSelections.mockReturnValue({ all: true, endpointIds: new Set() });
+
+        await expect(
+            shouldBypassMockRequest({ url: '/api/orders', headers: { cookie: 'bypass' } } as IncomingMessage, options)
+        ).resolves.toBe(true);
+    });
+
     it('bypasses a request whose manifest endpoint id is selected', async () => {
         const endpoint = { id: 'orders' };
         mocks.parseBypassSelections.mockReturnValue({
@@ -112,5 +121,52 @@ describe('shouldBypassMockRequest', () => {
         await expect(
             shouldBypassMockRequest({ url: '/api/users', method: 'GET', headers: {} } as IncomingMessage, options)
         ).resolves.toBe(false);
+    });
+
+    it('applies root and endpoint manifest passthrough before cookies', async () => {
+        options.manifestResult = { status: 'valid', manifest: { preventMock: true } };
+        mocks.parseBypassSelections.mockReturnValue({ all: false, endpointIds: new Set() });
+
+        await expect(
+            shouldBypassMockRequest({ url: '/api/orders', method: 'GET', headers: {} } as IncomingMessage, options)
+        ).resolves.toBe(true);
+        expect(mocks.parseBypassSelections).not.toHaveBeenCalled();
+
+        options.manifestResult = { status: 'valid', manifest: { endpoints: [] } };
+        mocks.findMockEndpoint.mockReturnValue({ id: 'orders', path: '/api/orders', preventMock: true });
+
+        await expect(
+            shouldBypassMockRequest({ url: '/api/orders', method: 'GET', headers: {} } as IncomingMessage, options)
+        ).resolves.toBe(true);
+        expect(mocks.parseBypassSelections).not.toHaveBeenCalled();
+    });
+
+    it('lets scenario active control win over global and endpoint cookies', async () => {
+        options.manifestResult = { status: 'valid', manifest: { endpoints: [] } };
+        mocks.findMockEndpoint.mockReturnValue({
+            id: 'orders',
+            path: '/api/orders',
+            scenarios: [{ id: 'success', active: true }],
+        });
+        mocks.parseBypassSelections.mockReturnValue({ all: true, endpointIds: new Set(['orders']) });
+
+        await expect(
+            shouldBypassMockRequest({ url: '/api/orders', method: 'GET', headers: {} } as IncomingMessage, options)
+        ).resolves.toBe(false);
+        expect(mocks.parseBypassSelections).not.toHaveBeenCalled();
+    });
+
+    it('passes through when scenarios define active but none is true', async () => {
+        options.manifestResult = { status: 'valid', manifest: { endpoints: [] } };
+        mocks.findMockEndpoint.mockReturnValue({
+            id: 'orders',
+            path: '/api/orders',
+            scenarios: [{ id: 'success', active: false }, { id: 'failure' }],
+        });
+
+        await expect(
+            shouldBypassMockRequest({ url: '/api/orders', method: 'GET', headers: {} } as IncomingMessage, options)
+        ).resolves.toBe(true);
+        expect(mocks.parseBypassSelections).not.toHaveBeenCalled();
     });
 });

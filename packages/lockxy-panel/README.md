@@ -39,7 +39,7 @@ Register the Web Component and add it to the HTML of a Vite application:
 
 The panel requests the manifest from the plugin's fixed internal route and is only rendered when the manifest contains configurable endpoints. It is not required for convention-based mocks.
 
-Valid bypass and scenario cookies survive page reloads and initialize the panel controls. Cookie entries that do not exist in the current manifest are cleaned after switching projects. Add a stable root `id` to `mock.manifest.json` to enable project-specific local-storage persistence:
+Valid bypass and scenario cookies survive page reloads and initialize the panel controls. Cookie entries that do not exist in the current manifest are cleaned after switching projects. Root and endpoint `preventMock` settings and scenario `active` flags take priority over cookies. The panel replaces affected controls with a link to the [control hierarchy](https://wesflo.github.io/lockxy/control-hierarchy/#manifest-controls). Add a stable root `id` to `mock.manifest.json` to enable project-specific local-storage persistence:
 
 ```json
 {

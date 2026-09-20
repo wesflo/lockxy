@@ -1,4 +1,4 @@
-import type { MockEndpoint } from '../../interface.js';
+import type { MockEndpoint } from '@wesflo/local-mock-api-utils';
 
 export interface ProxyChangeDetail {
     active: boolean;

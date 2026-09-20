@@ -8,8 +8,8 @@
         "outDir": "dist",
         "rootDir": "src",
         "lib": ["ES2022", "DOM"],
-        "types": ["vitest/globals"]
+        "types": []
     },
     "include": ["src/**/*.ts"],
-    "exclude": ["dist", "node_modules"]
+    "exclude": ["src/**/*.spec.ts", "dist", "node_modules"]
 }
