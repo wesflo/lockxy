@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
     readMockManifest: vi.fn(),
     registerMockWatcher: vi.fn(),
     shouldBypassMockRequest: vi.fn(),
+    waitForMockUpdates: vi.fn(),
 }));
 
 vi.mock('./app/handleMockRequest/index.js', () => ({
@@ -67,8 +68,10 @@ describe('lockxy', () => {
         mocks.normalizeMockRoot.mockReturnValue(normalizedMockRoot);
         mocks.buildMockFileIndex.mockResolvedValue(new Set(['orders.json']));
         mocks.readMockManifest.mockResolvedValue({ status: 'missing' });
+        mocks.registerMockWatcher.mockReturnValue({ waitForIdle: mocks.waitForMockUpdates });
         mocks.handleScenarioRequest.mockResolvedValue(false);
         mocks.shouldBypassMockRequest.mockResolvedValue(false);
+        mocks.waitForMockUpdates.mockResolvedValue(undefined);
     });
 
     it('exports the plugin factory as both the default and named export', () => {
@@ -205,6 +208,58 @@ describe('lockxy', () => {
 
         expect(ssrLoadModule).toHaveBeenNthCalledWith(1, '/@fs//normalized/mocks/mock.manifest.ts?lockxy=1');
         expect(ssrLoadModule).toHaveBeenNthCalledWith(2, '/@fs//normalized/mocks/mock.manifest.ts?lockxy=2');
+    });
+
+    it('waits for mock updates before Vite continues hot updates', async () => {
+        let releaseUpdate!: () => void;
+        mocks.waitForMockUpdates.mockReturnValue(
+            new Promise<void>((resolve) => {
+                releaseUpdate = resolve;
+            })
+        );
+        const plugin = lockxy();
+        const configureServer = plugin.configureServer as (server: ViteDevServer) => Promise<void>;
+        const hotUpdate = plugin.hotUpdate as () => Promise<void>;
+        await configureServer({ middlewares: { use: vi.fn() } } as unknown as ViteDevServer);
+
+        let completed = false;
+        const update = hotUpdate().then(() => {
+            completed = true;
+        });
+        await Promise.resolve();
+
+        expect(completed).toBe(false);
+        releaseUpdate();
+        await update;
+        expect(completed).toBe(true);
+    });
+
+    it('waits for mock updates before handling a request', async () => {
+        let middleware: Middleware | undefined;
+        let releaseUpdate!: () => void;
+        mocks.waitForMockUpdates.mockReturnValue(
+            new Promise<void>((resolve) => {
+                releaseUpdate = resolve;
+            })
+        );
+        const plugin = lockxy();
+        const configureServer = plugin.configureServer as (server: ViteDevServer) => Promise<void>;
+        await configureServer({
+            middlewares: {
+                use: vi.fn((registeredMiddleware: Middleware) => {
+                    middleware = registeredMiddleware;
+                }),
+            },
+        } as unknown as ViteDevServer);
+
+        const request = middleware!({} as IncomingMessage, {} as ServerResponse, vi.fn());
+        await Promise.resolve();
+
+        expect(mocks.shouldBypassMockRequest).not.toHaveBeenCalled();
+        expect(mocks.handleScenarioRequest).not.toHaveBeenCalled();
+        releaseUpdate();
+        await request;
+        expect(mocks.shouldBypassMockRequest).toHaveBeenCalledOnce();
     });
 
     it('passes bypassed requests directly to the next middleware', async () => {

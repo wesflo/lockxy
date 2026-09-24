@@ -107,6 +107,9 @@ mock.manifest.js`} label="highest to lowest priority" />
             Set <code>manifestFileName: 'mock.manifest.ts'</code> to select the module explicitly. Vite compiles TypeScript;
             Lockxy caches the loaded manifest at runtime and reloads it when the watched module changes.
         </p>
+        <Callout title="File synchronization" tone="warning">
+            <p>Delayed Docker or remote file synchronization can briefly expose the previous mock state.</p>
+        </Callout>
 
         <h2 id="panel-integration">Panel integration</h2>
         <p>

@@ -78,6 +78,30 @@ describe('registerMockWatcher', () => {
         expect(mocks.readMockManifest).toHaveBeenCalledWith(runtime.mockRoot, 'mock.manifest.json', true, undefined);
     });
 
+    it('exposes a barrier that resolves after the current refresh completes', async () => {
+        let finishReading!: (result: MockApiRuntimeOptions['manifestResult']) => void;
+        mocks.readMockManifest.mockReturnValue(
+            new Promise((resolve) => {
+                finishReading = resolve;
+            })
+        );
+        const controller = registerMockWatcher(watcher, runtime);
+
+        const refresh = onAll('change', '/tmp/outside-src/mock/mock.manifest.json');
+        await Promise.resolve();
+        let idle = false;
+        const waiting = controller.waitForIdle().then(() => {
+            idle = true;
+        });
+        await Promise.resolve();
+
+        expect(idle).toBe(false);
+        finishReading({ status: 'valid', manifest: { delay: 300 } });
+        await Promise.all([refresh, waiting]);
+        expect(idle).toBe(true);
+        expect(runtime.manifestResult).toEqual({ status: 'valid', manifest: { delay: 300 } });
+    });
+
     it('selects a newly added JSON manifest before an existing YAML manifest', async () => {
         runtime.manifestFileName = 'mock.manifest';
         runtime.fileIndex = new Set(['mock.manifest.yaml']);

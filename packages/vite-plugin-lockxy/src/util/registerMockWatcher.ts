@@ -10,9 +10,26 @@ import { buildMockFileIndex } from './buildMockFileIndex.js';
 import { logError } from './logError.js';
 import { logManifestRouteWarnings } from './logManifestRouteWarnings.js';
 
-export const registerMockWatcher = (watcher: ViteDevServer['watcher'], runtime: MockApiRuntimeOptions): void => {
+export interface MockWatcherController {
+    waitForIdle(): Promise<void>;
+}
+
+export const registerMockWatcher = (
+    watcher: ViteDevServer['watcher'],
+    runtime: MockApiRuntimeOptions
+): MockWatcherController => {
     const mockRootPath = resolve(fileURLToPath(runtime.mockRoot));
     let updateQueue = Promise.resolve();
+
+    const waitForIdle = async (): Promise<void> => {
+        let pending = updateQueue;
+        await pending;
+
+        while (pending !== updateQueue) {
+            pending = updateQueue;
+            await pending;
+        }
+    };
 
     watcher.add(mockRootPath);
     watcher.on('all', (eventName, changedPath) => {
@@ -51,4 +68,6 @@ export const registerMockWatcher = (watcher: ViteDevServer['watcher'], runtime: 
 
         return updateQueue;
     });
+
+    return { waitForIdle };
 };

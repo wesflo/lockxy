@@ -42,6 +42,7 @@ export const lockxy = ({
     logging = LOGGING,
 }: MockApiPluginOptions = {}): Plugin => {
     let developmentServer = true;
+    let waitForMockUpdates = (): Promise<void> => Promise.resolve();
     const options: ResolvedMockApiPluginOptions = {
         mockRoot: normalizeMockRoot(mockRoot),
         requestPrefixes: normalizeRequestPrefixes(requestPrefixes),
@@ -66,6 +67,10 @@ export const lockxy = ({
                         'Mock middleware is disabled; include this plugin only in development configuration.'
                 );
             }
+        },
+
+        hotUpdate: async () => {
+            await waitForMockUpdates();
         },
 
         configureServer: async (server) => {
@@ -93,10 +98,13 @@ export const lockxy = ({
                 ),
             };
             logManifestRouteWarnings(options.logging, manifestFileName, runtimeOptions.manifestResult, options.debug);
-            registerMockWatcher(server.watcher, runtimeOptions);
+            const watcherController = registerMockWatcher(server.watcher, runtimeOptions);
+            waitForMockUpdates = watcherController.waitForIdle;
 
             server.middlewares.use(async (req, res, next) => {
                 try {
+                    await waitForMockUpdates();
+
                     if (await shouldBypassMockRequest(req, runtimeOptions)) {
                         res.once('finish', () => {
                             logRequest(runtimeOptions.logging, {
