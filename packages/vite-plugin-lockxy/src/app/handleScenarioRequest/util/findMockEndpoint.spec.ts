@@ -33,6 +33,44 @@ describe('findMockEndpoint', () => {
         expect(findMockEndpoint(manifest, 'GET', '/_internal/webcomponent/shoppingCart/cart')).toBe(endpoint);
     });
 
+    it('prefers a literal route over a matching dynamic route regardless of declaration order', () => {
+        const dynamic = {
+            path: '/_internal/webcomponent/shoppingCart/cart/:id?',
+            method: 'GET',
+        };
+        const wishlist = {
+            path: '/_internal/webcomponent/shoppingCart/cart/wishlist',
+            method: 'GET',
+        };
+        const manifest = { endpoints: [dynamic, wishlist] };
+
+        expect(findMockEndpoint(manifest, 'GET', wishlist.path)).toBe(wishlist);
+    });
+
+    it('prefers an exact route over one with an omitted optional parameter', () => {
+        const dynamic = { path: '/api/cart/:id?', method: 'GET' };
+        const collection = { path: '/api/cart', method: 'GET' };
+        const manifest = { endpoints: [dynamic, collection] };
+
+        expect(findMockEndpoint(manifest, 'GET', '/api/cart')).toBe(collection);
+    });
+
+    it('prefers a method-specific endpoint over a method-agnostic endpoint', () => {
+        const generic = { path: '/api/profile' };
+        const get = { path: '/api/profile', method: 'GET' };
+        const manifest = { endpoints: [generic, get] };
+
+        expect(findMockEndpoint(manifest, 'GET', '/api/profile')).toBe(get);
+        expect(findMockEndpoint(manifest, 'PUT', '/api/profile')).toBe(generic);
+    });
+
+    it('keeps manifest order when matching endpoints are equally specific', () => {
+        const first = { id: 'first', path: '/api/users/:id', method: 'GET' };
+        const second = { id: 'second', path: '/api/users/:name', method: 'GET' };
+
+        expect(findMockEndpoint({ endpoints: [first, second] }, 'GET', '/api/users/42')).toBe(first);
+    });
+
     it('supports a manifest without endpoints', () => {
         expect(findMockEndpoint({ delay: 400 }, 'GET', '/api/profile')).toBeUndefined();
     });

@@ -66,9 +66,13 @@ export const endpointsStyle = [
             border-bottom: 0;
         }
 
-        .endpoint.inactive {
+        .endpoint.controlled {
             color: var(--wf-muted-light);
             background: var(--wf-surface);
+        }
+
+        .endpoint.controlled .method {
+            color: var(--wf-muted-light);
         }
 
         .endpoint-heading {
@@ -92,29 +96,37 @@ export const endpointsStyle = [
         }
 
         .method.get {
-            color: var(--wf-primary);
+            color: var(--wf-method-get);
         }
 
         .method.post {
-            color: var(--wf-success);
+            color: var(--wf-method-post);
         }
 
-        .method.put,
+        .method.put {
+            color: var(--wf-method-put);
+        }
+
         .method.patch {
-            color: var(--wf-warning);
+            color: var(--wf-method-patch);
         }
 
         .method.delete {
-            color: var(--wf-danger);
+            color: var(--wf-method-delete);
         }
 
-        .path {
+        .endpoint-name {
             min-width: 0;
             overflow: hidden;
-            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
             font-size: var(--wf-font-size-xs);
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+
+        .endpoint-name.path {
+            direction: rtl;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            text-align: left;
         }
 
         .endpoint-control {
@@ -122,6 +134,35 @@ export const endpointsStyle = [
             gap: var(--wf-gap-m);
             align-items: center;
             grid-template-columns: minmax(0, 1fr) auto;
+        }
+
+        .scenario-value {
+            font-size: var(--wf-font-size-s);
+        }
+
+        .manifest-control {
+            color: var(--wf-danger);
+            font-size: var(--wf-font-size-s);
+            font-weight: 650;
+            text-decoration: none;
+        }
+
+        .manifest-control:hover {
+            text-decoration: underline;
+        }
+
+        .manifest-control:focus-visible {
+            border-radius: var(--wf-radius-s);
+            outline: 2px solid var(--wf-focus);
+            outline-offset: 2px;
+        }
+
+        .root-manifest-control {
+            display: grid;
+            min-height: 180px;
+            padding: var(--wf-gap-xl);
+            place-items: center;
+            text-align: center;
         }
 
         select {
@@ -132,6 +173,7 @@ export const endpointsStyle = [
             border: 1px solid var(--wf-line);
             border-radius: 8px;
             background: var(--wf-white);
+            font-size: var(--wf-font-size-s);
         }
 
         select:disabled {

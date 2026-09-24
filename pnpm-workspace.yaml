@@ -1,7 +1,10 @@
 packages:
     - 'apps/*'
     - 'packages/*'
+overrides:
+    lodash-es: 4.18.1
 allowBuilds:
+    cypress: true
     esbuild: true
 minimumReleaseAgeExclude:
     - happy-dom@20.13.1

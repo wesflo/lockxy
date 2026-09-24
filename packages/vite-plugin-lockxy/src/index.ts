@@ -12,14 +12,11 @@ import { handleScenarioRequest } from './app/handleScenarioRequest/index.js';
 import { readMockManifest } from './app/handleScenarioRequest/util/readMockManifest.js';
 import { resolveManifestFileName } from './app/handleScenarioRequest/util/resolveManifestFileName.js';
 import { CONTENT_TYPES, EXTENSIONS, DEBUG, REQUEST_PREFIXES, MANIFEST_FILE_NAME, LOGGING } from './constant.js';
-import type {
-    DynamicMockManifest,
-    MockApiPluginOptions,
-    MockApiRuntimeOptions,
-    ResolvedMockApiPluginOptions,
-} from './interface.js';
+import type { DynamicMockManifest, MockApiPluginOptions, ResolvedMockApiPluginOptions } from './interface.js';
+import type { MockApiRuntimeOptions } from './runtimeInterface.js';
 import { buildMockFileIndex } from './util/buildMockFileIndex.js';
 import { logError } from './util/logError.js';
+import { logManifestRouteWarnings } from './util/logManifestRouteWarnings.js';
 import { logRequest } from './util/logRequest.js';
 import { normalizeMockRoot } from './util/normalizeMockRoot.js';
 import { normalizeRequestPrefixes } from './util/normalizeRequestPrefixes.js';
@@ -95,6 +92,7 @@ export const lockxy = ({
                     loadManifestModule
                 ),
             };
+            logManifestRouteWarnings(options.logging, manifestFileName, runtimeOptions.manifestResult, options.debug);
             registerMockWatcher(server.watcher, runtimeOptions);
 
             server.middlewares.use(async (req, res, next) => {

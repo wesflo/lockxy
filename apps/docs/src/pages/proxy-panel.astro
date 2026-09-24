@@ -3,6 +3,8 @@ import Callout from '../components/Callout.astro';
 import Code from '../components/Code.astro';
 import DocsLayout from '../layouts/DocsLayout.astro';
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 const moduleUsage = `<wf-lockxy-panel></wf-lockxy-panel>
 <script type="module">
   import '@wesflo/lockxy-panel';
@@ -37,6 +39,13 @@ const scriptUsage = `<wf-lockxy-panel></wf-lockxy-panel>
             <li>Disable the master switch to pass every API request to the next Vite middleware.</li>
             <li>Disable an endpoint switch to pass through only that manifest endpoint.</li>
         </ul>
+        <Callout title="Manifest decisions take priority">
+            <p>
+                The panel can control an endpoint only when the manifest has not fixed its behavior. See the
+                <a href={`${base}/control-hierarchy/`}>control hierarchy and behavior matrix</a> for the complete decision
+                flow and the panel's manifest-controlled states.
+            </p>
+        </Callout>
 
         <h2 id="bypass-cookie">Bypass cookie</h2>
         <Code code={`document.cookie = 'lockxy-bypass=*; Path=/; SameSite=Lax';`} label="bypass all mocks" />
@@ -54,8 +63,9 @@ const scriptUsage = `<wf-lockxy-panel></wf-lockxy-panel>
         <h2 id="settings-and-persistence">Settings and persistence</h2>
         <p>
             <strong>Enable proxy on load</strong> is enabled by default and stored in local storage. When disabled, mounting
-            the panel creates a global bypass only when no bypass cookie exists yet. Existing cookie state always wins on a
-            reload. Changing the setting still updates the current cookie immediately.
+            the panel creates a global bypass only when no bypass cookie exists yet. Existing cookie state wins on a reload
+            whenever the manifest has not fixed the request behavior. Changing the setting still updates the current cookie
+            immediately.
         </p>
         <p>
             <strong>Save selections in local storage</strong> is disabled by default. When enabled, individual endpoint
@@ -63,7 +73,8 @@ const scriptUsage = `<wf-lockxy-panel></wf-lockxy-panel>
             and path, for example <code>checkout → GET /api/orders</code>. The setting is unavailable without a root ID, so
             unrelated micro frontends cannot accidentally share these values. A visible notice explains how to enable the
             setting when the ID is missing. The panel maps stored values back to the current endpoint IDs after loading. If
-            a selected scenario no longer exists, the first configured scenario is used as a fallback.
+            no selection exists or a selected scenario no longer exists, the first configured scenario is used as a
+            fallback. Default file resolution remains available as the final select option.
         </p>
         <Callout title="Shared-origin limitation">
             <p>
@@ -88,7 +99,10 @@ const scriptUsage = `<wf-lockxy-panel></wf-lockxy-panel>
             Scenario selections use <code>lockxy-scenarios</code>. Entries are encoded as
             <code>endpoint-id:scenario-id</code> and separated with <code>|</code>. Prefer the panel or the exported utility
             helpers over constructing this value manually. If a stored scenario no longer exists after the manifest is
-            changed, the endpoint automatically uses its first configured scenario.
+            changed, the endpoint automatically uses its first configured scenario. An empty scenario ID, for example
+            <code>orders:</code>, records an explicit choice of default file resolution; a missing endpoint entry selects
+            its first scenario. Cookies never override an explicit manifest decision; that priority is defined in the
+            <a href={`${base}/control-hierarchy/#decision-flow`}>request decision flow</a>.
         </p>
     </article>
 </DocsLayout>

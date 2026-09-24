@@ -1,0 +1,8 @@
+{
+    "extends": "../../tsconfig.test.json",
+    "compilerOptions": {
+        "strictNullChecks": true,
+        "types": ["node", "vite/client", "vitest/globals"]
+    },
+    "include": ["src/**/*.spec.ts", "test/**/*", "vitest.integration.config.ts"]
+}

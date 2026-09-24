@@ -2,7 +2,7 @@ import { Readable } from 'node:stream';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { MockApiRuntimeOptions, MockEndpoint } from '../../../interface.js';
+import type { MockApiRuntimeOptions, MockEndpoint } from '../../../runtimeInterface.js';
 
 const mocks = vi.hoisted(() => ({ logRequest: vi.fn(), send: vi.fn(), wait: vi.fn() }));
 vi.mock('../../../util/logRequest.js', () => ({ logRequest: mocks.logRequest }));
@@ -49,8 +49,8 @@ describe('handleDynamicEndpoint', () => {
             },
         };
 
-        await expect(handleDynamicEndpoint(request, {} as ServerResponse, endpoint, options, '/api/foo')).rejects.toThrow(
-            'Dynamic handler failed for GET /api/foo.'
-        );
+        await expect(
+            handleDynamicEndpoint(request, {} as ServerResponse, endpoint, options, '/api/foo')
+        ).rejects.toThrow('Dynamic handler failed for GET /api/foo.');
     });
 });

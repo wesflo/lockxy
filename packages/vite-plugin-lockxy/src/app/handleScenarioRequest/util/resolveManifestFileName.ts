@@ -2,10 +2,7 @@ import { extname } from 'node:path';
 
 import { MANIFEST_FILE_EXTENSIONS } from '../../../constant.js';
 
-export const resolveManifestFileName = (
-    configuredFileName: string,
-    fileIndex: ReadonlySet<string>
-): string => {
+export const resolveManifestFileName = (configuredFileName: string, fileIndex: ReadonlySet<string>): string => {
     if (MANIFEST_FILE_EXTENSIONS.some((extension) => extension === extname(configuredFileName).toLowerCase())) {
         return configuredFileName;
     }

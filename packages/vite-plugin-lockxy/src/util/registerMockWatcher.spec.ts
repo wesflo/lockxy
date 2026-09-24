@@ -1,16 +1,18 @@
 import type { ViteDevServer } from 'vite';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { MockApiRuntimeOptions } from '../interface.js';
+import type { MockApiRuntimeOptions } from '../runtimeInterface.js';
 
 const mocks = vi.hoisted(() => ({
     buildMockFileIndex: vi.fn(),
     logError: vi.fn(),
+    logManifestRouteWarnings: vi.fn(),
     readMockManifest: vi.fn(),
 }));
 
 vi.mock('./buildMockFileIndex.js', () => ({ buildMockFileIndex: mocks.buildMockFileIndex }));
 vi.mock('./logError.js', () => ({ logError: mocks.logError }));
+vi.mock('./logManifestRouteWarnings.js', () => ({ logManifestRouteWarnings: mocks.logManifestRouteWarnings }));
 vi.mock('../app/handleScenarioRequest/util/readMockManifest.js', () => ({
     readMockManifest: mocks.readMockManifest,
 }));
@@ -64,6 +66,7 @@ describe('registerMockWatcher', () => {
 
         expect(runtime.fileIndex).toEqual(new Set(['users.json', 'orders.json']));
         expect(runtime.manifestResult).toEqual({ status: 'valid', manifest: { delay: 200 } });
+        expect(mocks.logManifestRouteWarnings).toHaveBeenCalledWith(true, 'mock.manifest.json', runtime.manifestResult);
     });
 
     it('reloads only the manifest when its contents change', async () => {

@@ -6,9 +6,9 @@ describe('parseScenarioSelections', () => {
     it('reports corrupt and malformed cookie values without throwing', () => {
         const onError = vi.fn();
 
-        expect(
-            parseScenarioSelections('lockxy-scenarios=users%3Asuccess%7Cinvalid%3Avalue%3Aextra', onError)
-        ).toEqual(new Map([['users', 'success']]));
+        expect(parseScenarioSelections('lockxy-scenarios=users%3Asuccess%7Cinvalid%3Avalue%3Aextra', onError)).toEqual(
+            new Map([['users', 'success']])
+        );
         expect(onError).toHaveBeenCalledWith('Ignoring a malformed scenario selection cookie entry.');
 
         expect(parseScenarioSelections('lockxy-scenarios=%E0%A4%A', onError)).toEqual(new Map());

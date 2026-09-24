@@ -157,7 +157,7 @@ export default defineDynamicManifest({
 
 Every dynamic endpoint has one handler and no scenarios. Handlers may return `status`, `delay`, `headers`, and `body`. Declarative manifests retain priority during automatic discovery; explicitly set `manifestFileName: 'mock.manifest.ts'` if both formats exist. Read the [Dynamic responses guide](https://wesflo.github.io/lockxy/dynamic-responses/) for request bodies, response types, panel behavior, and best practices.
 
-Endpoint entries require only `path`. `method`, `id`, `label`, `active`, `file`, `status`, `delay`, and `scenarios` are optional:
+Endpoint entries require only `path`. `method`, `id`, `label`, `preventMock`, `file`, `status`, `delay`, and `scenarios` are optional:
 
 ```json
 {
@@ -180,6 +180,7 @@ Endpoint entries require only `path`. `method`, `id`, `label`, `active`, `file`,
                 {
                     "id": "success",
                     "label": "Successful response",
+                    "active": true,
                     "status": 200,
                     "file": "scenarios/user-success.json"
                 },
@@ -197,9 +198,13 @@ Endpoint entries require only `path`. `method`, `id`, `label`, `active`, `file`,
 
 The optional root `id` namespaces panel selections in local storage. Define a stable ID when a project uses the panel's “Save selections” setting.
 
-An endpoint `method` can be a string or an array such as `["POST", "PUT"]` when multiple methods share one response configuration. An omitted `method` matches every method. An omitted `file` falls back to naming conventions. Required dynamic segments use `:id`; append `?`, as in `/api/cart/:id?`, to match the segment both when present and absent. A single scenario is selected automatically; multiple scenarios can be selected through the optional panel or scenario cookie. Selected scenario values override endpoint values, endpoint values override the root delay, and remaining file lookup follows naming conventions. Responses with status `204` or `304`, as well as all `HEAD` responses, never include a body.
+An endpoint `method` can be a string or an array such as `["POST", "PUT"]` when multiple methods share one response configuration. An omitted `method` matches every method. An omitted `file` falls back to naming conventions. Required dynamic segments use `:id`; append `?`, as in `/api/cart/:id?`, to match the segment both when present and absent. When several endpoints match, literal paths win over dynamic paths, required parameters win over optional parameters, and method-specific entries win over method-agnostic entries. Manifest order breaks any remaining tie. Invalid individual endpoints are skipped with a warning while the remaining endpoints continue to work; invalid JSON or an invalid manifest root still rejects the complete manifest. When scenarios exist without `active`, the first one is selected automatically until another scenario or explicit default file resolution is selected. Selected scenario values override endpoint values, endpoint values override the root delay, and remaining file lookup follows naming conventions. Responses with status `204` or `304`, as well as all `HEAD` responses, never include a body.
 
-Set `debug: true` while authoring a manifest to report exact invalid fields, malformed routes, duplicate IDs, invalid status codes or delays, route conflicts, unsafe paths, and missing referenced files. Request logging remains enabled independently by default.
+Root- or endpoint-level `preventMock: true` passes matching requests through to the next Vite middleware. As soon as a scenario defines `active`, the manifest fixes that endpoint: the first `active: true` scenario is mocked, and no `true` entry means passthrough. Manifest controls take priority over bypass and scenario cookies. The [control hierarchy](https://wesflo.github.io/lockxy/control-hierarchy/) documents the full decision flow and matrix.
+
+`active` is a scenario-only field. Endpoint-level `active` is rejected; use endpoint-level `preventMock` for passthrough behavior.
+
+Set `debug: true` while authoring a manifest to report exact invalid fields, malformed routes, duplicate IDs, invalid status codes or delays, unsafe paths, and missing referenced files. Request logging remains enabled independently by default.
 
 ## Passthrough to a development API
 
@@ -221,7 +226,7 @@ Remove the cookie to enable all mocks again:
 document.cookie = 'lockxy-bypass=; Max-Age=0; Path=/; SameSite=Lax';
 ```
 
-The optional [`@wesflo/lockxy-panel`](https://www.npmjs.com/package/@wesflo/lockxy-panel) provides browser controls for the same scenario and bypass behavior.
+The optional [`@wesflo/lockxy-panel`](https://www.npmjs.com/package/@wesflo/lockxy-panel) provides browser controls when the manifest has not fixed the request behavior.
 
 ## Runtime behavior
 

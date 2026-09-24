@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { MockEndpoint } from '../interface.js';
+import type { MockEndpoint } from '@wesflo/local-mock-api-utils';
 import { createCookieSelectionValues } from './createCookieSelectionValues.js';
 
 const endpoints: MockEndpoint[] = [
@@ -26,6 +26,14 @@ describe('createCookieSelectionValues', () => {
         expect(createCookieSelectionValues(endpoints, stored, false)).toEqual({
             bypass: '*',
             scenarios: 'orders:success',
+        });
+    });
+
+    it('restores an explicitly stored default file resolution selection', () => {
+        const stored = new Map([['GET /api/orders', { scenarioId: '' }]]);
+        expect(createCookieSelectionValues(endpoints, stored, true)).toEqual({
+            bypass: '',
+            scenarios: 'orders:',
         });
     });
 

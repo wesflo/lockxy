@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
     buildMockFileIndex: vi.fn(),
     handleMockRequest: vi.fn(),
     handleScenarioRequest: vi.fn(),
+    logManifestRouteWarnings: vi.fn(),
     normalizeMockRoot: vi.fn(),
     readMockManifest: vi.fn(),
     registerMockWatcher: vi.fn(),
@@ -44,6 +45,10 @@ vi.mock('./util/buildMockFileIndex.js', () => ({
 
 vi.mock('./util/registerMockWatcher.js', () => ({
     registerMockWatcher: mocks.registerMockWatcher,
+}));
+
+vi.mock('./util/logManifestRouteWarnings.js', () => ({
+    logManifestRouteWarnings: mocks.logManifestRouteWarnings,
 }));
 
 vi.mock('./util/shouldBypassMockRequest.js', () => ({
@@ -176,6 +181,30 @@ describe('lockxy', () => {
             false,
             expect.any(Function)
         );
+        expect(mocks.logManifestRouteWarnings).toHaveBeenCalledWith(
+            true,
+            'mock.manifest.json',
+            expect.objectContaining({ status: 'missing' }),
+            false
+        );
+    });
+
+    it('loads dynamic manifests through Vite with a fresh cache-busting URL', async () => {
+        const ssrLoadModule = vi.fn().mockResolvedValue({ default: {} });
+        const plugin = lockxy();
+        const configureServer = plugin.configureServer as (server: ViteDevServer) => Promise<void>;
+
+        await configureServer({
+            middlewares: { use: vi.fn() },
+            ssrLoadModule,
+        } as unknown as ViteDevServer);
+
+        const runtime = mocks.registerMockWatcher.mock.calls[0]?.[1];
+        await runtime.loadManifestModule('mock.manifest.ts');
+        await runtime.loadManifestModule('mock.manifest.ts');
+
+        expect(ssrLoadModule).toHaveBeenNthCalledWith(1, '/@fs//normalized/mocks/mock.manifest.ts?lockxy=1');
+        expect(ssrLoadModule).toHaveBeenNthCalledWith(2, '/@fs//normalized/mocks/mock.manifest.ts?lockxy=2');
     });
 
     it('passes bypassed requests directly to the next middleware', async () => {

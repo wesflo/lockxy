@@ -2,7 +2,7 @@ import { Buffer } from 'node:buffer';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { MockApiRuntimeOptions } from '../../interface.js';
+import type { MockApiRuntimeOptions } from '../../runtimeInterface.js';
 
 const mocks = vi.hoisted(() => ({
     findMockFile: vi.fn(),
@@ -135,6 +135,23 @@ describe('handleScenarioRequest', () => {
 
         expect(mocks.handleDynamicEndpoint).toHaveBeenCalledWith(request, response, endpoint, options, '/api/profile');
         expect(mocks.findMockFile).not.toHaveBeenCalled();
+    });
+
+    it('does not parse scenario cookies for a manifest-controlled scenario', async () => {
+        const scenario = { id: 'failure', label: 'Failure', active: true, status: 204 };
+        const endpoint = {
+            id: 'profile',
+            path: '/api/profile',
+            scenarios: [{ id: 'success', label: 'Success', active: false }, scenario],
+        };
+        options.manifestResult = { status: 'valid', manifest: { endpoints: [endpoint] } };
+        mocks.findMockEndpoint.mockReturnValue(endpoint);
+        mocks.findSelectedScenario.mockReturnValue(scenario);
+
+        await expect(handleScenarioRequest(request, response, options)).resolves.toBe(true);
+
+        expect(mocks.parseScenarioSelections).not.toHaveBeenCalled();
+        expect(mocks.findSelectedScenario).toHaveBeenCalledWith(endpoint, new Map());
     });
 
     it('rejects a missing manifest file from the index without accessing the file system', async () => {

@@ -1,4 +1,4 @@
-import type { MockDelay } from '../../../interface.js';
+import type { MockDelay } from '../../../runtimeInterface.js';
 
 export const resolveDelay = (delay: MockDelay | undefined, random: () => number = Math.random): number => {
     if (delay === undefined || typeof delay === 'number') {

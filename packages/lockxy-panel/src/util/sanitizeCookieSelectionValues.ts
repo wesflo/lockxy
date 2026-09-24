@@ -1,6 +1,7 @@
 import { BYPASS_ALL_VALUE, parseBypassCookie, parseScenarioCookie } from '@wesflo/local-mock-api-utils';
 
-import type { CookieSelectionValues, MockEndpoint } from '../interface.js';
+import type { MockEndpoint } from '@wesflo/local-mock-api-utils';
+import type { CookieSelectionValues } from '../interface.js';
 
 export const sanitizeCookieSelectionValues = (
     endpoints: readonly MockEndpoint[],
@@ -17,6 +18,9 @@ export const sanitizeCookieSelectionValues = (
     const sanitizedScenarios = [...scenarios]
         .flatMap(([endpointId, scenarioId]) => {
             const endpoint = endpointsById.get(endpointId);
+            if (scenarioId === '' && endpoint?.scenarios?.length) {
+                return [`${endpointId}:`];
+            }
             const selectedScenario =
                 endpoint?.scenarios?.find((scenario) => scenario.id === scenarioId) ?? endpoint?.scenarios?.[0];
 

@@ -1,0 +1,222 @@
+---
+import Callout from '../components/Callout.astro';
+import Code from '../components/Code.astro';
+import DocsLayout from '../layouts/DocsLayout.astro';
+import MermaidFlowchart from '../components/MermaidFlowchart.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const rootControl = `{
+  "preventMock": true,
+  "endpoints": [
+    { "path": "/api/profile" },
+    { "path": "/api/orders" }
+  ]
+}`;
+
+const endpointControl = `{
+  "endpoints": [
+    {
+      "path": "/api/profile",
+      "preventMock": true
+    }
+  ]
+}`;
+
+const scenarioControl = `{
+  "endpoints": [
+    {
+      "path": "/api/profile",
+      "scenarios": [
+        { "id": "success", "active": false },
+        { "id": "failure", "active": true, "status": 500 }
+      ]
+    }
+  ]
+}`;
+
+const decisionFlow = String.raw`flowchart TD
+    START([Request reaches Vite]) --> DEV{Development server?}
+    DEV -- No --> DISABLED([Lockxy middleware is not registered])
+    DEV -- Yes --> URL{Request URL available?}
+    URL -- No --> NEXT([Continue to next Vite middleware])
+    URL -- Yes --> MANIFEST_ROUTE{GET /_lockxy/manifest?}
+
+    MANIFEST_ROUTE -- Yes --> ROUTE_VALID{Manifest valid?}
+    ROUTE_VALID -- Yes --> MANIFEST_OK([200: normalized manifest])
+    ROUTE_VALID -- No --> ROUTE_MISSING{Manifest missing?}
+    ROUTE_MISSING -- Yes --> MANIFEST_EMPTY([200: empty manifest])
+    ROUTE_MISSING -- No --> MANIFEST_ERROR([500: manifest error])
+
+    MANIFEST_ROUTE -- No --> PREFIX{Configured request prefix<br/>and safe path?}
+    PREFIX -- No --> NEXT
+    PREFIX -- Yes --> VALID{Valid manifest loaded?}
+
+    VALID -- No --> FALLBACK_BYPASS{Global bypass cookie?}
+    FALLBACK_BYPASS -- Yes --> NEXT
+    FALLBACK_BYPASS -- No --> CONVENTION
+
+    VALID -- Yes --> ROOT{Root preventMock = true?}
+    ROOT -- Yes --> NEXT
+    ROOT -- No --> MATCH[Choose the most specific<br/>matching endpoint]
+    MATCH --> ENDPOINT{Matching endpoint?}
+    ENDPOINT -- Yes --> ENDPOINT_BYPASS{Endpoint preventMock = true?}
+    ENDPOINT_BYPASS -- Yes --> NEXT
+    ENDPOINT_BYPASS -- No --> ACTIVE_CONFIG{Any scenario defines active?}
+    ACTIVE_CONFIG -- Yes --> ACTIVE_TRUE{Any active = true?}
+    ACTIVE_TRUE -- No --> NEXT
+    ACTIVE_TRUE -- Yes --> FIXED[Select first active = true scenario<br/>Debug warns if several are true]
+    ENDPOINT -- No --> GLOBAL_BYPASS
+    ACTIVE_CONFIG -- No --> GLOBAL_BYPASS{Global bypass cookie?}
+
+    GLOBAL_BYPASS -- Yes --> NEXT
+    GLOBAL_BYPASS -- No --> ENDPOINT_COOKIE{Matching endpoint ID<br/>in bypass cookie?}
+    ENDPOINT_COOKIE -- Yes --> NEXT
+    ENDPOINT_COOKIE -- No --> SCENARIOS{Endpoint has scenarios?}
+    SCENARIOS -- No --> DEFAULTS[Use endpoint and root defaults]
+    SCENARIOS -- Yes --> COOKIE_ENTRY{Scenario cookie entry<br/>for endpoint?}
+    COOKIE_ENTRY -- No --> FIRST[Select first scenario]
+    COOKIE_ENTRY -- Yes --> EMPTY_SELECTION{Selected ID empty?}
+    EMPTY_SELECTION -- Yes --> DEFAULTS
+    EMPTY_SELECTION -- No --> COOKIE_MATCH{Selected scenario exists?}
+    COOKIE_MATCH -- Yes --> SELECTED[Select cookie scenario]
+    COOKIE_MATCH -- No --> FIRST
+
+    FIXED --> RESPONSE[Resolve scenario over endpoint<br/>over root defaults]
+    DEFAULTS --> RESPONSE
+    FIRST --> RESPONSE
+    SELECTED --> RESPONSE
+
+    RESPONSE --> BODYLESS{Status 204 or 304?}
+    BODYLESS -- Yes --> NO_BODY([Send status without entity body or headers])
+    BODYLESS -- No --> FILE{Explicit response file?}
+    FILE -- Yes --> SAFE_FILE{Safe relative path?}
+    SAFE_FILE -- No --> CONVENTION[Build convention candidates]
+    SAFE_FILE -- Yes --> EXPLICIT_EXISTS{Indexed file exists?}
+    EXPLICIT_EXISTS -- No --> NOT_FOUND([Mock 404; never implicit API fallback])
+    EXPLICIT_EXISTS -- Yes --> SEND[Apply delay and status; read response file]
+    FILE -- No --> CONVENTION
+    CONVENTION --> CANDIDATE{Convention candidate exists?}
+    CANDIDATE -- No --> NOT_FOUND
+    CANDIDATE -- Yes --> SEND
+    SEND --> HEAD{HEAD request?}
+    HEAD -- Yes --> HEADERS_ONLY([Send headers without body])
+    HEAD -- No --> MOCKED([Send mocked response])
+
+    class DEV,URL,MANIFEST_ROUTE,ROUTE_VALID,ROUTE_MISSING,PREFIX,VALID,ROOT,ENDPOINT,ENDPOINT_BYPASS,ACTIVE_CONFIG,ACTIVE_TRUE,FALLBACK_BYPASS,GLOBAL_BYPASS,ENDPOINT_COOKIE,SCENARIOS,COOKIE_ENTRY,EMPTY_SELECTION,COOKIE_MATCH,BODYLESS,FILE,SAFE_FILE,EXPLICIT_EXISTS,CANDIDATE,HEAD decision
+    class NEXT passthrough
+    class MANIFEST_ERROR,NOT_FOUND error
+    class MANIFEST_OK,MANIFEST_EMPTY,NO_BODY,HEADERS_ONLY,MOCKED mock`;
+---
+
+<DocsLayout
+    title="Control hierarchy"
+    description="Understand how the plugin, manifest, and proxy panel decide whether Lockxy mocks a request."
+    activePath="/control-hierarchy/"
+>
+    <article>
+        <p class="kicker">One request · one clear decision</p>
+        <h1>Manifest decisions win before browser controls.</h1>
+        <p class="lead">
+            Lockxy is built bottom up: the plugin works on its own, a manifest can add explicit project configuration,
+            and the proxy panel adds convenient browser controls. Each higher layer is optional and must never become a
+            hidden requirement for the layer below it. The <a href={`${base}/#layered-control`}>overview visualizes these
+            three layers</a>.
+        </p>
+        <Callout title="The hierarchy is intentional">
+            <p>
+                Explicit manifest control has priority over cookies. This keeps identical source-controlled configuration
+                reproducible for every developer, while the panel remains a comfort layer rather than a runtime dependency.
+            </p>
+        </Callout>
+
+        <h2 id="manifest-controls">Manifest controls</h2>
+        <h3>Pass through every request</h3>
+        <p>
+            Set root-level <code>preventMock: true</code> to prevent Lockxy from mocking any request. The plugin hands the
+            request to the next Vite middleware; a configured <code>server.proxy</code> can then forward it to an API.
+            <code>false</code> and an omitted property both leave normal resolution enabled.
+        </p>
+        <Code code={rootControl} label="mock/mock.manifest.json" />
+
+        <h3>Pass through one endpoint</h3>
+        <p>
+            Endpoint-level <code>preventMock: true</code> makes only that matching endpoint pass through. It has priority
+            over scenario configuration and browser cookies for that endpoint.
+        </p>
+        <Code code={endpointControl} label="mock/mock.manifest.json" />
+
+        <h3>Fix scenario behavior</h3>
+        <p>
+            As soon as at least one scenario contains an <code>active</code> property, the manifest controls the endpoint.
+            The first scenario with <code>active: true</code> is mocked. If all explicitly configured values are
+            <code>false</code>, Lockxy passes the request through instead. Scenario and bypass cookies are ignored for this
+            endpoint in both cases.
+        </p>
+        <Code code={scenarioControl} label="mock/mock.manifest.json" />
+
+        <h2 id="decision-flow">Decision flow</h2>
+        <p>
+            Follow the labeled Yes and No branches from top to bottom. Terminal nodes show whether the request leaves
+            Lockxy, returns manifest metadata, produces a controlled error, or sends a mocked response.
+        </p>
+        <MermaidFlowchart
+            chart={decisionFlow}
+            caption="Complete request decision flow, including manifest, cookie, file, and HTTP edge cases"
+            label="Scrollable Lockxy request decision flow"
+        />
+
+        <h2 id="behavior-matrix">Behavior matrix</h2>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Lockxy behavior matrix">
+            <table>
+                <thead>
+                    <tr><th>Configuration or state</th><th>Request result</th><th>Panel</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Root <code>preventMock: true</code></td><td>Pass through</td><td>All endpoint controls are hidden and marked as manifest-controlled.</td></tr>
+                    <tr><td>Endpoint <code>preventMock: true</code></td><td>Pass through</td><td>The endpoint is disabled and marked as manifest-controlled.</td></tr>
+                    <tr><td>At least one <code>active</code>; first <code>true</code> exists</td><td>Mock that scenario</td><td>The endpoint is disabled and marked as manifest-controlled.</td></tr>
+                    <tr><td>At least one <code>active</code>; none are <code>true</code></td><td>Pass through</td><td>The endpoint is disabled and marked as manifest-controlled.</td></tr>
+                    <tr><td>No manifest control; global bypass cookie</td><td>Pass through</td><td>The master switch reflects the browser choice.</td></tr>
+                    <tr><td>No manifest control; endpoint bypass cookie</td><td>Pass through</td><td>The endpoint switch reflects the browser choice.</td></tr>
+                    <tr><td>No manifest control; valid scenario cookie</td><td>Mock the selected scenario</td><td>The matching option is selected.</td></tr>
+                    <tr><td>No manifest control; missing or stale scenario cookie</td><td>Mock the first scenario</td><td>The first scenario is selected as the fallback.</td></tr>
+                    <tr><td>No scenarios; endpoint response configured</td><td>Use endpoint file, status, and delay</td><td>The resolved response is read-only.</td></tr>
+                    <tr><td>No matching manifest behavior</td><td>Use file conventions</td><td>No panel state is required.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 id="panel-behavior">Panel behavior</h2>
+        <p>
+            The panel communicates locked manifest decisions instead of pretending its controls can override them. With
+            root-level <code>preventMock: true</code>, the endpoint list is replaced by a manifest-controlled notice. For an
+            endpoint-level decision, that endpoint is greyed out and its secondary line becomes a danger-colored
+            <a href="#manifest-controls">Controlled by manifest</a> link to this section.
+        </p>
+        <p>
+            Existing cookies may remain stored, but they do not affect a manifest-controlled request. If the fixed setting
+            is removed later, normal cookie behavior becomes available again without making the panel necessary for the
+            plugin.
+        </p>
+
+        <h2 id="edge-cases">Edge cases</h2>
+        <ul>
+            <li>If several scenarios use <code>active: true</code>, the first one in manifest order wins. Debug mode reports the ambiguity.</li>
+            <li>An explicit <code>active: false</code> opts the endpoint into manifest control; it is not the same as omitting <code>active</code>.</li>
+            <li><code>active</code> is valid only on scenarios. The former endpoint field is rejected; use endpoint-level <code>preventMock</code> instead.</li>
+            <li>Passthrough means “continue to the next Vite middleware.” It does not send a remote request by itself.</li>
+            <li>Without an explicit passthrough decision, a missing mock file remains a mock-resolution error rather than silently calling an API.</li>
+        </ul>
+        <p>
+            See the <a href={`${base}/manifest/`}>manifest reference</a> for every field and the
+            <a href={`${base}/proxy-panel/`}>proxy panel guide</a> for cookie and persistence details.
+        </p>
+    </article>
+</DocsLayout>
+
+<style>
+    .table-scroll {
+        overflow-x: auto;
+    }
+</style>

@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-import type { MockApiRuntimeOptions, NextFunction } from '../../interface.js';
+import type { NextFunction } from '../../interface.js';
+import type { MockApiRuntimeOptions } from '../../runtimeInterface.js';
 import { findMockFile } from '../../util/findMockFile.js';
 import { getCandidatePaths } from '../../util/getCandidatePaths.js';
 import { getContentType } from '../../util/getContentType.js';

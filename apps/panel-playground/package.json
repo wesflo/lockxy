@@ -1,0 +1,27 @@
+{
+    "name": "@wesflo/lockxy-panel-playground",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite --config vite.config.mjs",
+        "build": "vite build --config vite.config.mjs",
+        "test:browser": "start-server-and-test dev http://127.0.0.1:5174 'cypress run --browser ${CYPRESS_BROWSER:-chrome} --project .'",
+        "test:browser:open": "start-server-and-test dev http://127.0.0.1:5174 'cypress open --project .'",
+        "check-types": "tsc --noEmit -p tsconfig.json && tsc -p tsconfig.test.json"
+    },
+    "dependencies": {
+        "@wesflo/local-mock-api-ui": "workspace:*",
+        "@wesflo/lockxy-panel": "workspace:*",
+        "lit": "^3.3.1"
+    },
+    "devDependencies": {
+        "@wesflo/vite-plugin-lockxy": "workspace:*",
+        "typescript": "^5.8.2",
+        "vite": "8.2.2"
+    },
+    "engines": {
+        "node": ">=24 <25",
+        "pnpm": ">=11 <12"
+    }
+}

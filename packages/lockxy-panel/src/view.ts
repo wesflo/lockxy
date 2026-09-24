@@ -1,9 +1,10 @@
 import { html } from 'lit';
+import type { MockEndpoint } from '@wesflo/local-mock-api-utils';
 
 import lockxyMarkInverse from '../../../assets/brand/lockxy-mark-inverse.svg?url';
 import lockxyWordmark from '../../../assets/brand/lockxy-wordmark-on-light.svg?url';
 import { ENDPOINTS_TAB, SETTINGS_TAB } from './constant.js';
-import type { MockEndpoint, MockProxyViewActions, MockProxyViewModel } from './interface.js';
+import type { MockProxyViewActions, MockProxyViewModel } from './interface.js';
 import type { SettingChangeDetail } from './component/Settings/interface.js';
 
 const renderContent = (model: MockProxyViewModel, actions: MockProxyViewActions) =>
@@ -17,6 +18,7 @@ const renderContent = (model: MockProxyViewModel, actions: MockProxyViewActions)
                   .endpoints=${model.endpoints}
                   .error=${model.error}
                   .loading=${model.loading}
+                  .manifestControlled=${model.manifestControlled}
                   .query=${model.query}
                   .scenarios=${model.scenarios}
                   @onProxyChange=${(event: CustomEvent<{ active: boolean }>) =>
@@ -72,7 +74,7 @@ export const renderMockProxy = (model: MockProxyViewModel, actions: MockProxyVie
         <img src=${lockxyMarkInverse} alt="" />
     </button>
 
-    <aside
+    <div
         class=${`panel ${model.open ? 'open' : ''}`}
         id="mock-proxy-panel"
         role="dialog"
@@ -115,5 +117,5 @@ export const renderMockProxy = (model: MockProxyViewModel, actions: MockProxyVie
         </nav>
 
         <div class="content">${renderContent(model, actions)}</div>
-    </aside>
+    </div>
 `;

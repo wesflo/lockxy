@@ -10,6 +10,7 @@ import {
     updateBypassCookie,
     updateScenarioCookie,
 } from '@wesflo/local-mock-api-utils';
+import type { MockEndpoint, MockManifest } from '@wesflo/local-mock-api-utils';
 import { resetStyles, wfElement } from '@wesflo/local-mock-api-ui';
 import { state } from 'lit/decorators.js';
 
@@ -19,7 +20,6 @@ import {
     PROXY_ON_LOAD_STORAGE_KEY,
     SAVE_SELECTIONS_STORAGE_KEY,
 } from './constant.js';
-import type { MockEndpoint, MockManifest } from './interface.js';
 import './component/Endpoints/element.js';
 import { MockProxyInteractionElement } from './component/MockProxyInteraction/element.js';
 import type { SettingChangeDetail } from './component/Settings/interface.js';
@@ -75,7 +75,7 @@ export class WfLockxyPanel extends MockProxyInteractionElement {
             }
 
             const manifest = (await response.json()) as MockManifest;
-            this.manifest = manifest.endpoints?.length ? manifest : undefined;
+            this.manifest = manifest.preventMock === true || manifest.endpoints?.length ? manifest : undefined;
             this.saveSelections = restorePanelSettings(localStorage, this.manifest?.id).saveSelections;
             this.sanitizeCookieState();
             if (this.saveSelections) {
@@ -133,12 +133,15 @@ export class WfLockxyPanel extends MockProxyInteractionElement {
     };
 
     private setProxyActive = (active: boolean): void => {
+        if (this.manifest?.preventMock === true) {
+            return;
+        }
         setCookieValue(BYPASS_COOKIE_NAME, active ? '' : BYPASS_ALL_VALUE);
         this.syncCookieState();
     };
 
     private setEndpointActive = (endpoint: MockEndpoint, active: boolean): void => {
-        if (!endpoint.id) {
+        if (!endpoint.id || this.manifest?.preventMock === true || this.isEndpointManifestControlled(endpoint)) {
             return;
         }
 
@@ -151,17 +154,20 @@ export class WfLockxyPanel extends MockProxyInteractionElement {
     };
 
     private setScenario = (endpoint: MockEndpoint, scenarioId: string): void => {
-        if (!endpoint.id) {
+        if (!endpoint.id || this.manifest?.preventMock === true || this.isEndpointManifestControlled(endpoint)) {
             return;
         }
 
         setCookieValue(
             SCENARIO_COOKIE_NAME,
-            updateScenarioCookie(getCookieValue(SCENARIO_COOKIE_NAME), endpoint.id, scenarioId || undefined)
+            updateScenarioCookie(getCookieValue(SCENARIO_COOKIE_NAME), endpoint.id, scenarioId)
         );
         this.syncCookieState();
         this.persistSelections([endpoint]);
     };
+
+    private isEndpointManifestControlled = (endpoint: MockEndpoint): boolean =>
+        endpoint.preventMock === true || Boolean(endpoint.scenarios?.some((scenario) => scenario.active !== undefined));
 
     private setSetting = ({ name, checked }: SettingChangeDetail): void => {
         if (name === 'proxyOnLoad') {
@@ -201,16 +207,17 @@ export class WfLockxyPanel extends MockProxyInteractionElement {
     };
 
     render = () =>
-        this.manifest
+        this.manifest || this.error
             ? renderMockProxy(
                   {
                       activeTab: this.activeTab,
                       bypass: this.bypass,
-                      canSaveSelections: Boolean(this.manifest.id),
+                      canSaveSelections: Boolean(this.manifest?.id),
                       dragging: Boolean(this.dragState),
                       endpoints: this.manifest?.endpoints ?? [],
                       error: this.error,
                       loading: this.loading,
+                      manifestControlled: this.manifest?.preventMock === true,
                       open: this.open,
                       position: this.position,
                       proxyOnLoad: this.proxyOnLoad,

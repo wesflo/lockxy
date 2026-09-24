@@ -1,0 +1,147 @@
+---
+interface Props {
+    chart: string;
+    caption: string;
+    label: string;
+}
+
+const { chart, caption, label } = Astro.props;
+---
+
+<figure class="mermaid-flowchart">
+    <figcaption>{caption}</figcaption>
+    <div class="mermaid-flowchart__scroll" role="region" aria-label={label} tabindex="0">
+        <pre data-mermaid-source hidden>{chart}</pre>
+        <div class="mermaid-flowchart__output" data-mermaid-output></div>
+    </div>
+</figure>
+
+<script>
+    import mermaid from 'mermaid';
+
+    let renderSequence = 0;
+
+    const readColor = (styles: CSSStyleDeclaration, name: string): string => styles.getPropertyValue(name).trim();
+
+    const renderFlowcharts = async (): Promise<void> => {
+        const styles = getComputedStyle(document.documentElement);
+
+        mermaid.initialize({
+            startOnLoad: false,
+            securityLevel: 'strict',
+            theme: 'base',
+            flowchart: {
+                curve: 'basis',
+                htmlLabels: true,
+                nodeSpacing: 28,
+                rankSpacing: 38,
+                useMaxWidth: false,
+            },
+            themeVariables: {
+                background: readColor(styles, '--wf-docs-surface'),
+                primaryColor: readColor(styles, '--wf-docs-surface'),
+                primaryTextColor: readColor(styles, '--wf-docs-heading'),
+                primaryBorderColor: readColor(styles, '--wf-docs-primary'),
+                secondaryColor: readColor(styles, '--wf-docs-surface-soft'),
+                secondaryTextColor: readColor(styles, '--wf-docs-heading'),
+                secondaryBorderColor: readColor(styles, '--wf-docs-line'),
+                tertiaryColor: readColor(styles, '--wf-docs-primary-soft'),
+                tertiaryTextColor: readColor(styles, '--wf-docs-heading'),
+                tertiaryBorderColor: readColor(styles, '--wf-docs-primary'),
+                lineColor: readColor(styles, '--wf-docs-muted'),
+                textColor: readColor(styles, '--wf-docs-text'),
+                edgeLabelBackground: readColor(styles, '--wf-docs-surface-soft'),
+                fontFamily: readColor(styles, 'font-family'),
+                fontSize: '15px',
+            },
+        });
+
+        for (const container of document.querySelectorAll<HTMLElement>('.mermaid-flowchart')) {
+            const source = container.querySelector<HTMLElement>('[data-mermaid-source]')?.textContent?.trim();
+            const output = container.querySelector<HTMLElement>('[data-mermaid-output]');
+            if (!source || !output) continue;
+
+            const { svg, bindFunctions } = await mermaid.render(`lockxy-flow-${renderSequence++}`, source);
+            output.innerHTML = svg;
+            bindFunctions?.(output);
+        }
+    };
+
+    await renderFlowcharts();
+
+    new MutationObserver((mutations) => {
+        if (mutations.some(({ attributeName }) => attributeName === 'data-theme')) void renderFlowcharts();
+    }).observe(document.documentElement, { attributes: true });
+</script>
+
+<style>
+    .mermaid-flowchart {
+        margin: var(--wf-gap-xl) 0;
+    }
+
+    .mermaid-flowchart figcaption {
+        margin-bottom: var(--wf-gap-m);
+        color: var(--wf-docs-heading);
+        font-weight: 700;
+    }
+
+    .mermaid-flowchart__scroll {
+        overflow-x: auto;
+        padding: var(--wf-gap-l);
+        border: 1px solid var(--wf-docs-line);
+        border-radius: 12px;
+        background: var(--wf-docs-surface-soft);
+    }
+
+    .mermaid-flowchart__output {
+        min-width: 700px;
+    }
+
+    .mermaid-flowchart__output :global(svg) {
+        display: block;
+        width: 100%;
+        height: auto;
+        margin: 0 auto;
+    }
+
+    .mermaid-flowchart__output :global(.node.decision polygon) {
+        fill: var(--wf-docs-surface) !important;
+        stroke: var(--wf-docs-primary) !important;
+        stroke-width: 2px !important;
+    }
+
+    .mermaid-flowchart__output :global(.node.passthrough rect),
+    .mermaid-flowchart__output :global(.node.passthrough path) {
+        fill: color-mix(in srgb, var(--wf-docs-callout-warning) 12%, var(--wf-docs-surface)) !important;
+        stroke: var(--wf-docs-callout-warning) !important;
+    }
+
+    .mermaid-flowchart__output :global(.node.mock rect),
+    .mermaid-flowchart__output :global(.node.mock path) {
+        fill: var(--wf-docs-primary-soft) !important;
+        stroke: var(--wf-docs-primary) !important;
+    }
+
+    .mermaid-flowchart__output :global(.node.error rect),
+    .mermaid-flowchart__output :global(.node.error path) {
+        fill: color-mix(in srgb, var(--wf-danger) 10%, var(--wf-docs-surface)) !important;
+        stroke: var(--wf-danger) !important;
+    }
+
+    .mermaid-flowchart__output :global(.edgeLabel) {
+        color: var(--wf-docs-heading) !important;
+        background: var(--wf-docs-surface-soft) !important;
+        font-weight: 700;
+    }
+
+    .mermaid-flowchart__output :global(.label),
+    .mermaid-flowchart__output :global(.nodeLabel) {
+        color: var(--wf-docs-heading) !important;
+    }
+
+    @media (max-width: 640px) {
+        .mermaid-flowchart__scroll {
+            padding: var(--wf-gap-s);
+        }
+    }
+</style>

@@ -1,6 +1,6 @@
 import { toMethodArray } from '@wesflo/local-mock-api-utils';
 
-import type { MockMethod } from '../../../interface.js';
+import type { MockMethod } from '../../../runtimeInterface.js';
 
 const toGeneratedId = (value: string): string =>
     value

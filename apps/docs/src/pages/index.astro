@@ -1,13 +1,11 @@
 ---
+import manifestIllustration from '../assets/control-hierarchy/manifest.svg';
+import panelIllustration from '../assets/control-hierarchy/panel.svg';
+import pluginIllustration from '../assets/control-hierarchy/plugin.svg';
 import Code from '../components/Code.astro';
 import DocsLayout from '../layouts/DocsLayout.astro';
 
 const install = `pnpm add -D @wesflo/vite-plugin-lockxy`;
-const fileTree = `mock/
-├── PUT_profile.json
-└── users/
-    ├── profile.json
-    └── POST_profile.json`;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
@@ -23,6 +21,51 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
             Add the plugin and place local response files below your mock directory. Requests are matched automatically
             through naming conventions—no manifest, browser panel, or application-side fetch wrapper is required.
         </p>
+
+        <section class="layer-section" aria-labelledby="layered-control">
+            <h2 id="layered-control">Start simple. Add control only when you need it.</h2>
+            <p>
+                Lockxy follows a bottom-up model that grows with your use case without complicating the basic setup. File
+                conventions form the independent foundation, a source-controlled manifest adds deterministic project
+                behavior, and the proxy panel adds local convenience. Each layer is optional and never turns the layer
+                below it into a hidden dependency.
+            </p>
+            <ol class="layer-stack">
+                <li>
+                    <img class="layer-illustration" src={pluginIllustration.src} alt="" aria-hidden="true" />
+                    <div class="layer-copy">
+                        <h3>1. Plugin</h3>
+                        <strong>Plugin with file conventions</strong>
+                        <p>
+                            Always works on its own. Matching requests resolve local response files through
+                            URL-to-filename conventions, without requiring a manifest or panel.
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <img class="layer-illustration" src={manifestIllustration.src} alt="" aria-hidden="true" />
+                    <div class="layer-copy">
+                        <h3>2. Manifest</h3>
+                        <strong>Source-controlled project configuration</strong>
+                        <p>
+                            Optionally adds explicit routes, response details, and fixed decisions. The configuration
+                            remains reproducible without browser state or a panel.
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <img class="layer-illustration" src={panelIllustration.src} alt="" aria-hidden="true" />
+                    <div class="layer-copy">
+                        <h3>3. Proxy panel</h3>
+                        <strong>Convenient browser controls</strong>
+                        <p>
+                            Optionally exposes the available choices and stores temporary browser preferences. It controls
+                            only what the manifest has not already fixed and is never required by the plugin.
+                        </p>
+                    </div>
+                </li>
+            </ol>
+        </section>
 
         <section class="value-section" aria-labelledby="why-lockxy">
             <h2 id="why-lockxy">Why teams use Lockxy</h2>
@@ -107,38 +150,80 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
             </a>
         </div>
 
-        <h2 id="plugin-first">Plugin first</h2>
-        <p>
-            The default workflow is intentionally file-based. For example, <code>GET /api/users/profile</code> resolves to
-            <code>mock/users/profile.json</code>. A <code>POST</code> request prefers <code>POST_profile.json</code> and falls
-            back to <code>profile.json</code>. In the tree below, that nested generic file also wins for <code>PUT</code>.
-            If it is absent, the root-level <code>mock/PUT_profile.json</code> can answer
-            <code>PUT /api/users/profile</code>. Directory nesting is useful for specificity, but optional.
-        </p>
-        <Code code={fileTree} label="project structure" />
-
-        <h2 id="optional-extensions">Optional extensions</h2>
-        <div class="cards">
-            <a class="card" href={`${base}/manifest/`}>
-                <strong>Manifest</strong>
-                <span>Add special behavior only where you need it: exact status codes, delayed responses, failures, or explicit files.</span>
-            </a>
-            <a class="card" href={`${base}/proxy-panel/`}>
-                <strong>Proxy panel</strong>
-                <span>Expose multiple manifest scenarios per URL and switch between them directly in the browser.</span>
-            </a>
-        </div>
-        <p>
-            Both layers are optional. Start with local files and naming conventions, then introduce a manifest or the panel
-            only when a request needs more control.
-        </p>
-
         <h2 id="how-a-request-is-resolved">How a request is resolved</h2>
-        <ol>
-            <li>The plugin checks whether the URL matches one of the configured request prefixes.</li>
-            <li>If browser bypass is enabled, the request continues unchanged to the next Vite middleware or proxy.</li>
-            <li>A matching automatic or selected scenario overrides endpoint settings; endpoint settings override root delay.</li>
-            <li>If no explicit file applies, the plugin uses method-specific and generic naming-convention candidates.</li>
-        </ol>
+        <p>
+            Lockxy first respects source-controlled manifest decisions, then optional browser choices, and finally its
+            automatic scenario and file-convention defaults. The
+            <a href={`${base}/control-hierarchy/`}>control hierarchy</a> shows the complete decision flow and behavior
+            matrix, including passthrough and manifest-controlled panel states.
+        </p>
     </article>
 </DocsLayout>
+
+<style>
+    .layer-section {
+        margin: var(--wf-gap-xl) 0;
+    }
+
+    .layer-section > h2 {
+        margin: var(--wf-gap-xl) 0 var(--wf-gap-m);
+        padding-top: var(--wf-gap-s);
+        font-size: var(--wf-font-size-xl);
+    }
+
+    .layer-section > p {
+        max-width: 760px;
+    }
+
+    .layer-stack {
+        display: grid;
+        margin: var(--wf-gap-xl) 0;
+        padding: 0;
+        gap: var(--wf-gap-m);
+        list-style: none;
+    }
+
+    .layer-stack li {
+        display: flex;
+        padding: var(--wf-gap-l);
+        gap: var(--wf-gap-l);
+        align-items: center;
+        border: 1px solid var(--wf-docs-line);
+        border-radius: 10px;
+        background: var(--wf-docs-surface);
+        box-shadow: 0 5px 18px var(--wf-docs-shadow-s);
+    }
+
+    .layer-copy {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .layer-copy h3 {
+        margin: 0 0 var(--wf-gap-xs);
+        font-size: var(--wf-font-size-xl);
+    }
+
+    .layer-copy strong {
+        display: block;
+        font-size: var(--wf-font-size-l);
+        line-height: 1.45;
+    }
+
+    .layer-stack p {
+        margin: var(--wf-gap-s) 0 0;
+    }
+
+    .layer-illustration {
+        width: clamp(7.5rem, 18vw, 8.75rem);
+        height: auto;
+        flex: 0 0 auto;
+    }
+
+    @media (max-width: 600px) {
+        .layer-stack li {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>

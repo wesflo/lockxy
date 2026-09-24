@@ -1,7 +1,8 @@
 import { Buffer } from 'node:buffer';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-import type { DynamicResponse, MockApiRuntimeOptions, MockEndpoint, ResponseHeaders } from '../../../interface.js';
+import type { DynamicResponse, ResponseHeaders } from '../../../interface.js';
+import type { MockApiRuntimeOptions, MockEndpoint } from '../../../runtimeInterface.js';
 import { logRequest } from '../../../util/logRequest.js';
 import { send } from '../../../util/send.js';
 import { createDynamicRequest } from './createDynamicRequest.js';

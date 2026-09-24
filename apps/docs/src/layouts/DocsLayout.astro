@@ -24,16 +24,18 @@ const links = [
     { href: '/manifest/', label: 'Manifest', icon: '≡' },
     { href: '/dynamic-responses/', label: 'Dynamic responses', icon: 'ƒ' },
     { href: '/proxy-panel/', label: 'Proxy panel', icon: '≋' },
+    { href: '/control-hierarchy/', label: 'Control hierarchy', icon: '⇵' },
     { href: '/playgrounds/', label: 'Playgrounds', icon: '✓' },
 ];
 const pageSections: Record<string, Array<{ href: string; label: string }>> = {
     '/': [
+        { href: '#layered-control', label: 'Layered by design' },
         { href: '#why-lockxy', label: 'Why Lockxy' },
-        { href: '#plugin-first', label: 'Plugin first' },
-        { href: '#optional-extensions', label: 'Optional extensions' },
         { href: '#how-a-request-is-resolved', label: 'Request resolution' },
     ],
     '/getting-started/': [
+        { href: '#plugin-first', label: 'Plugin first' },
+        { href: '#optional-extensions', label: 'Optional extensions' },
         { href: '#1-add-the-vite-plugin', label: 'Add the plugin' },
         { href: '#2-add-a-mock-file', label: 'Add a mock file' },
         { href: '#3-start-vite', label: 'Start Vite' },
@@ -73,11 +75,18 @@ const pageSections: Record<string, Array<{ href: string; label: string }>> = {
         { href: '#bypass-cookie', label: 'Bypass cookie' },
         { href: '#scenario-cookie', label: 'Scenario cookie' },
     ],
+    '/control-hierarchy/': [
+        { href: '#manifest-controls', label: 'Manifest controls' },
+        { href: '#decision-flow', label: 'Decision flow' },
+        { href: '#behavior-matrix', label: 'Behavior matrix' },
+        { href: '#panel-behavior', label: 'Panel behavior' },
+        { href: '#edge-cases', label: 'Edge cases' },
+    ],
     '/playgrounds/': [
         { href: '#checkout-and-start', label: 'Checkout and start' },
         { href: '#plugin-demo', label: 'Plugin demo' },
-        { href: '#demo-modes', label: 'Demo modes' },
-        { href: '#proxy-playground', label: 'Proxy playground' },
+        { href: '#plugin-demo-modes', label: 'Plugin demo modes' },
+        { href: '#panel-playground', label: 'Panel playground' },
         { href: '#what-to-run', label: 'What to run' },
         { href: '#repository-map', label: 'Repository map' },
         { href: '#automated-checks', label: 'Automated checks' },
